@@ -6,7 +6,7 @@ import { Play, Star, Sparkles } from "lucide-react";
 // Debe estar alojado en tu proyecto. 
 // Recomendación: Usa la carpeta public y pásalo como string directo, 
 // no necesitas "importar" el archivo en Next.js para etiquetas de video.
-const HERO_VIDEO = "/videos/Tiktok1"; 
+const HERO_VIDEO = "/videos/Tiktok1.mp4"; 
 
 export default function BoutiqueReels() {
   return (
