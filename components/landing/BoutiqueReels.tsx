@@ -1,12 +1,25 @@
 "use client";
 import { motion } from "framer-motion";
 import { Play, Star, Sparkles } from "lucide-react";
+import { useEffect, useRef } from "react"; // 👈 Importamos los hooks mágicos
 
 // 🎬 1. IMPORTA AQUÍ TU VIDEO MP4
-// Debe estar alojado en la carpeta public de tu proyecto.
 const HERO_VIDEO = "/videos/Tiktok1.mp4"; 
 
 export default function BoutiqueReels() {
+  // 🛡️ Referencia directa al elemento de video
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // 🛡️ Forzamos el Play cuando la página carga para vencer los bloqueos de los navegadores
+  useEffect(() => {
+    if (videoRef.current) {
+      // Intentamos reproducir el video de forma silenciosa
+      videoRef.current.play().catch((error) => {
+        console.warn("El navegador pausó el autoplay. Esperando interacción.", error);
+      });
+    }
+  }, []);
+
   return (
     <section className="relative py-24 overflow-hidden bg-[#FFFDFE] z-10" id="reels">
       
@@ -87,12 +100,13 @@ export default function BoutiqueReels() {
             className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[3rem] md:rounded-[4rem] border-[6px] md:border-[8px] border-white shadow-[0_20px_50px_-10px_rgba(232,93,158,0.3)] flex items-center justify-center z-20 overflow-hidden"
           >
              
-             {/* ETIQUETA DE VIDEO LOCAL BLINDADA PARA IOS/SAFARI */}
+             {/* ETIQUETA DE VIDEO LOCAL CON REFERENCIA PARA FORZAR PLAY */}
              <video 
+               ref={videoRef} // 👈 Conectamos el video al código de arriba
                autoPlay
                loop
-               muted // Obligatorio para que autoplay funcione en navegadores
-               playsInline // Obligatorio para iOS
+               muted 
+               playsInline 
                preload="auto"
                className="w-full h-full object-cover scale-[1.02]"
              >
@@ -114,7 +128,7 @@ export default function BoutiqueReels() {
 
           </motion.div>
 
-          {/* Chispas flotantes decorativas animadas (EFECTO HERO) */}
+          {/* Chispas flotantes decorativas animadas */}
           <motion.div animate={{ rotate: 180, scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-1/4 -left-10 md:-left-16 z-30">
              <Star className="w-8 h-8 md:w-10 md:h-10 text-[#FFA8C5] fill-[#FFA8C5] opacity-80" />
           </motion.div>
