@@ -4,16 +4,13 @@ import { Star, MessageCircle } from "lucide-react";
 import Image from "next/image";
 
 // 📸 1. IMPORTA AQUÍ TUS PANTALLAZOS DESDE ASSETS
-// Ajusta la ruta dependiendo de dónde guardes este componente. 
-// Usualmente es "@/app/assets/..." o "../../app/assets/..."
-import chat1 from "@/app/assets/Testimony1.webp"; // Reemplaza con tus nombres reales (ej: review-maria.jpg)
+import chat1 from "@/app/assets/Testimony1.webp"; 
 import chat2 from "@/app/assets/Testimony2.webp";
 import chat3 from "@/app/assets/Testimony3.webp";
 import chat4 from "@/app/assets/Testimony4.webp";
 import chat5 from "@/app/assets/Testimony5.webp";
 
 // 2. ASIGNA LAS IMÁGENES IMPORTADAS AL ARRAY
-// Nota: Pásalas sin comillas porque ahora son variables de Next.js
 const REVIEWS = [
   { id: 1, image: chat1 },
   { id: 2, image: chat2 },
@@ -73,39 +70,39 @@ export default function CustomerReviews() {
         <motion.div 
           animate={{ x: ["0%", "-50%"] }}
           transition={{ ease: "linear", duration: 30, repeat: Infinity }}
-          className="flex gap-8 md:gap-16 px-4 py-10"
+          className="flex gap-10 md:gap-16 px-4 py-10"
         >
           {duplicatedReviews.map((review, index) => (
-            <div key={`${review.id}-${index}`} className="relative w-64 h-[450px] md:w-72 md:h-[500px] shrink-0 flex items-center justify-center">
+            <div key={`${review.id}-${index}`} className="relative w-[280px] h-[280px] md:w-[360px] md:h-[360px] shrink-0 flex items-center justify-center">
               
               {/* Anillo punteado exterior */}
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-15px] md:inset-[-20px] rounded-[3rem] border border-dashed border-[#FAD1E6] opacity-60 pointer-events-none"
+                className="absolute inset-[-15px] md:inset-[-20px] rounded-[3rem] md:rounded-[3.5rem] border border-dashed border-[#FAD1E6] opacity-60 pointer-events-none"
               />
               
               {/* Anillo sólido interior con lucecita */}
               <motion.div 
                 animate={{ rotate: -360 }}
                 transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-[-25px] md:inset-[-30px] rounded-[3rem] border border-[#FAD1E6]/40 pointer-events-none"
+                className="absolute inset-[-25px] md:inset-[-30px] rounded-[3rem] md:rounded-[3.5rem] border border-[#FAD1E6]/40 pointer-events-none"
               >
-                <div className="absolute top-10 right-0 w-2 h-2 bg-[#E85D9E] rounded-full shadow-[0_0_10px_#E85D9E]" />
+                <div className="absolute top-8 right-0 w-2 h-2 bg-[#E85D9E] rounded-full shadow-[0_0_10px_#E85D9E]" />
               </motion.div>
 
-              {/* Contenedor del Pantallazo */}
+              {/* Contenedor del Pantallazo (Proporción Cuadrada) */}
               <motion.div
                 animate={{ y: [-10, 10, -10] }} 
                 transition={{ duration: 5 + (index % 3), repeat: Infinity, ease: "easeInOut" }}
-                className="relative w-full h-full bg-white/40 backdrop-blur-xl rounded-[2.5rem] border-[4px] border-white shadow-[0_20px_40px_-10px_rgba(232,93,158,0.2)] overflow-hidden group"
+                className="relative w-full h-full bg-white/40 backdrop-blur-xl rounded-[2.5rem] md:rounded-[3rem] border-[4px] border-white shadow-[0_20px_40px_-10px_rgba(232,93,158,0.2)] overflow-hidden group"
               >
                 {/* Imagen del pantallazo local */}
                 <Image 
                   src={review.image} 
                   alt="Review de cliente" 
                   fill
-                  placeholder="blur" // 🪄 Efecto pro: muestra un borroso sutil mientras carga la foto local
+                  placeholder="blur" 
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 
@@ -113,13 +110,13 @@ export default function CustomerReviews() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/30 via-transparent to-transparent pointer-events-none" />
 
                 {/* Decoración flotante sobre la imagen */}
-                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-3 rounded-2xl flex items-center justify-between border border-white/50 shadow-lg pointer-events-none">
+                <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-3 md:p-4 rounded-2xl flex items-center justify-between border border-white/50 shadow-lg pointer-events-none">
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <Star key={star} className="w-3.5 h-3.5 text-[#FFA8C5] fill-[#FFA8C5]" />
+                      <Star key={star} className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#FFA8C5] fill-[#FFA8C5]" />
                     ))}
                   </div>
-                  <MessageCircle className="w-5 h-5 text-[#E85D9E]" />
+                  <MessageCircle className="w-5 h-5 md:w-6 md:h-6 text-[#E85D9E]" />
                 </div>
               </motion.div>
 
