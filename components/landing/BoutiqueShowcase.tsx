@@ -285,40 +285,24 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </AnimatePresence>
       </div>
 
-      {/* BOTÓN ULTRA PREMIUM PARA VER EL CATÁLOGO COMPLETO */}
-      <div className="mt-24 flex justify-center relative">
-        <motion.div 
-          className="absolute inset-0 bg-[#E85D9E] rounded-full blur-[50px] opacity-20 pointer-events-none mx-auto w-72 h-24"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.3, 0.15] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
+      {/* --- BOTÓN REDISEÑADO: EXPLORAR CATÁLOGO --- */}
+      <div className="mt-20 flex justify-center">
         <button 
           onClick={() => setCatalogOpen(true)}
-          className="relative group p-[2px] rounded-full overflow-hidden shadow-2xl shadow-[#E85D9E]/10 hover:shadow-[#E85D9E]/30 transition-all duration-500 active:scale-95"
+          className="group relative px-8 md:px-12 py-4 md:py-5 bg-[#E85D9E] text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:bg-[#D14D8B] hover:shadow-[0_10px_30px_-5px_rgba(232,93,158,0.5)] active:scale-95 cursor-pointer flex items-center gap-3"
         >
-          {/* Borde animado brillante */}
+          {/* Brillo dinámico que pasa por encima del botón */}
           <motion.div 
-             className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0_340deg,#E85D9E_360deg)] opacity-80"
-             animate={{ rotate: 360 }}
-             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            animate={{ x: ["-100%", "200%"] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+            className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 pointer-events-none"
           />
           
-          <div className="relative flex items-center gap-6 bg-white/95 backdrop-blur-xl px-10 py-5 rounded-full transition-all group-hover:bg-white/90">
-             
-             <div className="flex flex-col text-left relative z-10">
-                <span className="text-[10px] text-[#E85D9E] font-bold uppercase tracking-widest mb-1 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" /> Ver más magia
-                </span>
-                <span className="text-[#33182B] text-lg font-display font-bold tracking-wide">
-                  Explorar Catálogo Completo
-                </span>
-             </div>
-             
-             <div className="w-12 h-12 rounded-full bg-[#FAD1E6]/50 text-[#E85D9E] flex items-center justify-center relative z-10 group-hover:translate-x-2 group-hover:bg-[#E85D9E] group-hover:text-white group-hover:shadow-[0_0_20px_rgba(232,93,158,0.4)] transition-all duration-300">
-               <ArrowRight className="w-5 h-5" />
-             </div>
-          </div>
+          <Sparkles className="w-5 h-5 text-pink-200 relative z-10" />
+          <span className="relative z-10 text-base md:text-lg font-display tracking-wide">
+            Ver Todo el Catálogo
+          </span>
+          <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform relative z-10" />
         </button>
       </div>
 
