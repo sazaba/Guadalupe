@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  /* 1. TIPOGRAFÍA */
-  --font-display: var(--font-poppins), sans-serif;
+  /* 1. TIPOGRAFÍA (Asegúrate de importar Quicksand en tu layout.tsx luego) */
+  --font-display: var(--font-quicksand, var(--font-poppins)), sans-serif;
   --font-sans: var(--font-inter), sans-serif;
   --font-mono: monospace;
 
-  /* 2. COLORES DE MARCA (Fijos) */
-  --color-brand-dark: #030014;
-  --color-brand-light: #F8FAFC;
-  --color-brand-primary: #00C9FF;
-  --color-brand-secondary: #92FE9D;
+  /* 2. COLORES DE MARCA (Boutique Infantil - Palo de Rosa) */
+  --color-brand-dark: #4A154B; /* Un ciruela oscuro en vez de negro puro */
+  --color-brand-light: #FFF5F8; /* Un blanco con un ligerísimo toque rosa */
+  --color-brand-primary: #E85D9E; /* Rosa principal vibrante (tipo el del logo) */
+  --color-brand-secondary: #FAD1E6; /* Rosa pastel suave */
 
   /* 3. EL PUENTE MÁGICO */
   --color-page: var(--bg-page);
@@ -29,23 +29,23 @@
 /* Capa base */
 @layer base {
   :root {
-    /* MODO CLARO (Default) */
-    --bg-page: #ffffff; 
-    --text-main: #0f172a;
-    --text-muted: #475569;
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --accent-glow: rgba(0, 201, 255, 0.15);
+    /* MODO CLARO (Default - Ideal para ropa de niños) */
+    --bg-page: #FFFDFE; /* Blanco perlado */
+    --text-main: #33182B; /* Gris oscuro con tinte rosa/morado */
+    --text-muted: #7B5C73; /* Gris suave */
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(232, 93, 158, 0.15); /* Borde rosa sutil */
+    --accent-glow: rgba(232, 93, 158, 0.15); /* Resplandor rosa */
   }
 
   [data-theme="dark"] {
-    /* MODO OSCURO */
-    --bg-page: #030014;
-    --text-main: #ffffff;
-    --text-muted: #94a3b8;
-    --glass-bg: rgba(255, 255, 255, 0.03);
+    /* MODO OSCURO (Ajustado para no ser negro total, sino un tono vino/ciruela oscuro) */
+    --bg-page: #200B1A;
+    --text-main: #FFF5F8;
+    --text-muted: #D3A4C2;
+    --glass-bg: rgba(255, 255, 255, 0.04);
     --glass-border: rgba(255, 255, 255, 0.08);
-    --accent-glow: rgba(0, 201, 255, 0.3);
+    --accent-glow: rgba(232, 93, 158, 0.25);
   }
 
   body {
@@ -61,6 +61,7 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     color: var(--text-main);
+    font-weight: 600;
   }
 
   html {
@@ -70,11 +71,12 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-glass-bg border border-glass-border backdrop-blur-xl shadow-sm;
+    @apply bg-glass-bg border border-glass-border backdrop-blur-xl shadow-sm rounded-2xl;
   }
 
   .text-gradient-hero {
-    background: linear-gradient(to right, #00C9FF 0%, #92FE9D 50%, #00C9FF 100%);
+    /* Degradado de palo de rosa a un rosa más encendido */
+    background: linear-gradient(to right, #E85D9E 0%, #FFA8C5 50%, #E85D9E 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -89,12 +91,17 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  50% { transform: translateY(-15px); }
 }
 
 /* --- LOGICA NUEVA PARA OCULTAR BOTÓN DE TEMA --- */
-/* Cuando el StickyPurchase está activo (clase en body), bajamos el botón fuera de pantalla */
 body.sticky-active #theme-toggle-btn {
   transform: translateY(200%);
   pointer-events: none;
+}
+
+/* Personalización de la selección de texto (al resaltar con el mouse) */
+::selection {
+  background-color: rgba(232, 93, 158, 0.2);
+  color: #E85D9E;
 }
