@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Quicksand, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-import ThemeProvider from "@/components/landing/ThemeProvider"; 
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext"; 
 import CartDrawer from "@/components/cart/CartDrawer"; 
@@ -38,15 +37,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning className={`${quicksand.variable} ${inter.variable} ${jetbrains.variable}`}>
-      <body suppressHydrationWarning className="antialiased bg-[var(--bg-page)] text-[var(--text-main)] selection:bg-pink-200 selection:text-pink-900 dark:selection:bg-pink-500/30 dark:selection:text-pink-200">
-        <ThemeProvider>
+      <body suppressHydrationWarning className="antialiased bg-[#FFFDFE] text-[#33182B] selection:bg-pink-200 selection:text-pink-900">
           <AuthProvider>
             <CartProvider>
               <CartDrawer />
               {children}
             </CartProvider>
           </AuthProvider>
-        </ThemeProvider>
       </body>
     </html>
   );
