@@ -14,7 +14,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
-  const [currentLang, setCurrentLang] = useState('en');
+  const [currentLang, setCurrentLang] = useState('es'); // Lo pasé a 'es' por defecto visualmente
   
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
@@ -28,10 +28,10 @@ export default function Navbar() {
 
       const localTranslate = window.localStorage.getItem('googtrans');
 
-      if ((cookieValue && cookieValue.includes('es')) || (localTranslate && localTranslate.includes('es'))) {
-        setCurrentLang('es');
-      } else {
+      if ((cookieValue && cookieValue.includes('en')) || (localTranslate && localTranslate.includes('en'))) {
         setCurrentLang('en');
+      } else {
+        setCurrentLang('es');
       }
     }
   }, []);
@@ -57,7 +57,7 @@ export default function Navbar() {
       document.documentElement.classList.remove('translating');
       document.documentElement.classList.remove('translated-ltr');
     } else {
-      const translateValue = `/en/${langCode}`;
+      const translateValue = `/es/${langCode}`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=${host};`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=.${host};`;
       document.cookie = `googtrans=${translateValue}; path=/; domain=${rootDomain};`;
@@ -116,11 +116,12 @@ export default function Navbar() {
     }
   };
 
+  // Nombres adaptados a la boutique, manteniendo las rutas del boilerplate
   const navLinks = [
-    { name: "Catalog", href: "/#catalog" },
-    { name: "Verify Batch", href: "/#verification" },
-    { name: "Calculator", href: "/#calculator" },
-    { name: "Science", href: "/#science" },
+    { name: "Catálogo", href: "/#catalog" },
+    { name: "Novedades", href: "/#verification" },
+    { name: "Tallas", href: "/#calculator" },
+    { name: "Nosotros", href: "/#science" },
     { name: "FAQ", href: "/#faq" },
   ];
 
@@ -145,7 +146,7 @@ export default function Navbar() {
             >
                 <Image 
                     src={logo} 
-                    alt="Logo" 
+                    alt="Logo Guadalupe" 
                     fill 
                     className="object-contain"
                     priority
@@ -155,13 +156,14 @@ export default function Navbar() {
             <div className={`hidden md:block h-8 w-[1px] bg-[var(--text-muted)] opacity-20`} />
 
             <Link href="/" className="flex flex-col justify-center cursor-pointer group">
-                <span className="font-display font-black text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors group-hover:text-[var(--color-brand-primary)]">
-                    TRANSCENDENT
+                <span className="font-display font-bold text-lg md:text-xl leading-none tracking-tight text-[var(--text-main)] mb-1.5 transition-colors group-hover:text-[var(--color-brand-primary)]">
+                    GUADALUPE
                 </span>
                 
-                <div className="flex items-center justify-center px-3 py-0.5 rounded-full bg-black dark:bg-emerald-500/10 border border-transparent dark:border-emerald-500/20 w-fit shadow-sm">
-                    <span className="font-mono text-[9px] md:text-[10px] uppercase font-bold text-[#4ADE80] tracking-[0.15em] leading-none">
-                        Labs & Research
+                {/* Cambiado el estilo "hacker" por uno de boutique */}
+                <div className="flex items-center justify-center px-3 py-0.5 rounded-full bg-pink-100 dark:bg-pink-500/10 border border-pink-200 dark:border-pink-500/20 w-fit shadow-sm">
+                    <span className="font-sans text-[9px] md:text-[10px] uppercase font-bold text-pink-600 dark:text-pink-400 tracking-[0.15em] leading-none">
+                        Boutique Infantil
                     </span>
                 </div>
             </Link>
@@ -176,6 +178,7 @@ export default function Navbar() {
               className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors py-2 relative group cursor-pointer" 
             >
               {link.name}
+              {/* La línea animada inferior ahora usa el color primario (rosa) definido en globals */}
               <span className="absolute bottom-0 left-0 w-0 h-[1.5px] bg-[var(--color-brand-primary)] transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
@@ -184,42 +187,43 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:gap-3">
           <div className="hidden md:flex items-center gap-2">
               
+              {/* Botón de idioma modificado a tonos rosa/palo de rosa */}
               <div 
                 className={`relative flex items-center bg-[var(--text-muted)]/10 p-1 mr-2 rounded-full cursor-pointer notranslate border border-[var(--glass-border)] shadow-inner w-[90px] h-[30px] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
-                onClick={() => mounted && changeLanguage(currentLang === 'en' ? 'es' : 'en')}
+                onClick={() => mounted && changeLanguage(currentLang === 'es' ? 'en' : 'es')}
               >
                 {mounted && (
                   <>
                     <motion.div
-                      className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full shadow-md"
+                      className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-pink-400 to-pink-500 rounded-full shadow-md"
                       initial={false}
                       animate={{
-                        left: currentLang === 'en' ? '4px' : 'calc(50% + 0px)',
+                        left: currentLang === 'es' ? '4px' : 'calc(50% + 0px)',
                       }}
                       transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     />
                     
-                    <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                      <span>🇺🇸</span> EN
-                    </span>
                     <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'es' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
                       <span>🇪🇸</span> ES
+                    </span>
+                    <span className={`relative z-10 w-1/2 text-center text-[10px] font-bold flex items-center justify-center gap-1 transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                      <span>🇺🇸</span> EN
                     </span>
                   </>
                 )}
               </div>
 
-              <button className="p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors cursor-pointer">
+              <button className="p-2 text-[var(--text-main)] hover:bg-pink-100 dark:hover:bg-pink-500/10 rounded-full transition-colors cursor-pointer">
                  <Search className="w-5 h-5" />
               </button>
               
               <button 
                 onClick={toggleCart} 
-                className="relative p-2 text-[var(--text-main)] hover:bg-[var(--text-muted)]/10 rounded-full transition-colors group cursor-pointer"
+                className="relative p-2 text-[var(--text-main)] hover:bg-pink-100 dark:hover:bg-pink-500/10 rounded-full transition-colors group cursor-pointer"
               >
                  <ShoppingCart className="w-5 h-5 group-hover:text-[var(--color-brand-primary)] transition-colors" />
                  {cartCount > 0 && (
-                    <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-[var(--bg-page)] animate-bounce">
+                    <span className="absolute top-1 right-1 w-4 h-4 bg-pink-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-[var(--bg-page)] animate-bounce">
                         {cartCount}
                     </span>
                  )}
@@ -250,30 +254,30 @@ export default function Navbar() {
               
               <div className="flex items-center justify-between p-4 bg-[var(--text-muted)]/5 rounded-xl border border-[var(--glass-border)] mb-2 notranslate">
                 <div className="flex items-center gap-2 text-[var(--text-main)]">
-                  <Globe className="w-5 h-5" />
-                  <span className="font-bold text-sm">Language</span>
+                  <Globe className="w-5 h-5 text-pink-500" />
+                  <span className="font-bold text-sm">Idioma</span>
                 </div>
                 
                 <div 
                   className={`relative flex items-center bg-[var(--bg-page)] p-1 rounded-lg border border-[var(--glass-border)] cursor-pointer w-[140px] h-[36px] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
-                  onClick={() => mounted && changeLanguage(currentLang === 'en' ? 'es' : 'en')}
+                  onClick={() => mounted && changeLanguage(currentLang === 'es' ? 'en' : 'es')}
                 >
                   {mounted && (
                     <>
                       <motion.div
-                        className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-md shadow-sm"
+                        className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-gradient-to-r from-pink-400 to-pink-500 rounded-md shadow-sm"
                         initial={false}
                         animate={{
-                          left: currentLang === 'en' ? '4px' : 'calc(50% + 0px)',
+                          left: currentLang === 'es' ? '4px' : 'calc(50% + 0px)',
                         }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                       />
                       
-                      <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
-                        🇺🇸 EN
-                      </span>
                       <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'es' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
                         🇪🇸 ES
+                      </span>
+                      <span className={`relative z-10 w-1/2 text-center text-xs font-bold transition-colors duration-300 ${currentLang === 'en' ? 'text-white' : 'text-[var(--text-muted)]'}`}>
+                        🇺🇸 EN
                       </span>
                     </>
                   )}
@@ -292,8 +296,8 @@ export default function Navbar() {
               ))}
               
               <div className="flex items-center gap-4 mt-4 pt-6 border-t border-[var(--glass-border)]">
-                 <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 rounded-lg text-[var(--text-main)] font-bold text-sm active:bg-[var(--text-muted)]/20">
-                    <Search className="w-5 h-5" /> Search
+                 <button className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-muted)]/10 hover:bg-pink-100 dark:hover:bg-pink-500/10 rounded-lg text-[var(--text-main)] font-bold text-sm active:bg-[var(--text-muted)]/20 transition-colors">
+                    <Search className="w-5 h-5" /> Buscar
                  </button>
                  
                  <button 
@@ -301,10 +305,10 @@ export default function Navbar() {
                         setMobileOpen(false);
                         toggleCart();
                     }}
-                    className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--text-main)] text-[var(--bg-page)] rounded-lg font-bold text-sm active:scale-95 transition-transform relative"
+                    className="flex-1 py-4 flex items-center justify-center gap-2 bg-[var(--color-brand-primary)] hover:bg-pink-600 text-white rounded-lg font-bold text-sm active:scale-95 transition-transform relative shadow-md shadow-pink-500/20"
                  >
-                    <ShoppingCart className="w-5 h-5" /> Cart 
-                    {cartCount > 0 && <span className="ml-1 opacity-80">({cartCount})</span>}
+                    <ShoppingCart className="w-5 h-5" /> Carrito 
+                    {cartCount > 0 && <span className="ml-1 opacity-90">({cartCount})</span>}
                  </button>
               </div>
             </div>
