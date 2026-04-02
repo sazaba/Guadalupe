@@ -6,12 +6,12 @@ import { Heart, Sparkles, Instagram } from "lucide-react";
 // 📸 AQUÍ IMPORTAS TUS FOTOS MANUALMENTE (Asegúrate de que la ruta sea correcta)
 // Ejemplo: import foto1 from "@/app/assets/galeria-1.jpg";
 // Por ahora usaré strings vacíos o placeholders para que no te dé error antes de subirlas.
-import img1 from "@/app/assets/gallery1.webp"; // Cambia el nombre al archivo real
-import img2 from "@/app/assets/gallery2.webp";
-import img3 from "@/app/assets/gallery3.webp";
-import img4 from "@/app/assets/gallery4.webp";
-import img5 from "@/app/assets/gallery5.webp";
-import img6 from "@/app/assets/gallery6.webp";
+import img1 from "@/app/assets/PG1.webp"; // Cambia el nombre al archivo real
+import img2 from "@/app/assets/PG2.webp";
+import img3 from "@/app/assets/PG3.webp";
+import img4 from "@/app/assets/PG4.webp";
+import img5 from "@/app/assets/PG5.webp";
+import img6 from "@/app/assets/PG6.webp";
 
 // Agrega tus variables de imágenes al array
 const GALLERY_IMAGES = [img1, img2, img3, img4, img5, img6];
