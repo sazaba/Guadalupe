@@ -21,42 +21,52 @@ interface Product {
   isFeatured?: boolean; 
 }
 
-// Categorías adaptadas a tu boutique
-const CATEGORIES = ["Todos", "Vestidos", "Conjuntos", "Accesorios", "Zapatos"];
+// 1. NUEVOS TAGS CATEGORÍAS (Actualizados según tu petición)
+const CATEGORIES = ["Todos", "Nueva Coleccion", "Vestidos", "Accesorios", "Zapatos", "Sport"];
 const CATEGORY_MAP: Record<string, string> = {
+  "Nueva Coleccion": "nueva coleccion",
   "Vestidos": "vestidos",
-  "Conjuntos": "conjuntos",
   "Accesorios": "accesorios",
-  "Zapatos": "zapatos"
+  "Zapatos": "zapatos",
+  "Sport": "sport"
 };
 
-// Componente visual de la imagen rediseñado
+// 2. EFECTO HERO REPLICADO EN LOS PRODUCTOS
 const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: string, isOOS: boolean }) => {
   return (
-    <div className="relative w-48 h-64 mx-auto flex items-center justify-center transform-gpu">
-      {/* Fondo resplandeciente mágico */}
+    <div className="relative w-40 h-48 md:w-44 md:h-56 mx-auto flex items-center justify-center mt-6 mb-8 transform-gpu">
+      
+      {/* Anillos rotatorios decorativos (El "algo que las rodea" del Hero) */}
       <motion.div 
-        className="absolute inset-0 z-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-[-12px] md:inset-[-15px] rounded-full border border-dashed border-[#FAD1E6] opacity-60 pointer-events-none"
+      />
+      <motion.div 
+        animate={{ rotate: -360 }}
+        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-[-20px] md:inset-[-25px] rounded-full border border-[#FAD1E6]/30 pointer-events-none"
       >
-         <div className="w-40 h-40 bg-gradient-to-tr from-[#FAD1E6] to-[#FFA8C5] rounded-full blur-[40px] opacity-40" />
+        <div className="absolute top-2 right-4 w-1.5 h-1.5 bg-[#E85D9E] rounded-full shadow-[0_0_8px_#E85D9E]" />
       </motion.div>
 
-      {/* Imagen del producto flotante */}
+      {/* Contenedor de la imagen: Bordes muy redondos, borde blanco y sombra */}
       <motion.div
-        className="relative z-10 w-36 h-48 transform-gpu transition-transform duration-500 group-hover:scale-110"
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ y: [-6, 6, -6] }} // Animación flotante suave
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2rem] border-[3px] border-white shadow-[0_15px_30px_-8px_rgba(232,93,158,0.25)] flex items-center justify-center z-20 overflow-hidden group-hover:border-[#FAD1E6]/80 transition-colors duration-500"
       >
         <Image 
           src={image} 
           alt={name} 
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
-          className={`object-contain drop-shadow-[0_15px_25px_rgba(232,93,158,0.2)] transition-all duration-500 ${isOOS ? "grayscale opacity-50" : ""}`}
+          // object-cover y scale-105 replicado del hero
+          className={`object-cover scale-105 group-hover:scale-110 transition-transform duration-700 ${isOOS ? "grayscale opacity-50" : ""}`}
           priority={true}
         />
-        {/* Sombra en el piso */}
-        <div className="absolute -bottom-6 left-0 right-0 h-4 bg-black/5 blur-md rounded-full scale-x-75 group-hover:scale-x-90 group-hover:bg-[#E85D9E]/10 transition-all duration-500" />
+        {/* Filtro suave sobre la imagen replicado del Hero */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 to-transparent pointer-events-none" />
       </motion.div>
     </div>
   );
@@ -147,7 +157,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
             viewport={{ once: true }}
             className="text-4xl md:text-6xl font-display font-bold text-[#33182B] mb-4"
           >
-            Nueva <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5]">Colección</span>
+            Nuestros <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5]">Favoritos</span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -160,17 +170,18 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </motion.p>
         </div>
 
+        {/* --- TAGS ACTUALIZADOS --- */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="flex flex-wrap gap-2"
+          className="flex flex-wrap gap-2 md:justify-end"
         >
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider uppercase border transition-all duration-300 active:scale-95 ${
+              className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider capitalize border transition-all duration-300 active:scale-95 ${
                 activeCategory === cat
                   ? "bg-[#E85D9E] text-white border-[#E85D9E] shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)]" 
                   : "bg-white text-[#7B5C73] border-[#FAD1E6] hover:border-[#E85D9E] hover:text-[#E85D9E]"
@@ -209,8 +220,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                       </span>
                     )}
 
-                    {/* Imagen */}
-                    <div className="relative z-10 w-full mb-4 mt-4">
+                    {/* Imagen con el nuevo Wrapper estilo Hero */}
+                    <div className="relative z-10 w-full mb-2 mt-2">
                         <BoutiqueImageWrapper image={product.images} name={product.name} isOOS={isOOS} />
                     </div>
 
@@ -220,7 +231,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                           {product.name}
                         </h3>
                         
-                        {/* Se reemplazó la pureza clínica por un indicador de diseño */}
                         <p className="text-xs text-[#7B5C73] font-medium mb-6 flex items-center justify-center gap-1.5">
                             <Crown className="w-3.5 h-3.5 text-[#FFA8C5]" /> Diseño Exclusivo
                         </p>
@@ -285,13 +295,11 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </AnimatePresence>
       </div>
 
-      {/* --- BOTÓN REDISEÑADO: EXPLORAR CATÁLOGO --- */}
       <div className="mt-20 flex justify-center">
         <button 
           onClick={() => setCatalogOpen(true)}
           className="group relative px-8 md:px-12 py-4 md:py-5 bg-[#E85D9E] text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:bg-[#D14D8B] hover:shadow-[0_10px_30px_-5px_rgba(232,93,158,0.5)] active:scale-95 cursor-pointer flex items-center gap-3"
         >
-          {/* Brillo dinámico que pasa por encima del botón */}
           <motion.div 
             animate={{ x: ["-100%", "200%"] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
