@@ -3,9 +3,7 @@ import { motion } from "framer-motion";
 import { Play, Star, Sparkles } from "lucide-react";
 
 // 🎬 1. IMPORTA AQUÍ TU VIDEO MP4
-// Debe estar alojado en tu proyecto. 
-// Recomendación: Usa la carpeta public y pásalo como string directo, 
-// no necesitas "importar" el archivo en Next.js para etiquetas de video.
+// Debe estar alojado en la carpeta public de tu proyecto.
 const HERO_VIDEO = "/videos/Tiktok1.mp4"; 
 
 export default function BoutiqueReels() {
@@ -89,15 +87,17 @@ export default function BoutiqueReels() {
             className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[3rem] md:rounded-[4rem] border-[6px] md:border-[8px] border-white shadow-[0_20px_50px_-10px_rgba(232,93,158,0.3)] flex items-center justify-center z-20 overflow-hidden"
           >
              
-             {/* ETIQUETA DE VIDEO LOCAL */}
+             {/* ETIQUETA DE VIDEO LOCAL BLINDADA PARA IOS/SAFARI */}
              <video 
-               src={HERO_VIDEO}
                autoPlay
                loop
                muted // Obligatorio para que autoplay funcione en navegadores
                playsInline // Obligatorio para iOS
+               preload="auto"
                className="w-full h-full object-cover scale-[1.02]"
-             />
+             >
+               <source src={HERO_VIDEO} type="video/mp4" />
+             </video>
              
              {/* Filtro suave sobre el video para hacerla más premium */}
              <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/40 via-transparent to-transparent pointer-events-none" />
