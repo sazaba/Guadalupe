@@ -11,8 +11,9 @@ import HeroBoutique from "@/components/landing/HeroModern";
 import TrustTicker from "@/components/landing/TrustTicker";
 import BoutiqueFeaturesGrid from "@/components/landing/BoutiqueFeaturesGrid";
 import BoutiqueShowcase from "@/components/landing/BoutiqueShowcase";
-import PrincessGallery from "@/components/landing/PrincessGallery"; // 
-import SizeGuide from "@/components/landing/SizeGuide"; // 
+import PrincessGallery from "@/components/landing/PrincessGallery"; 
+import CustomerReviews from "@/components/landing/CustomerReviews"; // 👈 AQUÍ LO IMPORTAMOS
+import SizeGuide from "@/components/landing/SizeGuide"; 
 import FAQSection from "@/components/landing/FAQSection";
 import Footer from "@/components/landing/Footer";
 
@@ -50,10 +51,12 @@ export default async function Home() {
         <BoutiqueShowcase products={serializedProducts} />
       </section>
 
-      {/* ✅ NUEVOS COMPONENTES AGREGADOS AQUÍ */}
       <section id="gallery" className="scroll-mt-24"><PrincessGallery /></section>
-      <section id="sizes" className="scroll-mt-24"><SizeGuide /></section> 
+      
+      {/* ✅ SECCIÓN DE REVIEWS AGREGADA AQUÍ */}
+      <section id="reviews" className="scroll-mt-24"><CustomerReviews /></section> 
 
+      <section id="sizes" className="scroll-mt-24"><SizeGuide /></section> 
       <section id="faq" className="scroll-mt-24"><FAQSection /></section>
       
       <Footer />
