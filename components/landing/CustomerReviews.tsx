@@ -20,8 +20,9 @@ const REVIEWS = [
 ];
 
 export default function CustomerReviews() {
-  // Duplicamos el array para que el scroll infinito no tenga cortes visuales
-  const duplicatedReviews = [...REVIEWS, ...REVIEWS];
+  // 🪄 EL TRUCO: Cuadruplicamos para pantallas ultra anchas
+  // Al tener 4 sets, si movemos exactamente un 25%, creamos un loop matemáticamente perfecto
+  const duplicatedReviews = [...REVIEWS, ...REVIEWS, ...REVIEWS, ...REVIEWS];
 
   return (
     <section className="relative py-24 overflow-hidden bg-[#FFFDFE] z-10" id="reviews">
@@ -62,15 +63,16 @@ export default function CustomerReviews() {
       {/* Track del Carrusel Infinito */}
       <div className="relative w-full flex items-center justify-center">
         
-        {/* Difuminado a los lados para que los chats aparezcan mágicamente */}
-        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-r from-[#FFFDFE] to-transparent z-20 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-32 bg-gradient-to-l from-[#FFFDFE] to-transparent z-20 pointer-events-none" />
+        {/* Difuminado a los lados para ocultar la entrada/salida de fotos */}
+        <div className="absolute left-0 top-0 bottom-0 w-16 md:w-40 bg-gradient-to-r from-[#FFFDFE] to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 md:w-40 bg-gradient-to-l from-[#FFFDFE] to-transparent z-20 pointer-events-none" />
 
         {/* Contenedor Animado */}
         <motion.div 
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ ease: "linear", duration: 30, repeat: Infinity }}
-          className="flex gap-10 md:gap-16 px-4 py-10"
+          animate={{ x: ["0%", "-25%"] }} // -25% de 4 sets = 1 set exacto
+          transition={{ ease: "linear", duration: 35, repeat: Infinity }}
+          // w-max obliga a tomar el ancho de todo, pr-X compensa el gap exacto
+          className="flex w-max gap-10 md:gap-16 pr-10 md:pr-16 pl-0 py-10"
         >
           {duplicatedReviews.map((review, index) => (
             <div key={`${review.id}-${index}`} className="relative w-[280px] h-[280px] md:w-[360px] md:h-[360px] shrink-0 flex items-center justify-center">
