@@ -9,7 +9,7 @@ import PremiumBackground from "@/components/landing/PremiumBackground";
 import Navbar from "@/components/landing/Navbar";
 import HeroModern from "@/components/landing/HeroModern";
 import TrustTicker from "@/components/landing/TrustTicker";
-import LabGrid from "@/components/landing/LabGrid";
+import LabGrid from "@/components/landing/BoutiqueFeaturesGrid";
 import ProductShowcase from "@/components/landing/ProductShowcase";
 import BatchVerifier from "@/components/landing/BatchVerifier";
 import PeptideCalculator from "@/components/landing/PeptideCalculator";
