@@ -1,34 +1,37 @@
-// prisma/seed.ts
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs' // Usamos bcryptjs para encriptar la contraseña
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // 1. Encriptar la contraseña (nunca guardes texto plano)
-  const hashedPassword = await bcrypt.hash('Medellin2026!', 10)
+  console.log('Iniciando inyección de usuario administrador...')
 
-  // 2. Crear el usuario (o actualizarlo si ya existe el correo)
-  const user = await prisma.user.upsert({
-    where: { email: 'transcendent@admin.com' },
-    update: {}, // Si existe, no hace nada
-    create: {
-      email: 'transcendent@admin.com',
+  // 1. Encriptamos la contraseña por seguridad (nunca se guarda en texto plano)
+  const hashedPassword = await bcrypt.hash('Guadalupe2026', 10)
+
+  // 2. Inyectamos (o actualizamos) el usuario en la base de datos
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@guadalupe.com' },
+    update: {
       password: hashedPassword,
-      name: 'System Administrator',
-      role: 'ADMIN', // Asumiendo que definimos el Enum ADMIN en el schema
+    },
+    create: {
+      email: 'admin@guadalupe.com',
+      password: hashedPassword,
+      name: 'Admin Guadalupe',
+      role: 'ADMIN', // Asumiendo que tu esquema tiene este campo. Si te da error, bórralo.
     },
   })
 
-  console.log('✅ Usuario creado exitosamente:', user)
+  console.log('¡Magia completada! 🪄')
+  console.log('Usuario creado:', adminUser.email)
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
+  .catch((e) => {
+    console.error('Error al inyectar el usuario:', e)
     process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
   })
