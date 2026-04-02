@@ -19,9 +19,9 @@ import { motion } from "framer-motion";
 import logo from "../../app/assets/logo.webp"; 
 
 const menuItems = [
-  { name: "Dashboard", href: "/admin", icon: Crown },
-  { name: "Products", href: "/admin/products", icon: Sparkles },
-  { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
+  { name: "Panel", href: "/admin", icon: Crown },
+  { name: "Productos", href: "/admin/products", icon: Sparkles },
+  { name: "Pedidos", href: "/admin/orders", icon: ShoppingBag },
 ];
 
 export default function AdminSidebar() {
@@ -91,12 +91,12 @@ export default function AdminSidebar() {
             <Link 
               href="/"
               className="group flex items-center justify-between px-4 py-3 rounded-3xl transition-all duration-300 mb-6 bg-gradient-to-r from-[#FAD1E6]/30 to-transparent border border-[#FAD1E6]/50 hover:border-[#E85D9E]/30 hover:shadow-[0_4px_12px_rgba(250,209,230,0.4)]"
-              title="Go to Website"
+              title="Ir a la Tienda"
             >
                <div className="flex items-center gap-3">
                   <Heart className="shrink-0 text-[#E85D9E] fill-[#E85D9E]/20 group-hover:fill-[#E85D9E]/40 transition-all w-5 h-5" />
                   <span className="text-sm font-bold text-[#33182B]">
-                     Go to Website
+                     Ir a la Tienda
                   </span>
                </div>
             </Link>
@@ -104,7 +104,7 @@ export default function AdminSidebar() {
 
           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[#FAD1E6] to-transparent my-4 opacity-60" />
 
-          <p className="px-3 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest mb-3 opacity-70">Admin Menu</p>
+          <p className="px-3 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest mb-3 opacity-70">Menú Admin</p>
           
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
@@ -166,7 +166,7 @@ export default function AdminSidebar() {
                   </div>
               </div>
               <div className="overflow-hidden">
-                  <p className="text-sm font-bold text-[#33182B] truncate">{user?.name || "Boutique Admin"}</p>
+                  <p className="text-sm font-bold text-[#33182B] truncate">{user?.name || "Admin Boutique"}</p>
               </div>
           </div>
           
@@ -175,10 +175,10 @@ export default function AdminSidebar() {
             whileTap={{ scale: 0.98 }}
             onClick={logout}
             className="w-full flex items-center justify-center gap-2 rounded-full border border-[#FAD1E6] text-[#7B5C73] hover:bg-[#FAD1E6]/30 hover:text-[#E85D9E] hover:border-[#E85D9E]/40 transition-colors text-xs font-bold uppercase tracking-widest px-4 py-2.5 group"
-            title="Log Out"
+            title="Cerrar Sesión"
           >
             <LogOut className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-            <span>Log Out</span>
+            <span>Cerrar Sesión</span>
           </motion.button>
         </div>
       </aside>
