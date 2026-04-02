@@ -12,7 +12,8 @@ import TrustTicker from "@/components/landing/TrustTicker";
 import BoutiqueFeaturesGrid from "@/components/landing/BoutiqueFeaturesGrid";
 import BoutiqueShowcase from "@/components/landing/BoutiqueShowcase";
 import PrincessGallery from "@/components/landing/PrincessGallery"; 
-import CustomerReviews from "@/components/landing/CustomerReviews"; // 👈 AQUÍ LO IMPORTAMOS
+import BoutiqueReels from "@/components/landing/BoutiqueReels"; // 🎬 NUEVO COMPONENTE
+import CustomerReviews from "@/components/landing/CustomerReviews"; 
 import SizeGuide from "@/components/landing/SizeGuide"; 
 import FAQSection from "@/components/landing/FAQSection";
 import Footer from "@/components/landing/Footer";
@@ -53,7 +54,9 @@ export default async function Home() {
 
       <section id="gallery" className="scroll-mt-24"><PrincessGallery /></section>
       
-      {/* ✅ SECCIÓN DE REVIEWS AGREGADA AQUÍ */}
+      {/* 🎬 SECCIÓN DE REELS (VIDEOS EN ACCIÓN) */}
+      <section id="reels" className="scroll-mt-24"><BoutiqueReels /></section> 
+
       <section id="reviews" className="scroll-mt-24"><CustomerReviews /></section> 
 
       <section id="sizes" className="scroll-mt-24"><SizeGuide /></section> 
