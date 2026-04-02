@@ -10,7 +10,7 @@ import Navbar from "@/components/landing/Navbar";
 import HeroModern from "@/components/landing/HeroModern";
 import TrustTicker from "@/components/landing/TrustTicker";
 import LabGrid from "@/components/landing/BoutiqueFeaturesGrid";
-import ProductShowcase from "@/components/landing/ProductShowcase";
+import ProductShowcase from "@/components/landing/BoutiqueShowcase";
 import BatchVerifier from "@/components/landing/BatchVerifier";
 import PeptideCalculator from "@/components/landing/PeptideCalculator";
 import FAQSection from "@/components/landing/FAQSection";
