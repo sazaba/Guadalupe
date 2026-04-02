@@ -1,24 +1,25 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Minus, Terminal, ShieldAlert } from "lucide-react";
+import { Plus, Minus, MessageCircleHeart, Sparkles, MapPin } from "lucide-react";
 
+// Datos de FAQ adaptados a Guadalupe Boutique Infantil
 const FAQS = [
   {
-    question: "WHAT IS THE PURITY STANDARD?",
-    answer: "All compounds are synthesized to a minimum purity of 99% as verified by HPLC (High-Performance Liquid Chromatography) and Mass Spectrometry analysis. COAs (Certificates of Analysis) are available for every batch upon request."
+    question: "¿Dónde están ubicados?",
+    answer: "Nuestra boutique física está ubicada en el Centro Comercial El Progreso, Local 114, en Dosquebradas. ¡Te esperamos para que veas toda la magia en persona!"
   },
   {
-    question: "STORAGE & HANDLING PROTOCOLS",
-    answer: "Lyophilized peptides remain stable at room temperature for up to 90 days. For long-term storage, -20°C is recommended. Once reconstituted with bacteriostatic water, they must be refrigerated (2-8°C) and used within 30 days to prevent degradation."
+    question: "¿Tienen envíos a todo el país?",
+    answer: "¡Sí! Realizamos envíos nacionales a toda Colombia. Además, si estás en el Área Metropolitana (Pereira o Dosquebradas), contamos con servicio de pago Contra Entrega."
   },
   {
-    question: "SHIPPING & DISCRETION",
-    answer: "We utilize discreet, plain packaging with no external branding related to peptides. Orders are shipped via Priority Mail. Tracking numbers are generated automatically and sent via encrypted email upon dispatch."
+    question: "¿Qué tallas manejan?",
+    answer: "Manejamos una amplia variedad para acompañar a las princesas en su crecimiento, desde la talla 0 (para bebés) hasta la talla 12."
   },
   {
-    question: "IS THIS FOR HUMAN CONSUMPTION?",
-    answer: "STRICTLY FOR LABORATORY RESEARCH USE ONLY. Transcendent Labs products are not intended for human consumption, medical diagnosis, or treatment. Any communication suggesting human use will result in order cancellation and blacklisting."
+    question: "¿Cómo puedo comprar un vestido que vi en Instagram?",
+    answer: "Puedes agregar los productos que te gusten a tu carrito de compras aquí mismo en la página web, o si prefieres una atención más personalizada, puedes enviarnos un mensaje directo por Instagram o WhatsApp (en el link de nuestro perfil) y con gusto te asesoraremos."
   }
 ];
 
@@ -28,17 +29,21 @@ export default function FAQSection() {
   return (
     <section className="relative py-24 px-4 md:px-8 max-w-4xl mx-auto z-10" id="faq">
       
-      {/* Header técnico */}
-      <div className="flex items-center gap-4 mb-12 border-b border-[var(--glass-border)] pb-6">
-        <div className="p-3 bg-[var(--bg-page)] border border-[var(--glass-border)] rounded-lg">
-           <Terminal className="w-6 h-6 text-[var(--color-brand-primary)]" />
-        </div>
+      {/* Header Boutique */}
+      <div className="flex items-center gap-4 mb-12 border-b border-[#FAD1E6]/60 pb-6">
+        <motion.div 
+           whileHover={{ rotate: [0, -10, 10, 0] }}
+           transition={{ duration: 0.5 }}
+           className="p-3.5 bg-[#FAD1E6]/40 border border-[#FAD1E6] rounded-2xl shadow-sm"
+        >
+           <MessageCircleHeart className="w-7 h-7 text-[#E85D9E]" />
+        </motion.div>
         <div>
-           <h2 className="text-3xl md:text-4xl font-display font-bold text-[var(--text-main)]">
-             Research <span className="text-[var(--text-muted)]">Protocols</span>
+           <h2 className="text-3xl md:text-4xl font-display font-bold text-[#33182B]">
+             Dudas <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5]">Frecuentes</span>
            </h2>
-           <p className="text-xs font-mono text-[var(--color-brand-secondary)] mt-1 uppercase tracking-widest">
-             // Knowledge_Base_v1.0
+           <p className="text-xs font-sans font-bold text-[#7B5C73] mt-1 uppercase tracking-widest flex items-center gap-1.5">
+             <Sparkles className="w-3 h-3 text-[#E85D9E]" /> Resolvemos tus inquietudes
            </p>
         </div>
       </div>
@@ -49,35 +54,37 @@ export default function FAQSection() {
           const isOpen = openIndex === index;
 
           return (
-            <div key={index} className="overflow-hidden"> {/* Wrapper para evitar overflow issues en animación */}
+            <div key={index} className="overflow-hidden">
                 <motion.div
                   initial={false}
                   animate={{ 
-                      backgroundColor: isOpen ? "rgba(var(--bg-page-rgb), 0.8)" : "rgba(var(--bg-page-rgb), 0.3)",
-                      borderColor: isOpen ? "var(--color-brand-primary)" : "var(--glass-border)"
+                      backgroundColor: isOpen ? "rgba(255, 255, 255, 0.9)" : "rgba(250, 209, 230, 0.2)",
+                      borderColor: isOpen ? "#E85D9E" : "rgba(250, 209, 230, 0.5)"
                   }}
-                  className={`border rounded-xl overflow-hidden transition-all duration-300 transform-gpu ${
+                  className={`border rounded-2xl overflow-hidden transition-all duration-300 transform-gpu ${
                     isOpen 
-                      ? "bg-[var(--bg-page)]/80 shadow-[0_0_20px_rgba(0,201,255,0.1)]" 
-                      : "bg-[var(--bg-page)]/30 hover:border-[var(--text-muted)]"
+                      ? "shadow-[0_10px_30px_-10px_rgba(232,93,158,0.15)]" 
+                      : "hover:border-[#E85D9E]/50 hover:bg-white/60"
                   }`}
                 >
                   <button
                     onClick={() => setOpenIndex(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between p-6 text-left active:scale-[0.99] transition-transform duration-100" // Feedback táctil en móvil
-                    style={{ WebkitTapHighlightColor: "transparent" }} // Quita el flash gris en iOS
+                    className="w-full flex items-center justify-between p-6 text-left active:scale-[0.99] transition-transform duration-100 outline-none" 
+                    style={{ WebkitTapHighlightColor: "transparent" }}
                   >
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 pr-4">
-                        <span className="text-[var(--text-muted)] font-mono text-xs opacity-50">0{index + 1}.</span>
-                        <span className={`font-mono text-sm md:text-base uppercase tracking-wider font-bold transition-colors ${
-                          isOpen ? "text-[var(--color-brand-primary)]" : "text-[var(--text-main)]"
+                    <div className="flex flex-col md:flex-row md:items-center gap-3 pr-4">
+                        <span className="text-[#E85D9E]/50 font-sans font-bold text-sm bg-[#FAD1E6]/30 px-2 py-0.5 rounded-md">
+                          P0{index + 1}
+                        </span>
+                        <span className={`font-display text-sm md:text-base font-bold transition-colors ${
+                          isOpen ? "text-[#E85D9E]" : "text-[#33182B]"
                         }`}>
                           {faq.question}
                         </span>
                     </div>
                     
-                    <span className={`p-2 rounded-full transition-colors shrink-0 ${
-                      isOpen ? "bg-[var(--color-brand-primary)] text-[var(--bg-page)]" : "bg-[var(--glass-border)] text-[var(--text-muted)]"
+                    <span className={`p-2 rounded-full transition-colors shrink-0 shadow-sm ${
+                      isOpen ? "bg-[#E85D9E] text-white" : "bg-white text-[#7B5C73] border border-[#FAD1E6]"
                     }`}>
                       {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                     </span>
@@ -89,19 +96,23 @@ export default function FAQSection() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }} // Curva "Spring" suave para iOS
-                        style={{ willChange: "height" }} // Optimización crítica para Safari
+                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }} 
+                        style={{ willChange: "height" }} 
                       >
                         <div className="px-6 pb-6 pt-0">
-                          <div className="h-px w-full bg-gradient-to-r from-[var(--color-brand-primary)]/50 to-transparent mb-4" />
+                          {/* Línea divisoria suave */}
+                          <div className="h-px w-full bg-gradient-to-r from-[#FAD1E6] to-transparent mb-5" />
                           
                           {/* Contenido de la respuesta */}
-                          <div className="text-[var(--text-muted)] leading-relaxed text-sm md:text-base">
-                            {index === 3 && ( 
-                                <span className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase mb-2 tracking-widest bg-amber-500/10 p-2 rounded w-fit border border-amber-500/20">
-                                    <ShieldAlert className="w-4 h-4" /> Compliance Warning
+                          <div className="text-[#7B5C73] font-medium leading-relaxed text-sm md:text-base">
+                            
+                            {/* Alerta bonita para la primera pregunta (Ubicación) */}
+                            {index === 0 && ( 
+                                <span className="flex items-center gap-1.5 text-[#E85D9E] font-bold text-xs uppercase mb-3 tracking-wide bg-[#FAD1E6]/40 p-2.5 rounded-lg w-fit border border-[#FAD1E6]">
+                                    <MapPin className="w-4 h-4" /> Visítanos
                                 </span>
                             )}
+                            
                             <p>{faq.answer}</p>
                           </div>
 
