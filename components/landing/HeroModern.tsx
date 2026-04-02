@@ -1,9 +1,9 @@
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Activity } from "lucide-react";
+import { ArrowRight, Heart, Sparkles, Gift } from "lucide-react";
 
-// --- 1. COMPONENTE SVG PREMIUM "PEPTIDE CORE" (Ajustado) ---
-const PeptideCoreIcon = ({ className }: { className?: string }) => (
+// --- 1. COMPONENTE SVG BOUTIQUE "CORONA DE PRINCESA" ---
+const PrincessCrownIcon = ({ className }: { className?: string }) => (
   <svg 
     viewBox="0 0 100 100" 
     fill="none" 
@@ -12,12 +12,12 @@ const PeptideCoreIcon = ({ className }: { className?: string }) => (
     style={{ overflow: "visible" }}
   >
     <defs>
-      <linearGradient id="peptideGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="var(--color-brand-primary)" />
-        <stop offset="100%" stopColor="var(--color-brand-secondary)" />
+      <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FFA8C5" />
+        <stop offset="100%" stopColor="#E85D9E" />
       </linearGradient>
-      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
         <feMerge>
           <feMergeNode in="coloredBlur"/>
           <feMergeNode in="SourceGraphic"/>
@@ -25,33 +25,36 @@ const PeptideCoreIcon = ({ className }: { className?: string }) => (
       </filter>
     </defs>
     
+    {/* Destellos de fondo */}
     <path 
-      d="M50 2 L95 27 V77 L50 102 L5 77 V27 L50 2Z" 
-      stroke="url(#peptideGradient)" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
-      strokeDasharray="3 3" 
-      className="opacity-40"
+      d="M50 15 L52 25 L62 27 L52 29 L50 39 L48 29 L38 27 L48 25 Z" 
+      fill="#FAD1E6" 
+      className="animate-pulse"
     />
-    
+
+    {/* Corona principal */}
     <path 
-      d="M50 20 V50 L76 65 M50 50 L24 65" 
-      stroke="url(#peptideGradient)" 
-      strokeWidth="5" 
+      d="M15 70 L20 40 L35 55 L50 30 L65 55 L80 40 L85 70 Z" 
+      stroke="url(#pinkGradient)" 
+      strokeWidth="4" 
       strokeLinecap="round" 
       strokeLinejoin="round"
-      filter="url(#glow)" 
+      fill="#FAD1E6"
+      fillOpacity="0.2"
+      filter="url(#softGlow)" 
     />
     
-    <circle cx="50" cy="20" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
-    <circle cx="76" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-secondary)" strokeWidth="2.5" />
-    <circle cx="24" cy="65" r="5" fill="var(--bg-page)" stroke="var(--color-brand-primary)" strokeWidth="2.5" />
+    {/* Base de la corona */}
+    <line x1="15" y1="75" x2="85" y2="75" stroke="url(#pinkGradient)" strokeWidth="4" strokeLinecap="round" />
     
-    <circle cx="50" cy="50" r="8" fill="url(#peptideGradient)" className="animate-pulse" />
+    {/* Joyas de la corona */}
+    <circle cx="20" cy="40" r="4" fill="#fff" stroke="#E85D9E" strokeWidth="2" />
+    <circle cx="50" cy="30" r="5" fill="#fff" stroke="#E85D9E" strokeWidth="2.5" />
+    <circle cx="80" cy="40" r="4" fill="#fff" stroke="#E85D9E" strokeWidth="2" />
   </svg>
 );
 
-export default function HeroModern() {
+export default function HeroBoutique() {
   const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { 
@@ -78,17 +81,21 @@ export default function HeroModern() {
   };
 
   return (
-    // OPTIMIZACIÓN SAFARI: 100dvh evita el salto de la barra de navegación
-    <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[var(--bg-page)] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
+    <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[#FFFDFE] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
-      {/* --- FONDO DECORATIVO --- */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden transform translate-z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--text-muted)_1px,transparent_1px),linear-gradient(to_bottom,var(--text-muted)_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.03] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+      {/* --- FONDO DECORATIVO SUAVE --- */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+        {/* Patrón de puntos muy sutil */}
+        <div className="absolute inset-0 bg-[radial-gradient(#FAD1E6_1px,transparent_1px)] [background-size:30px_30px] opacity-30 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+        
+        {/* Manchas de color pastel flotantes (Blobs) */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-pink-100/50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#FAD1E6]/40 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/3" />
       </div>
 
       <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         
-        {/* COLUMNA IZQUIERDA (Texto) */}
+        {/* COLUMNA IZQUIERDA (Texto de Boutique) */}
         <motion.div 
           variants={staggerContainer}
           initial="hidden"
@@ -96,25 +103,25 @@ export default function HeroModern() {
           className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
         >
           <motion.div variants={fadeInUp} className="w-full flex flex-col items-center lg:items-start">
-            <span className="block text-lg md:text-2xl text-[var(--text-muted)] font-medium mb-2 tracking-widest uppercase">
-              Advanced Research
+            <span className="flex items-center gap-2 text-sm md:text-base text-[#E85D9E] font-bold mb-3 tracking-widest uppercase bg-[#FAD1E6]/30 px-4 py-1.5 rounded-full">
+              <Sparkles className="w-4 h-4" /> Exclusividad y Ternura
             </span>
             
-            <h1 className="flex flex-col items-center lg:items-start leading-none">
-              <span className="block text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-[var(--text-main)] mb-1 transition-colors duration-300">
-                TRANSCENDENT
+            <h1 className="flex flex-col items-center lg:items-start leading-[1.1]">
+              <span className="block text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-[#33182B] mb-1">
+                Vestidos para
               </span>
-              <span className="block text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-brand-primary)] to-[var(--color-brand-secondary)]">
-                LABS &reg;
+              <span className="block text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5]">
+                Princesas
               </span>
             </h1>
           </motion.div>
 
-          <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[var(--text-muted)] leading-relaxed px-2 lg:px-0">
-            Pioneering the next evolution of bio-active compounds. We engineer 
-            peptides that push the boundaries of human potential. 
-            <span className="block mt-2 font-semibold text-[var(--text-main)]">
-              Pure. Tested. Beyond Evolution.
+          <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[#7B5C73] leading-relaxed px-2 lg:px-0 font-medium">
+            Ropa exclusiva, vestidos hermosos y accesorios mágicos para niñas. 
+            Cada prenda está cuidadosamente seleccionada para hacerla brillar.
+            <span className="block mt-2 font-bold text-[#E85D9E]">
+              Diseñados para sus momentos más especiales.
             </span>
           </motion.p>
 
@@ -122,98 +129,92 @@ export default function HeroModern() {
             {/* BOTÓN CON ACCIÓN DE SCROLL */}
             <button 
                 onClick={scrollToCatalog}
-                className="group relative px-8 py-4 bg-[var(--text-main)] text-[var(--bg-page)] font-bold rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--color-brand-primary)]/20 active:scale-95 cursor-pointer"
+                className="group relative px-8 py-4 bg-[#E85D9E] text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:bg-[#D14D8B] hover:shadow-xl hover:shadow-[#E85D9E]/30 active:scale-95 cursor-pointer"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
-                Explore Catalog <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Explorar Colección <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </button>
           </motion.div>
           
-          <motion.div variants={fadeInUp} className="pt-4 md:pt-8 flex gap-8 border-t border-[var(--glass-border)] w-full lg:w-auto justify-center lg:justify-start">
+          <motion.div variants={fadeInUp} className="pt-6 md:pt-8 flex flex-wrap gap-6 md:gap-10 border-t border-[#FAD1E6] w-full lg:w-auto justify-center lg:justify-start">
             <div className="text-center lg:text-left">
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)]">99.8%</h3>
-              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Purity</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[#33182B]">0 a 12</h3>
+              <p className="text-[10px] md:text-xs text-[#7B5C73] uppercase tracking-wider font-semibold">Tallas Disp.</p>
             </div>
             <div className="text-center lg:text-left">
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)]">50+</h3>
-              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Compounds</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[#33182B]">Local 114</h3>
+              <p className="text-[10px] md:text-xs text-[#7B5C73] uppercase tracking-wider font-semibold">CC El Progreso</p>
             </div>
             <div className="text-center lg:text-left">
-              <h3 className="text-xl md:text-2xl font-bold text-[var(--text-main)]">24/7</h3>
-              <p className="text-[10px] md:text-xs text-[var(--text-muted)] uppercase tracking-wider">Support</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[#33182B]">100%</h3>
+              <p className="text-[10px] md:text-xs text-[#7B5C73] uppercase tracking-wider font-semibold">Garantizado</p>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* COLUMNA DERECHA (Molécula 3D Abstracta) */}
+        {/* COLUMNA DERECHA (Composición Mágica / Princesa) */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.4 }}
-          className="relative h-[300px] md:h-[400px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-8 lg:mt-0 transform-gpu"
+          transition={{ duration: 1, delay: 0.3 }}
+          className="relative h-[350px] md:h-[450px] lg:h-[600px] flex items-center justify-center pointer-events-none mt-4 lg:mt-0"
         >
-          {/* Glow de fondo */}
-          <div className="absolute inset-0 bg-[var(--accent-glow)] rounded-full blur-[60px] opacity-60 translate-z-0" />
-
-          {/* Estructura Orbital */}
-          <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px]">
+          <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px]">
             
-            {/* Anillo Externo */}
+            {/* Contenedor central Glassmorphism (Espejo / Tarjeta) */}
             <motion.div 
-              animate={{ rotate: 360 }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              style={{ willChange: "transform" }}
-              className="absolute inset-0 rounded-full border border-dashed border-[var(--glass-border)]"
-            />
-            
-            {/* Anillo Interno */}
-            <motion.div 
-              animate={{ rotate: -360 }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              style={{ willChange: "transform" }}
-              className="absolute inset-8 md:inset-12 rounded-full border border-[var(--glass-border)] opacity-60"
+              animate={{ y: [-10, 10, -10] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 m-auto w-64 h-80 md:w-80 md:h-96 bg-white/60 backdrop-blur-md rounded-[40px] border-2 border-white shadow-[0_20px_50px_-10px_rgba(232,93,158,0.2)] flex flex-col items-center justify-center z-20 overflow-hidden"
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 w-3 h-3 md:w-4 md:h-4 bg-[var(--color-brand-primary)] rounded-full shadow-[0_0_15px_currentColor]" />
+               {/* Resplandor interno */}
+               <div className="absolute top-0 right-0 w-32 h-32 bg-[#FAD1E6]/50 rounded-full blur-2xl" />
+               <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#FFA8C5]/30 rounded-full blur-2xl" />
+
+               <div className="w-[60%] h-[60%] relative z-10">
+                  <PrincessCrownIcon className="w-full h-full drop-shadow-xl" />
+               </div>
+               <p className="mt-4 text-[#E85D9E] font-display font-bold text-lg z-10">Nueva Colección</p>
             </motion.div>
 
-            {/* NÚCLEO CENTRAL - CONTENEDOR AJUSTADO (Light Mode Fix) */}
-            <div className="absolute inset-0 flex items-center justify-center">
-               <div className="relative w-28 h-28 md:w-40 md:h-40 bg-[var(--bg-page)]/80 backdrop-blur-sm rounded-full border border-slate-200 dark:border-[var(--glass-border)] shadow-2xl flex items-center justify-center z-20">
-                  
-                  <div className="w-[75%] h-[75%] animate-pulse-slow">
-                     <PeptideCoreIcon className="w-full h-full drop-shadow-[0_0_15px_rgba(0,201,255,0.4)]" />
-                  </div>
-
-                  {/* Órbita interna decorativa */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                    style={{ willChange: "transform" }}
-                    className="absolute inset-1 rounded-full border border-[var(--glass-border)] opacity-30"
-                  >
-                     <div className="absolute bottom-2 left-1/2 w-1.5 h-1.5 bg-[var(--color-brand-secondary)] rounded-full" />
-                  </motion.div>
-               </div>
-            </div>
-
-            {/* Tarjeta Flotante */}
+            {/* Tarjeta Flotante Superior (Regalo) */}
             <motion.div 
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              style={{ willChange: "transform" }}
-              className="absolute -top-2 -right-2 md:top-12 md:-right-4 bg-[var(--bg-page)]/90 backdrop-blur-xl p-3 md:p-4 rounded-xl shadow-xl border border-[var(--glass-border)] z-30 scale-90 md:scale-100 origin-bottom-left"
+              animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute top-4 -right-4 md:top-12 md:-right-8 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white z-30"
             >
                <div className="flex items-center gap-3">
-                 <div className="p-2 bg-[var(--color-brand-primary)]/10 rounded-lg">
-                    <Activity className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-brand-primary)]" />
+                 <div className="p-2.5 bg-[#FAD1E6]/50 rounded-xl">
+                    <Gift className="w-5 h-5 text-[#E85D9E]" />
                  </div>
                  <div>
-                   <p className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Bio-Availability</p>
-                   <p className="text-xs md:text-sm font-bold text-[var(--text-main)]">99% Optimized</p>
+                   <p className="text-[10px] text-[#7B5C73] font-bold uppercase tracking-wider">Envíos</p>
+                   <p className="text-xs md:text-sm font-bold text-[#33182B]">A todo el país</p>
                  </div>
                </div>
             </motion.div>
+
+            {/* Tarjeta Flotante Inferior (Corazón) */}
+            <motion.div 
+              animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              className="absolute bottom-10 -left-6 md:bottom-20 md:-left-12 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white z-30"
+            >
+               <div className="flex items-center gap-3">
+                 <div className="p-2.5 bg-red-50 rounded-xl">
+                    <Heart className="w-5 h-5 text-red-400 fill-red-400" />
+                 </div>
+                 <div>
+                   <p className="text-[10px] text-[#7B5C73] font-bold uppercase tracking-wider">Detalles</p>
+                   <p className="text-xs md:text-sm font-bold text-[#33182B]">Hechos con amor</p>
+                 </div>
+               </div>
+            </motion.div>
+
+            {/* Chispas flotantes decorativas */}
+            <Sparkles className="absolute top-1/4 -left-4 w-6 h-6 text-[#FFA8C5] animate-pulse" />
+            <Sparkles className="absolute bottom-1/4 -right-4 w-8 h-8 text-[#E85D9E] opacity-50 animate-bounce" />
 
           </div>
         </motion.div>
