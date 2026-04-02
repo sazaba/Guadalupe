@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext"; // Ajusta la ruta si lo gua
 import { Crown, Mail, Lock, ArrowRight, AlertCircle } from "lucide-react";
 import Image from "next/image";
 // Ruta corregida a assets según tu indicación
-import logo from "../../assets/logo.webp"; 
+import logo from "@/app/assets/logo.webp"; 
 import { AnimatePresence } from "framer-motion";
 
 export default function LoginPage() {
