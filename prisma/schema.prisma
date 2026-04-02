@@ -1,0 +1,99 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RESEARCHER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(RESEARCHER)
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  category    String
+  images      String   
+  purity      String?  
+  sequence    String?  
+  benefits    String?  @db.Text 
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  
+  // 1. Relación con Usuario (Opcional)
+  userId          Int?        
+  user            User?       @relation(fields: [userId], references: [id])
+  
+  // 2. Datos del Comprador
+  customerName    String      
+  customerEmail   String      
+  customerPhone   String      
+  
+  // 3. Dirección de Envío
+  addressLine1    String      
+  addressLine2    String?     
+  city            String      
+  state           String      // <--- ¡AGREGADO! Faltaba este campo
+  postalCode      String      
+  country         String      @default("United States")
+  
+  // 4. Información Financiera
+  total           Decimal     @db.Decimal(10, 2)
+  status          OrderStatus @default(PENDING)
+  isPaid          Boolean     @default(false)
+  paidAt          DateTime?
+  stripePaymentId String?     
+  
+  // 5. Logística
+  trackingNumber  String?     
+  courier         String?     
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) 
+}

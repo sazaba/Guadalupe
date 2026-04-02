@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  /* 1. TIPOGRAFÍA */
+  --font-display: var(--font-poppins), sans-serif;
+  --font-sans: var(--font-inter), sans-serif;
+  --font-mono: monospace;
+
+  /* 2. COLORES DE MARCA (Fijos) */
+  --color-brand-dark: #030014;
+  --color-brand-light: #F8FAFC;
+  --color-brand-primary: #00C9FF;
+  --color-brand-secondary: #92FE9D;
+
+  /* 3. EL PUENTE MÁGICO */
+  --color-page: var(--bg-page);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-accent-glow: var(--accent-glow);
+
+  /* 4. ANIMACIONES */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shine: textShine 5s linear infinite;
+}
+
+/* Capa base */
+@layer base {
+  :root {
+    /* MODO CLARO (Default) */
+    --bg-page: #ffffff; 
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
+    --accent-glow: rgba(0, 201, 255, 0.15);
+  }
+
+  [data-theme="dark"] {
+    /* MODO OSCURO */
+    --bg-page: #030014;
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --accent-glow: rgba(0, 201, 255, 0.3);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    color: var(--text-main);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-glass-bg border border-glass-border backdrop-blur-xl shadow-sm;
+  }
+
+  .text-gradient-hero {
+    background: linear-gradient(to right, #00C9FF 0%, #92FE9D 50%, #00C9FF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: var(--animate-shine);
+  }
+}
+
+@keyframes textShine {
+  to { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+/* --- LOGICA NUEVA PARA OCULTAR BOTÓN DE TEMA --- */
+/* Cuando el StickyPurchase está activo (clase en body), bajamos el botón fuera de pantalla */
+body.sticky-active #theme-toggle-btn {
+  transform: translateY(200%);
+  pointer-events: none;
+}
