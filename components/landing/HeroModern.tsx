@@ -81,7 +81,7 @@ export default function HeroBoutique() {
   };
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[#FFFDFE] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
+    <section className="relative w-full min-h-[100dvh] flex flex-col justify-center overflow-x-hidden bg-[#AD6F69] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12 will-change-contents">
       
       {/* --- FONDO DECORATIVO SUAVE --- */}
       <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
@@ -103,24 +103,21 @@ export default function HeroBoutique() {
           className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
         >
           <motion.div variants={fadeInUp} className="w-full flex flex-col items-center lg:items-start">
-            <span className="flex items-center gap-2 text-sm md:text-base text-[#E85D9E] font-bold mb-3 tracking-widest uppercase bg-[#FAD1E6]/30 px-4 py-1.5 rounded-full">
-              <Sparkles className="w-4 h-4" /> Exclusividad y Ternura
-            </span>
             
             <h1 className="flex flex-col items-center lg:items-start leading-[1.1]">
-              <span className="block text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-[#33182B] mb-1">
+              <span className="block text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-[#FFFDFE] mb-1">
                 Vestidos para
               </span>
-              <span className="block text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5]">
+              <span className="block text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#FFFDFE] to-[#FFA8C5]">
                 Princesas
               </span>
             </h1>
           </motion.div>
 
-          <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[#7B5C73] leading-relaxed px-2 lg:px-0 font-medium">
+          <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[#FFFDFE] leading-relaxed px-2 lg:px-0 font-medium">
             Ropa exclusiva, vestidos hermosos y accesorios mágicos para niñas. 
             Cada prenda está cuidadosamente seleccionada para hacerla brillar.
-            <span className="block mt-2 font-bold text-[#E85D9E]">
+            <span className="block mt-2 font-bold text-[#FFFDFE]">
               Diseñados para sus momentos más especiales.
             </span>
           </motion.p>
@@ -139,16 +136,16 @@ export default function HeroBoutique() {
           
           <motion.div variants={fadeInUp} className="pt-6 md:pt-8 flex flex-wrap gap-6 md:gap-10 border-t border-[#FAD1E6] w-full lg:w-auto justify-center lg:justify-start">
             <div className="text-center lg:text-left">
-              <h3 className="text-xl md:text-2xl font-bold text-[#33182B]">0 a 12</h3>
-              <p className="text-[10px] md:text-xs text-[#7B5C73] uppercase tracking-wider font-semibold">Tallas Disp.</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[#FFFDFE]">0 a 12</h3>
+              <p className="text-[10px] md:text-xs text-[#FFFDFE] uppercase tracking-wider font-semibold">Tallas Disp.</p>
             </div>
             <div className="text-center lg:text-left">
-              <h3 className="text-xl md:text-2xl font-bold text-[#33182B]">Local 114</h3>
-              <p className="text-[10px] md:text-xs text-[#7B5C73] uppercase tracking-wider font-semibold">CC El Progreso</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[#FFFDFE]">Local 114</h3>
+              <p className="text-[10px] md:text-xs text-[#FFFDFE] uppercase tracking-wider font-semibold">CC El Progreso</p>
             </div>
             <div className="text-center lg:text-left">
-              <h3 className="text-xl md:text-2xl font-bold text-[#33182B]">100%</h3>
-              <p className="text-[10px] md:text-xs text-[#7B5C73] uppercase tracking-wider font-semibold">Garantizado</p>
+              <h3 className="text-xl md:text-2xl font-bold text-[#FFFDFE]">100%</h3>
+              <p className="text-[10px] md:text-xs text-[#FFFDFE] uppercase tracking-wider font-semibold">Garantizado</p>
             </div>
           </motion.div>
         </motion.div>
