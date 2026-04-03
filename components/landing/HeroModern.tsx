@@ -77,7 +77,7 @@ export default function HeroBoutique() {
         >
           <div className="w-full flex flex-col items-center lg:items-start">
             <motion.h1 variants={fadeInUp} className="flex flex-col items-center lg:items-start leading-[1.1] relative w-full">
-              <span className="block text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-[#33182B] mb-2">
+              <span className="block text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-black mb-2">
                 Exclusivos
               </span>
               
@@ -97,8 +97,7 @@ export default function HeroBoutique() {
                     className="inline-block relative z-10 will-change-transform"
                     style={{ WebkitClipPath: "inset(0 100% 0 0)" }}
                   >
-                    {/* ✨ CLASE ACTUALIZADA: Quitamos el degradado y agregamos el color sólido + sombra exacta del logo */}
-                    <span className="block text-[4rem] md:text-7xl lg:text-8xl font-handwriting tracking-normal text-[#D7458F] drop-shadow-[4px_4px_0px_#FAD1E6] pr-2 sm:pr-4 py-2 leading-tight">
+                    <span className="block text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#E85D9E] drop-shadow-[3px_3px_0px_#FAD1E6] pr-2 sm:pr-4 py-2 leading-tight">
                       Guadalupe
                     </span>
                   </motion.div>
