@@ -181,19 +181,19 @@ export default function ProductTemplate({ product }: { product: Product }) {
                             : product.description}
                     </p>
 
-                    {/* Ficha Técnica (Tallas, Color, Material) */}
+                 {/* Ficha Técnica (Tallas, Color, Material) */}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
-                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Tallas</span>
-                            <span className="text-sm font-bold text-[#33182B]">{product.size || "Única"}</span>
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3.5 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1.5">Tallas</span>
+                            <span className="text-sm font-bold text-[#33182B] leading-snug">{product.size || "Única"}</span>
                         </div>
-                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
-                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Color</span>
-                            <span className="text-sm font-bold text-[#33182B] truncate w-full">{product.color || "Mágico"}</span>
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3.5 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1.5">Color</span>
+                            <span className="text-sm font-bold text-[#33182B] leading-snug">{product.color || "Mágico"}</span>
                         </div>
-                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50 md:col-span-1 col-span-2">
-                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Material</span>
-                            <span className="text-sm font-bold text-[#33182B] truncate w-full">{product.material || "Calidad Premium"}</span>
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3.5 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50 md:col-span-1 col-span-2">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1.5">Material</span>
+                            <span className="text-sm font-bold text-[#33182B] leading-snug">{product.material || "Calidad Premium"}</span>
                         </div>
                     </div>
 
