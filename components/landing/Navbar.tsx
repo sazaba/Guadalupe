@@ -21,18 +21,15 @@ export default function Navbar() {
     setMounted(true);
   }, []);
 
-  // Bloquear el scroll cuando el menú móvil está abierto
+  // Bloquear el scroll de forma segura cuando el menú móvil está abierto
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden"; 
-      document.body.style.touchAction = "none"; 
     } else {
-      document.body.style.overflow = ""; 
-      document.body.style.touchAction = "";
+      document.body.style.overflow = "unset"; 
     }
     return () => {
-      document.body.style.overflow = "";
-      document.body.style.touchAction = "";
+      document.body.style.overflow = "unset";
     };
   }, [mobileOpen]);
 
@@ -40,15 +37,21 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY < 0) return;
+      
+      // Aseguramos no disparar eventos raros en el tope de la página
+      if (currentScrollY <= 0) {
+        setIsVisible(true);
+        setScrolled(false);
+        return;
+      }
 
       setScrolled(currentScrollY > 20);
 
       if (Math.abs(currentScrollY - lastScrollY.current) > 10) {
          if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-           setIsVisible(false); 
+           setIsVisible(false); // Esconde al bajar
          } else {
-           setIsVisible(true); 
+           setIsVisible(true); // Muestra al subir
          }
       }
       lastScrollY.current = currentScrollY;
@@ -65,8 +68,10 @@ export default function Navbar() {
       const targetId = href.replace("#", "");
       const element = document.getElementById(targetId);
       if (element) {
-        setMobileOpen(false);
-        element.scrollIntoView({ behavior: "smooth" });
+        setMobileOpen(false); // Cierra el menú y restaura el scroll
+        setTimeout(() => {
+           element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
       }
     }
   };
@@ -91,13 +96,13 @@ export default function Navbar() {
           : "bg-transparent py-6"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
         
         {/* LOGO AREA */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
             <Link 
                 href="/" 
-                className="relative w-12 h-12 shrink-0 cursor-pointer hover:scale-105 transition-transform duration-300"
+                className="relative w-10 h-10 md:w-12 md:h-12 shrink-0 cursor-pointer hover:scale-105 transition-transform duration-300"
             >
                 <Image 
                     src={logo} 
@@ -109,10 +114,10 @@ export default function Navbar() {
             </Link>
 
             <Link href="/" className="flex flex-col justify-center cursor-pointer group">
-                <span className="font-display font-bold text-xl leading-none tracking-wide text-[#33182B] group-hover:text-[#E85D9E] transition-colors duration-300">
+                <span className="font-display font-bold text-lg md:text-xl leading-none tracking-wide text-[#33182B] group-hover:text-[#E85D9E] transition-colors duration-300">
                     GUADALUPE
                 </span>
-                <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-[#7B5C73] mt-1 group-hover:text-[#E85D9E]/70 transition-colors duration-300">
+                <span className="font-sans text-[9px] md:text-[11px] uppercase tracking-[0.2em] text-[#7B5C73] mt-0.5 md:mt-1 group-hover:text-[#E85D9E]/70 transition-colors duration-300">
                     Boutique Infantil
                 </span>
             </Link>
@@ -153,6 +158,19 @@ export default function Navbar() {
               </button>
           </div>
 
+          {/* ICONO DEL CARRITO EN MÓVIL (Al lado del menú hamburguesa) */}
+          <button 
+                onClick={toggleCart} 
+                className="lg:hidden relative p-2 text-[#33182B] hover:text-[#E85D9E] hover:bg-[#FAD1E6]/40 rounded-full transition-all duration-300"
+          >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && mounted && (
+                 <span className="absolute top-0 right-0 w-4 h-4 bg-[#E85D9E] text-white text-[9px] font-bold flex items-center justify-center rounded-full shadow-sm animate-in zoom-in">
+                     {cartCount}
+                 </span>
+              )}
+          </button>
+
           {/* MOBILE TOGGLE */}
           <button
             className="lg:hidden flex items-center justify-center p-2 text-[#33182B] hover:text-[#E85D9E] hover:bg-[#FAD1E6]/40 rounded-full active:scale-95 transition-all"
@@ -173,7 +191,7 @@ export default function Navbar() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="lg:hidden absolute top-[100%] left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-[#FAD1E6]/50 shadow-[0_10px_40px_-10px_rgba(232,93,158,0.15)] overflow-y-auto"
-            style={{ maxHeight: "calc(100vh - 80px)" }} 
+            style={{ maxHeight: "calc(100vh - 70px)" }} 
           >
             <div className="p-6 flex flex-col gap-2 pb-10"> 
               
@@ -191,17 +209,6 @@ export default function Navbar() {
               <div className="flex flex-col gap-3 mt-4 pt-6 border-t border-[#FAD1E6]/50">
                  <button className="w-full py-4 flex items-center justify-center gap-2 bg-[#FAD1E6]/30 hover:bg-[#FAD1E6]/60 rounded-2xl text-[#E85D9E] font-bold text-sm transition-all">
                     <Search className="w-5 h-5" /> Buscar productos
-                 </button>
-                 
-                 <button 
-                    onClick={() => {
-                        setMobileOpen(false);
-                        toggleCart();
-                    }}
-                    className="w-full py-4 flex items-center justify-center gap-2 bg-[#E85D9E] hover:bg-[#D14D8B] text-white rounded-2xl font-bold text-sm shadow-md shadow-[#E85D9E]/30 active:scale-[0.98] transition-all"
-                 >
-                    <ShoppingCart className="w-5 h-5" /> Ver Carrito 
-                    {cartCount > 0 && <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-xs">{cartCount}</span>}
                  </button>
               </div>
             </div>
