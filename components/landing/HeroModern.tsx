@@ -1,6 +1,6 @@
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Heart, Sparkles, Gift, Star, Wand2 } from "lucide-react"; // <-- Agregamos Wand2
+import { ArrowRight, Heart, Sparkles, Gift, Star } from "lucide-react";
 import Image from "next/image";
 
 import heroImage from "@/app/assets/PG1.webp"; 
@@ -81,47 +81,43 @@ export default function HeroBoutique() {
                 Vestidos para
               </span>
               
-              {/* EFECTO DE ESCRITURA REAL (LÁPIZ) */}
+              {/* EFECTO DE ESCRITURA ESTILO LÁPIZ/CURSIVA */}
               <div className="relative inline-block py-2 w-full flex justify-center lg:justify-start">
-                
-                {/* Contenedor que va creciendo para revelar el texto */}
+                {/* Contenedor que revela el texto gradualmente */}
                 <motion.div 
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
+                  initial={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0% 100%)" }}
+                  animate={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }}
                   transition={{ 
-                    duration: 3.5, // Tiempo que tarda en escribir
-                    ease: "linear", 
-                    delay: 0.8 
+                    duration: 3, 
+                    ease: "linear", // Un movimiento constante simula mejor un lápiz
+                    delay: 0.6 
                   }}
-                  className="overflow-hidden whitespace-nowrap"
+                  className="inline-block relative"
                 >
-                  <span className="block text-[4rem] md:text-7xl lg:text-8xl font-handwriting font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] via-[#D14D8B] to-[#FFA8C5] drop-shadow-md pr-4 py-2 leading-none">
+                  <span className="block text-[3.5rem] md:text-7xl lg:text-8xl font-handwriting font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] via-[#D14D8B] to-[#FFA8C5] drop-shadow-md pr-2 sm:pr-4 py-2 leading-none">
                     Princesas
                   </span>
                 </motion.div>
                 
-                {/* La Varita/Lápiz Mágico que va dibujando */}
+                {/* Destello mágico que sigue el borde del texto ("La punta del lápiz") */}
                 <motion.div
                   initial={{ left: "0%", opacity: 0 }}
                   animate={{ left: "100%", opacity: [0, 1, 1, 0] }}
                   transition={{ 
-                    duration: 3.5, 
+                    duration: 3, 
                     ease: "linear", 
-                    delay: 0.8 
+                    delay: 0.6 
                   }}
-                  className="absolute top-1/2 -translate-y-1/2 -ml-2 w-8 h-8 md:w-10 md:h-10 pointer-events-none z-10 flex items-center justify-center"
+                  className="absolute top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 pointer-events-none z-10"
                 >
-                    {/* El Lápiz */}
-                    <Wand2 className="w-6 h-6 text-[#E85D9E] -rotate-45 drop-shadow-sm" />
-                    
-                    {/* Polvo mágico que cae del lápiz */}
-                    <motion.div
-                      animate={{ scale: [1, 1.5, 0], opacity: [1, 0, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity }}
-                      className="absolute top-1 right-1 w-2 h-2 bg-[#FFA8C5] rounded-full blur-[1px]"
-                    />
+                  <motion.div
+                    animate={{ rotate: [0, 180, 360], scale: [1, 1.2, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="w-full h-full"
+                  >
+                    <Sparkles className="w-full h-full text-[#E85D9E] drop-shadow-[0_0_10px_#FFA8C5] fill-white" />
+                  </motion.div>
                 </motion.div>
-
               </div>
             </motion.h1>
           </div>
