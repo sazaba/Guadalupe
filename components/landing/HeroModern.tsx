@@ -76,18 +76,17 @@ export default function HeroBoutique() {
           className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
         >
           <div className="w-full flex flex-col items-center lg:items-start">
-            <motion.h1 variants={fadeInUp} className="flex flex-col items-center lg:items-start leading-[1.1] relative w-full">
-              {/* ✨ AJUSTE DE ESPACIADO: He reducido el mb-2 a mb-0.5 */}
-              <span className="block text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-black mb-0.5">
+            <motion.h1 variants={fadeInUp} className="flex flex-col items-center lg:items-start leading-none relative w-full">
+              
+              {/* ✨ AJUSTE: Margen negativo inferior (-mb-2 a -mb-6) para acercar a Guadalupe */}
+              <span className="block text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-black -mb-2 md:-mb-4 lg:-mb-6 relative z-10">
                 Exclusivos
               </span>
               
-              {/* EFECTO DE ESCRITURA ACTUALIZADO Y OPTIMIZADO PARA SAFARI */}
-              {/* ✨ AJUSTE DE ESPACIADO: He reducido py-2 a py-1 */}
-              <div className="relative inline-block py-1 w-full flex justify-center lg:justify-start">
+              {/* Se restaura el py-2 original para no afectar el subrayado */}
+              <div className="relative inline-block py-2 w-full flex justify-center lg:justify-start">
                 <div className="relative inline-block">
                   
-                  {/* Contenedor con clip-path estilo inset (más rápido) */}
                   <motion.div 
                     initial={{ clipPath: "inset(0 100% 0 0)" }}
                     animate={{ clipPath: "inset(0 0% 0 0)" }}
@@ -99,13 +98,12 @@ export default function HeroBoutique() {
                     className="inline-block relative z-10 will-change-transform"
                     style={{ WebkitClipPath: "inset(0 100% 0 0)" }}
                   >
-                    {/* ✨ AJUSTE DE ESPACIADO: He eliminado py-2 de esta clase */}
-                    <span className="block text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#E85D9E] drop-shadow-[3px_3px_0px_#FAD1E6] pr-2 sm:pr-4 leading-tight">
+                    {/* Se restaura el py-2 original */}
+                    <span className="block text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#E85D9E] drop-shadow-[3px_3px_0px_#FAD1E6] pr-2 sm:pr-4 py-2 leading-tight">
                       Guadalupe
                     </span>
                   </motion.div>
 
-                  {/* SUBRAYADO ESPECTACULAR (Acelerado) */}
                   <svg 
                     className="absolute -bottom-2 md:-bottom-4 left-0 w-full h-8 md:h-12 pointer-events-none z-0" 
                     viewBox="0 0 300 30" 
@@ -131,7 +129,6 @@ export default function HeroBoutique() {
                     </defs>
                   </svg>
                   
-                  {/* DESTELLO (Lápiz natural acelerado) */}
                   <motion.div
                     initial={{ left: "0%", top: "50%", opacity: 0 }}
                     animate={{ 
@@ -209,7 +206,6 @@ export default function HeroBoutique() {
         >
           <div className="relative w-[280px] h-[280px] md:w-[420px] md:h-[420px]">
             
-            {/* Anillos rotatorios */}
             <motion.div 
               animate={{ rotate: 360 }}
               transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
@@ -223,7 +219,6 @@ export default function HeroBoutique() {
               <div className="absolute top-4 right-10 w-2.5 h-2.5 bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5] rounded-full shadow-[0_0_12px_#E85D9E]" />
             </motion.div>
 
-            {/* CONTENEDOR DE IMAGEN */}
             <motion.div 
               animate={{ y: [-10, 10, -10] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
@@ -245,7 +240,6 @@ export default function HeroBoutique() {
                <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/30 via-transparent to-transparent pointer-events-none" />
             </motion.div>
 
-            {/* Tarjeta Flotante: Envíos Internacionales */}
             <motion.div 
               initial={{ opacity: 0, x: -30, y: 10 }}
               animate={{ opacity: 1, x: 0, y: [0, 10, 0], rotate: [0, 2, 0] }}
@@ -263,7 +257,6 @@ export default function HeroBoutique() {
                </div>
             </motion.div>
 
-            {/* Tarjeta Flotante Superior (Regalo) */}
             <motion.div 
               initial={{ opacity: 0, x: 20, y: 20 }}
               animate={{ opacity: 1, x: 0, y: [0, -8, 0], rotate: [0, 3, 0] }}
@@ -281,7 +274,6 @@ export default function HeroBoutique() {
                </div>
             </motion.div>
 
-            {/* Tarjeta Flotante Inferior (Corazón) */}
             <motion.div 
               initial={{ opacity: 0, x: -20, y: -20 }}
               animate={{ opacity: 1, x: 0, y: [0, 8, 0], rotate: [0, -3, 0] }}
@@ -303,7 +295,6 @@ export default function HeroBoutique() {
                </div>
             </motion.div>
 
-            {/* Chispas flotantes */}
             <motion.div animate={{ rotate: 180, scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-1/4 -right-8 md:-right-12 z-30 pointer-events-none will-change-transform">
                <Star className="w-6 h-6 text-[#FFA8C5] fill-[#FFA8C5] opacity-80" />
             </motion.div>
