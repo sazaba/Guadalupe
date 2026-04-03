@@ -12,9 +12,13 @@ export async function createProduct(formData: FormData) {
     const category = formData.get("category") as string;
     const stock = formData.get("stock") as string;
     const imageUrl = formData.get("imageUrl") as string;
-    const purity = formData.get("purity") as string;
     
-    // Convertir el checkbox a booleano (si no está marcado, será null/undefined, por lo que evalúa a false)
+    // Nuevos campos de la Boutique
+    const size = formData.get("size") as string;
+    const color = formData.get("color") as string;
+    const material = formData.get("material") as string;
+    
+    // Convertir el checkbox a booleano
     const isFeatured = formData.get("isFeatured") === "true";
     
     // Generar Slug automático
@@ -29,17 +33,19 @@ export async function createProduct(formData: FormData) {
         stock: parseInt(stock),
         category,
         images: imageUrl,
-        purity,
+        size,       // <--- AGREGADO
+        color,      // <--- AGREGADO
+        material,   // <--- AGREGADO
         isActive: true,
-        isFeatured, // <--- CAMPO GUARDADO AQUÍ
+        isFeatured, 
       },
     });
 
     revalidatePath("/admin/products");
-    return { success: true, message: "Product created successfully." };
+    return { success: true, message: "Item added to the boutique successfully!" };
   } catch (error) {
     console.error(error);
-    return { success: false, message: "Database error. Could not create product." };
+    return { success: false, message: "Database error. Could not create item." };
   }
 }
 
@@ -48,9 +54,9 @@ export async function deleteProduct(id: string) {
   try {
     await prisma.product.delete({ where: { id } });
     revalidatePath("/admin/products");
-    return { success: true, message: "Product deleted successfully." };
+    return { success: true, message: "Item removed successfully." };
   } catch (error) {
-    return { success: false, message: "Error deleting product." };
+    return { success: false, message: "Error removing item." };
   }
 }
 
@@ -80,9 +86,11 @@ export async function updateProduct(id: string, formData: FormData) {
       category: formData.get("category") as string,
       price: parseFloat(formData.get("price") as string),
       stock: parseInt(formData.get("stock") as string),
-      purity: formData.get("purity") as string,
       images: formData.get("imageUrl") as string,
-      isFeatured, // <--- CAMPO ACTUALIZADO AQUÍ
+      size: formData.get("size") as string,         // <--- AGREGADO
+      color: formData.get("color") as string,       // <--- AGREGADO
+      material: formData.get("material") as string, // <--- AGREGADO
+      isFeatured, 
     };
 
     await prisma.product.update({
@@ -91,9 +99,9 @@ export async function updateProduct(id: string, formData: FormData) {
     });
 
     revalidatePath("/admin/products");
-    return { success: true, message: "Product updated successfully." };
+    return { success: true, message: "Boutique item updated successfully!" };
   } catch (error) {
     console.error(error);
-    return { success: false, message: "Error updating product." };
+    return { success: false, message: "Error updating item." };
   }
 }
