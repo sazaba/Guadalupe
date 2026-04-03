@@ -42,8 +42,10 @@ export default async function ProductPage({ params }: Props) {
   const serializedProduct = {
     ...product,
     price: Number(product.price),
-    // Si tu DB aún usa el campo 'purity', lo usamos como material o detalle de calidad
-    purity: product.purity || "100% Calidad Premium - Hecho con Amor", 
+    // Reemplazamos el antiguo 'purity' por los nuevos campos de la boutique
+    material: product.material || "100% Calidad Premium - Hecho con Amor", 
+    color: product.color || "Color Mágico",
+    size: product.size || "Talla Única",
     description: product.description || "Una prenda mágica diseñada con amor para hacer brillar a tu pequeña en sus momentos más especiales. Telas suaves, acabados hermosos y detalles únicos."
   };
 
