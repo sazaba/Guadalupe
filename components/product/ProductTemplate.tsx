@@ -173,7 +173,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </div>
                     </div>
 
-                    {/* Descripción COMPLETA Mágica */}
+                    {/* Descripción COMPLETA Mágica (Sin cortes) */}
                     <p className="text-base text-[#7B5C73] font-medium leading-relaxed font-sans text-center lg:text-left bg-white/60 p-6 rounded-3xl border border-pink-100 shadow-[0_10px_30px_-15px_rgba(232,93,158,0.1)] backdrop-blur-md">
                         {product.description}
                     </p>
@@ -215,7 +215,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
                                     : "bg-[#E85D9E] text-white shadow-[0_10px_20px_-5px_rgba(232,93,158,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(232,93,158,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer"
                                 }`}
                         >
-                            {/* Brillo del botón */}
                             {!isOutOfStock && (
                                 <motion.div 
                                     animate={{ x: ["-100%", "200%"] }}
@@ -240,8 +239,8 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </button>
                     </div>
 
-                    {/* Badges de Confianza */}
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 mt-4 pt-6 border-t border-pink-100/60">
+                    {/* Badges de Confianza (CON MÁS PADDING PARA QUE RESPIREN) */}
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-4 mt-8 pt-8 pb-4 border-t border-pink-100/80">
                         <div className="flex items-center gap-2 text-xs font-bold text-[#7B5C73]">
                             <ShieldCheck className="w-4 h-4 text-[#FFA8C5]" /> Pago Seguro
                         </div>
