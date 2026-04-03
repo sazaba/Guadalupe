@@ -13,6 +13,15 @@ export default function CartDrawer() {
   // Verificamos si hay algún producto que se quedó sin stock en el carrito
   const hasInvalidItems = items.some(item => (item.stock || 0) <= 0);
 
+  // Formateador de moneda colombiana
+  const formatCOP = (price: number) => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      maximumFractionDigits: 0
+    }).format(Number(price));
+  };
+
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = "hidden";
@@ -141,8 +150,9 @@ export default function CartDrawer() {
                               <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
+                          {/* PRECIO FORMATEADO AQUÍ */}
                           <span className={`text-lg font-bold ${isItemOOS ? "text-[#7B5C73]/50 line-through decoration-1" : "text-[#E85D9E]"}`}>
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatCOP(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -169,23 +179,26 @@ export default function CartDrawer() {
                 <div className="space-y-3 border-b border-[#FAD1E6]/50 pb-4">
                   <div className="flex justify-between items-center text-sm font-medium">
                     <span className="text-[#7B5C73]">Subtotal vestidos</span>
-                    <span className="text-[#33182B] font-bold">${cartSubtotal.toFixed(2)}</span>
+                    {/* PRECIO FORMATEADO AQUÍ */}
+                    <span className="text-[#33182B] font-bold">{formatCOP(cartSubtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-medium">
                     <span className="text-[#7B5C73] flex items-center gap-2">
                         Envío
                         {shippingTotal === 0 && <span className="text-[9px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">¡Gratis!</span>}
                     </span>
+                    {/* PRECIO FORMATEADO AQUÍ */}
                     <span className={`font-bold ${shippingTotal === 0 ? "text-green-500" : "text-[#33182B]"}`}>
-                        {shippingTotal === 0 ? "$0.00" : `$${shippingTotal.toFixed(2)}`}
+                        {shippingTotal === 0 ? "$0" : formatCOP(shippingTotal)}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold uppercase text-[#33182B]">Total Estimado</span>
+                  {/* PRECIO FORMATEADO AQUÍ */}
                   <span className="text-2xl font-bold text-[#E85D9E]">
-                    ${cartTotal.toFixed(2)}
+                    {formatCOP(cartTotal)}
                   </span>
                 </div>
 

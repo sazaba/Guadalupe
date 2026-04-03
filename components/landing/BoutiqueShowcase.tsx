@@ -21,7 +21,6 @@ interface Product {
   isFeatured?: boolean; 
 }
 
-// 1. NUEVOS TAGS CATEGORÍAS (Actualizados según tu petición)
 const CATEGORIES = ["Todos", "Nueva Coleccion", "Vestidos", "Accesorios", "Zapatos", "Sport"];
 const CATEGORY_MAP: Record<string, string> = {
   "Nueva Coleccion": "nueva coleccion",
@@ -31,12 +30,18 @@ const CATEGORY_MAP: Record<string, string> = {
   "Sport": "sport"
 };
 
-// 2. EFECTO HERO REPLICADO EN LOS PRODUCTOS
+// Formateador de moneda colombiana
+const formatCOP = (price: number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
+  }).format(Number(price));
+};
+
 const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: string, isOOS: boolean }) => {
   return (
     <div className="relative w-40 h-48 md:w-44 md:h-56 mx-auto flex items-center justify-center mt-6 mb-8 transform-gpu">
-      
-      {/* Anillos rotatorios decorativos (El "algo que las rodea" del Hero) */}
       <motion.div 
         animate={{ rotate: 360 }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
@@ -50,9 +55,8 @@ const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: str
         <div className="absolute top-2 right-4 w-1.5 h-1.5 bg-[#E85D9E] rounded-full shadow-[0_0_8px_#E85D9E]" />
       </motion.div>
 
-      {/* Contenedor de la imagen: Bordes muy redondos, borde blanco y sombra */}
       <motion.div
-        animate={{ y: [-6, 6, -6] }} // Animación flotante suave
+        animate={{ y: [-6, 6, -6] }} 
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2rem] border-[3px] border-white shadow-[0_15px_30px_-8px_rgba(232,93,158,0.25)] flex items-center justify-center z-20 overflow-hidden group-hover:border-[#FAD1E6]/80 transition-colors duration-500"
       >
@@ -61,11 +65,9 @@ const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: str
           alt={name} 
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
-          // object-cover y scale-105 replicado del hero
           className={`object-cover scale-105 group-hover:scale-110 transition-transform duration-700 ${isOOS ? "grayscale opacity-50" : ""}`}
           priority={true}
         />
-        {/* Filtro suave sobre la imagen replicado del Hero */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 to-transparent pointer-events-none" />
       </motion.div>
     </div>
@@ -86,7 +88,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
     ? inStockProducts 
     : inStockProducts.filter(p => p.category?.toLowerCase() === CATEGORY_MAP[activeCategory]?.toLowerCase());
 
-  // Ordenamos para mostrar los destacados primero
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (a.isFeatured && !b.isFeatured) return -1;
     if (!a.isFeatured && b.isFeatured) return 1;
@@ -120,7 +121,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
   return (
     <>
-    {/* PARTÍCULAS MÁGICAS AL AGREGAR AL CARRITO */}
     <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
       <AnimatePresence>
         {particles.map((p) => (
@@ -149,7 +149,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
     <section className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10 bg-[#FFFDFE]" id="catalog">
       
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8 overflow-hidden">
         <div>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
@@ -170,18 +170,19 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </motion.p>
         </div>
 
-        {/* --- TAGS ACTUALIZADOS --- */}
+        {/* --- CONTENEDOR DE ETIQUETAS ARREGLADO (Scroll horizontal en móvil) --- */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="flex flex-wrap gap-2 md:justify-end"
+          className="flex overflow-x-auto gap-2 pb-2 w-full md:w-auto md:justify-end md:flex-wrap snap-x scrollbar-hide"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold tracking-wider capitalize border transition-all duration-300 active:scale-95 ${
+              className={`whitespace-nowrap shrink-0 snap-start px-5 py-2.5 rounded-full text-xs font-bold tracking-wider capitalize border transition-all duration-300 active:scale-95 ${
                 activeCategory === cat
                   ? "bg-[#E85D9E] text-white border-[#E85D9E] shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)]" 
                   : "bg-white text-[#7B5C73] border-[#FAD1E6] hover:border-[#E85D9E] hover:text-[#E85D9E]"
@@ -213,14 +214,12 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
               >
                 <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-6 w-full h-full">
                     
-                    {/* Badge de Más Vendido */}
                     {!isOOS && product.stock < 50 && (
                       <span className="absolute top-5 right-5 z-30 bg-gradient-to-r from-[#FFA8C5] to-[#E85D9E] text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
                           <Sparkles className="w-3 h-3" /> MÁS VENDIDO
                       </span>
                     )}
 
-                    {/* Imagen con el nuevo Wrapper estilo Hero */}
                     <div className="relative z-10 w-full mb-2 mt-2">
                         <BoutiqueImageWrapper image={product.images} name={product.name} isOOS={isOOS} />
                     </div>
@@ -237,8 +236,9 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                         
                         <div className="border-t border-[#FAD1E6]/50 pt-5 w-full">
                             <div className="flex justify-between items-center mb-5">
+                                {/* PRECIO FORMATEADO AQUÍ */}
                                 <span className={`text-2xl font-bold font-sans ${isOOS ? "text-[#94A3B8] line-through decoration-1" : "text-[#E85D9E]"}`}>
-                                  ${Number(product.price).toFixed(2)}
+                                  {formatCOP(product.price)}
                                 </span>
                                 
                                 {isOOS ? (
