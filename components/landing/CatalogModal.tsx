@@ -204,7 +204,7 @@ export default function CatalogModal({ products, onClose }: { products: Product[
             </div>
         </div>
 
-        {/* GRID DE PRODUCTOS (Estructura idéntica al ProductShowcase) */}
+        {/* GRID DE PRODUCTOS */}
         <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-8 pb-24 relative z-10 custom-scrollbar overscroll-contain">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 max-w-7xl mx-auto">
                 <AnimatePresence mode="popLayout">
@@ -250,7 +250,7 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                                     <div className="border-t border-[#FAD1E6]/50 pt-5 w-full">
                                         <div className="flex justify-between items-center mb-5">
                                             <span className={`text-xl md:text-2xl font-bold font-sans ${isOOS ? "text-[#94A3B8] line-through decoration-1" : "text-[#E85D9E]"}`}>
-                                              ${Number(product.price).toFixed(2)}
+                                              ${Number(product.price).toLocaleString("es-CO")}
                                             </span>
                                             
                                             {isOOS ? (
