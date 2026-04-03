@@ -2,7 +2,7 @@
 
 import { useState, useRef, memo } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart, Minus, Plus, CheckCircle2, Sparkles, Gift, Crown, Star, ShieldCheck, ShoppingBag } from "lucide-react";
+import { Minus, Plus, CheckCircle2, Sparkles, Gift, Crown, Star, ShieldCheck, ShoppingBag, Droplets, Wind, SunMedium } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -23,7 +23,7 @@ const formatCOP = (price: number) => {
   }).format(Number(price));
 };
 
-// Partículas de fondo mágicas mejoradas
+// Partículas de fondo mágicas
 const MagicSparkles = memo(() => (
   <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-50 mix-blend-screen">
       <div className="absolute top-[15%] left-[10%] w-64 h-64 bg-pink-300/20 rounded-full blur-[80px] animate-pulse" />
@@ -35,7 +35,7 @@ const MagicSparkles = memo(() => (
 ));
 MagicSparkles.displayName = "MagicSparkles";
 
-// SVG Animado Decorativo (Estrella/Destello)
+// SVG Animado Decorativo
 const AnimatedStarIcon = ({ className }: { className?: string }) => (
     <motion.svg 
         animate={{ rotate: 360, scale: [1, 1.2, 1] }} 
@@ -135,7 +135,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
                                 priority
                                 sizes="(max-width: 1024px) 100vw, 50vw"
                             />
-                            {/* Overlay de gradiente */}
                             <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                         </div>
                     </motion.div>
@@ -174,14 +173,12 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </div>
                     </div>
 
-                    {/* Descripción Corta */}
-                    <p className="text-base text-[#7B5C73] font-medium leading-relaxed font-sans text-center lg:text-left bg-white/50 p-5 rounded-2xl border border-pink-100 shadow-sm backdrop-blur-sm">
-                        {product.description.length > 200 
-                            ? product.description.slice(0, 200) + "..." 
-                            : product.description}
+                    {/* Descripción COMPLETA Mágica */}
+                    <p className="text-base text-[#7B5C73] font-medium leading-relaxed font-sans text-center lg:text-left bg-white/60 p-6 rounded-3xl border border-pink-100 shadow-[0_10px_30px_-15px_rgba(232,93,158,0.1)] backdrop-blur-md">
+                        {product.description}
                     </p>
 
-                 {/* Ficha Técnica (Tallas, Color, Material) */}
+                    {/* Ficha Técnica (Tallas, Color, Material) */}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3.5 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
                             <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1.5">Tallas</span>
@@ -265,17 +262,39 @@ export default function ProductTemplate({ product }: { product: Product }) {
       <section className="bg-white relative z-20 shadow-[0_-20px_50px_rgba(232,93,158,0.05)] border-t border-[#FAD1E6]/50">
         <div className="max-w-7xl mx-auto px-6 py-20">
              
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
-                <div className="prose prose-pink max-w-none">
-                    <h3 className="flex items-center justify-center lg:justify-start gap-2 text-2xl font-display font-bold text-[#E85D9E] mb-6">
-                        <Sparkles className="w-6 h-6" /> Detalles Mágicos
-                    </h3>
-                    <div className="bg-pink-50/30 border border-pink-100 rounded-3xl p-8 shadow-sm">
-                        <p className="whitespace-pre-line text-[#7B5C73] leading-relaxed text-base font-medium">
-                            {product.description}
-                        </p>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20 items-center">
+                
+                {/* NUEVA SECCIÓN: GUÍA DE CUIDADOS (Reemplaza la descripción repetida) */}
+                <div className="bg-pink-50/40 border border-pink-100 rounded-[2.5rem] p-10 shadow-sm relative overflow-hidden">
+                    <div className="absolute -right-10 -top-10 opacity-5">
+                        <Sparkles className="w-40 h-40 text-[#E85D9E]" />
                     </div>
+                    
+                    <h3 className="flex items-center gap-3 text-2xl font-display font-bold text-[#E85D9E] mb-6 relative z-10">
+                        <Crown className="w-6 h-6" /> Guía de Cuidados
+                    </h3>
+                    
+                    <p className="text-[#7B5C73] text-sm font-medium mb-8 relative z-10">
+                        Nuestras prendas están hechas con detalles delicados y mucho amor. Para mantener la magia intacta por mucho tiempo, te recomendamos:
+                    </p>
+                    
+                    <ul className="space-y-5 relative z-10">
+                        <li className="flex items-center gap-4 text-sm text-[#33182B] font-bold">
+                            <div className="bg-white p-2.5 rounded-full shadow-sm border border-pink-100"><Droplets className="w-4 h-4 text-[#E85D9E]"/></div>
+                            Lavado a mano con agua fría y jabón suave.
+                        </li>
+                        <li className="flex items-center gap-4 text-sm text-[#33182B] font-bold">
+                            <div className="bg-white p-2.5 rounded-full shadow-sm border border-pink-100"><Wind className="w-4 h-4 text-[#E85D9E]"/></div>
+                            Secar a la sombra, sin retorcer la prenda.
+                        </li>
+                        <li className="flex items-center gap-4 text-sm text-[#33182B] font-bold">
+                            <div className="bg-white p-2.5 rounded-full shadow-sm border border-pink-100"><SunMedium className="w-4 h-4 text-[#E85D9E]"/></div>
+                            No usar blanqueador ni secadora automática.
+                        </li>
+                    </ul>
                 </div>
+
+                {/* LA PROMESA DE LA BOUTIQUE */}
                 <div>
                    <ResearchChallenges /> 
                 </div>
