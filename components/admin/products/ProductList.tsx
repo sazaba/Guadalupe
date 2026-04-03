@@ -13,23 +13,24 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
   
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
-        title: 'Remove from Boutique?',
-        text: "This beautiful item will be removed permanently.",
+        title: '¿Eliminar de la Boutique?',
+        text: "Esta hermosa prenda será eliminada permanentemente.",
         icon: 'warning',
         showCancelButton: true,
         background: 'var(--bg-page)',
         color: 'var(--text-main)',
         confirmButtonColor: '#f472b6', // pink-400
         cancelButtonColor: 'var(--text-muted)',
-        confirmButtonText: 'Yes, remove it'
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
     });
 
     if (result.isConfirmed) {
         const response = await deleteProduct(id);
         if (response.success) {
             Swal.fire({
-                title: 'Removed!',
-                text: 'Item removed from collection.',
+                title: '¡Eliminado!',
+                text: 'Prenda eliminada de la colección.',
                 icon: 'success',
                 background: 'var(--bg-page)',
                 color: 'var(--text-main)',
@@ -38,7 +39,14 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                 showConfirmButton: false
             });
         } else {
-            Swal.fire('Error', 'Could not remove item.', 'error');
+            Swal.fire({
+                title: 'Error', 
+                text: 'No se pudo eliminar la prenda.', 
+                icon: 'error',
+                background: 'var(--bg-page)',
+                color: 'var(--text-main)',
+                confirmButtonColor: '#f472b6'
+            });
         }
     }
   };
@@ -47,10 +55,31 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
       return (
           <div className="flex flex-col items-center justify-center p-12 border border-dashed border-pink-200 rounded-2xl text-[var(--text-muted)] mt-8 bg-pink-50/30">
               <Sparkles className="w-12 h-12 mb-4 text-pink-300 opacity-70" />
-              <p>No magical items found in the boutique yet.</p>
+              <p>Aún no hay prendas mágicas en la boutique.</p>
           </div>
       );
   }
+
+  // Helper para formatear en Pesos Colombianos
+  const formatCOP = (price: any) => {
+      return new Intl.NumberFormat('es-CO', {
+          style: 'currency',
+          currency: 'COP',
+          maximumFractionDigits: 0
+      }).format(Number(price));
+  };
+
+  // Helper para mostrar nombres bonitos en las categorías
+  const getCategoryLabel = (cat: string) => {
+      const labels: Record<string, string> = {
+          "nueva-coleccion": "Nueva Colección",
+          "vestidos": "Vestidos",
+          "accesorios": "Accesorios",
+          "zapatos": "Zapatos",
+          "sport": "Sport"
+      };
+      return labels[cat] || cat;
+  };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8 pb-20">
@@ -71,31 +100,31 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                 </div>
                 
                 {product.isFeatured && (
-                    <div className="absolute top-3 left-3 bg-pink-500/10 backdrop-blur-md p-1.5 rounded-lg border border-pink-200 shadow-sm z-20 text-pink-500" title="Featured Item">
+                    <div className="absolute top-3 left-3 bg-pink-500/10 backdrop-blur-md p-1.5 rounded-lg border border-pink-200 shadow-sm z-20 text-pink-500" title="Prenda Destacada">
                         <Star className="w-4 h-4 fill-current" />
                     </div>
                 )}
 
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-pink-600 uppercase border border-pink-100 shadow-sm z-20">
-                    {product.category}
+                    {getCategoryLabel(product.category)}
                 </div>
             </div>
 
             <div className="p-5 flex-1 flex flex-col bg-[var(--bg-page)]">
                 <div className="flex justify-between items-start mb-2 gap-4">
                     <h4 className="font-bold text-[var(--text-main)] text-base leading-tight line-clamp-2">{product.name}</h4>
-                    <span className="text-pink-500 font-bold whitespace-nowrap">${Number(product.price).toFixed(2)}</span>
+                    <span className="text-pink-500 font-bold whitespace-nowrap">{formatCOP(product.price)}</span>
                 </div>
                 
                 <p className="text-[11px] text-[var(--text-muted)] mb-4 truncate opacity-80">
-                    {product.size ? `Sizes: ${product.size}` : "One Size"}
+                    {product.size ? `Tallas: ${product.size}` : "Talla Única"}
                 </p>
                 
                 <div className="mt-auto flex items-center justify-between pt-4 border-t border-pink-50">
                     <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
                         <ShoppingBag className="w-4 h-4 text-pink-300" />
                         <span className={product.stock < 3 ? "text-red-400 font-bold" : ""}>
-                            {product.stock} in stock
+                            {product.stock} disponibles
                         </span>
                     </div>
 
@@ -103,7 +132,7 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                         <button 
                             onClick={() => onEdit(product)}
                             className="p-2 text-[var(--text-muted)] hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-colors" 
-                            title="Edit Item"
+                            title="Editar Prenda"
                         >
                             <Edit className="w-4 h-4" />
                         </button>
@@ -111,7 +140,7 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                         <button 
                             onClick={() => handleDelete(product.id)}
                             className="p-2 text-red-400/70 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" 
-                            title="Remove"
+                            title="Eliminar"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>
