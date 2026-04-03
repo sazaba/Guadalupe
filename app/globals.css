@@ -1,13 +1,13 @@
 @import "tailwindcss";
-/* ✨ Cambiamos a Pacifico para igualar el estilo de la imagen */
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+/* ✨ Usamos Yellowtail, la coincidencia gratuita más exacta al grosor y fluidez de tu logo */
+@import url('https://fonts.googleapis.com/css2?family=Yellowtail&display=swap');
 
 @theme {
   /* 1. TIPOGRAFÍA */
   --font-display: var(--font-quicksand, var(--font-poppins)), sans-serif;
   --font-sans: var(--font-inter), sans-serif;
   --font-mono: monospace;
-  --font-handwriting: 'Pacifico', cursive; /* ✨ FUENTE ACTUALIZADA */
+  --font-handwriting: 'Yellowtail', cursive; /* ✨ FUENTE ACTUALIZADA */
 
   /* 2. COLORES DE MARCA */
   --color-brand-dark: #4A154B; 
@@ -74,19 +74,6 @@
   .glass-panel {
     @apply bg-glass-bg border border-glass-border backdrop-blur-xl shadow-sm rounded-2xl;
   }
-
-  .text-gradient-hero {
-    background: linear-gradient(to right, #E85D9E 0%, #FFA8C5 50%, #E85D9E 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    background-size: 200% auto;
-    animation: var(--animate-shine);
-  }
-}
-
-@keyframes textShine {
-  to { background-position: 200% center; }
 }
 
 @keyframes float {

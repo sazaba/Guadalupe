@@ -85,24 +85,25 @@ export default function HeroBoutique() {
               <div className="relative inline-block py-2 w-full flex justify-center lg:justify-start">
                 <div className="relative inline-block">
                   
-                  {/* Contenedor con clip-path estilo inset (más seguro en Safari iOS) */}
+                  {/* Contenedor con clip-path estilo inset (más rápido) */}
                   <motion.div 
                     initial={{ clipPath: "inset(0 100% 0 0)" }}
                     animate={{ clipPath: "inset(0 0% 0 0)" }}
                     transition={{ 
-                      duration: 2.5, 
+                      duration: 1.2, 
                       ease: "easeInOut",
                       delay: 0.4 
                     }}
                     className="inline-block relative z-10 will-change-transform"
                     style={{ WebkitClipPath: "inset(0 100% 0 0)" }}
                   >
-                    <span className="block text-[3.5rem] md:text-7xl lg:text-8xl font-handwriting tracking-normal text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] via-[#D14D8B] to-[#FFA8C5] drop-shadow-sm pr-2 sm:pr-4 py-2 leading-tight">
+                    {/* ✨ CLASE ACTUALIZADA: Quitamos el degradado y agregamos el color sólido + sombra exacta del logo */}
+                    <span className="block text-[4rem] md:text-7xl lg:text-8xl font-handwriting tracking-normal text-[#D7458F] drop-shadow-[4px_4px_0px_#FAD1E6] pr-2 sm:pr-4 py-2 leading-tight">
                       Guadalupe
                     </span>
                   </motion.div>
 
-                  {/* SUBRAYADO ESPECTACULAR */}
+                  {/* SUBRAYADO ESPECTACULAR (Acelerado) */}
                   <svg 
                     className="absolute -bottom-2 md:-bottom-4 left-0 w-full h-8 md:h-12 pointer-events-none z-0" 
                     viewBox="0 0 300 30" 
@@ -117,7 +118,7 @@ export default function HeroBoutique() {
                       strokeLinecap="round"
                       initial={{ pathLength: 0, opacity: 0 }}
                       animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 1.2, delay: 2.8, ease: "circOut" }} 
+                      transition={{ duration: 0.8, delay: 1.6, ease: "circOut" }} 
                     />
                     <defs>
                       <linearGradient id="paint0_linear" x1="0" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse">
@@ -128,7 +129,7 @@ export default function HeroBoutique() {
                     </defs>
                   </svg>
                   
-                  {/* DESTELLO (Lápiz natural) */}
+                  {/* DESTELLO (Lápiz natural acelerado) */}
                   <motion.div
                     initial={{ left: "0%", top: "50%", opacity: 0 }}
                     animate={{ 
@@ -137,7 +138,7 @@ export default function HeroBoutique() {
                       opacity: [0, 1, 1, 1, 1, 0] 
                     }}
                     transition={{ 
-                      duration: 2.5, 
+                      duration: 1.2, 
                       ease: "easeInOut", 
                       delay: 0.4 
                     }}
@@ -145,7 +146,7 @@ export default function HeroBoutique() {
                   >
                     <motion.div
                       animate={{ rotate: [0, 180, 360], scale: [1, 1.3, 1] }}
-                      transition={{ duration: 0.6, repeat: Infinity }}
+                      transition={{ duration: 0.4, repeat: Infinity }}
                       className="w-full h-full"
                     >
                       <Sparkles className="w-full h-full text-[#E85D9E] drop-shadow-[0_0_10px_#FFA8C5] fill-white" />
