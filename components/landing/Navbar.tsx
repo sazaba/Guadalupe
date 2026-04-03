@@ -1,7 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, ShoppingCart, Search } from "lucide-react";
+import { 
+  Menu, 
+  X, 
+  ShoppingCart, 
+  Search, 
+  Sparkles, 
+  Crown, 
+  ShoppingBag, 
+  Ruler, 
+  Heart, 
+  MessageCircleQuestion 
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -63,25 +74,35 @@ export default function Navbar() {
 
   // Scroll suave hacia las secciones
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith("#")) {
+    // Extraemos el ID de la url (ej. "/#catalog" -> "catalog")
+    if (href.includes("#")) {
       e.preventDefault();
-      const targetId = href.replace("#", "");
+      const targetId = href.split("#")[1];
       const element = document.getElementById(targetId);
+      
       if (element) {
-        setMobileOpen(false); // Cierra el menú y restaura el scroll
+        setMobileOpen(false); // Cierra el menú en móviles
+        
         setTimeout(() => {
-           element.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+           // Scroll suave calculando el header
+           const offset = 80; // Espacio extra para que el navbar no tape el título
+           const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+           window.scrollTo({
+             top: elementPosition - offset,
+             behavior: "smooth"
+           });
+        }, 150); // Pequeño delay para dejar que la animación del menú termine
       }
     }
   };
 
+  // Enlaces enlazados a los IDs reales de tu Home
   const navLinks = [
-    { name: "Catálogo", href: "/#catalog" },
-    { name: "Novedades", href: "/#verification" },
-    { name: "Tallas", href: "/#calculator" },
-    { name: "Nosotros", href: "/#science" },
-    { name: "FAQ", href: "/#faq" },
+    { name: "Catálogo", href: "/#catalog", icon: ShoppingBag },
+    { name: "Novedades", href: "/#gallery", icon: Sparkles }, // Apuntando a la galería de ensueño
+    { name: "Tallas", href: "/#sizes", icon: Ruler },
+    { name: "Nosotros", href: "/#about", icon: Heart },
+    { name: "FAQ", href: "/#faq", icon: MessageCircleQuestion },
   ];
 
   const showNavbar = isVisible || mobileOpen;
@@ -140,7 +161,6 @@ export default function Navbar() {
         {/* ICONS & ACTIONS */}
         <div className="flex items-center gap-1 md:gap-2">
           <div className="hidden md:flex items-center gap-1">
-              
               <button className="p-2.5 text-[#7B5C73] hover:text-[#E85D9E] hover:bg-[#FAD1E6]/40 rounded-full transition-all duration-300 cursor-pointer">
                  <Search className="w-5 h-5" />
               </button>
@@ -158,7 +178,7 @@ export default function Navbar() {
               </button>
           </div>
 
-          {/* ICONO DEL CARRITO EN MÓVIL (Al lado del menú hamburguesa) */}
+          {/* ICONO DEL CARRITO EN MÓVIL */}
           <button 
                 onClick={toggleCart} 
                 className="lg:hidden relative p-2 text-[#33182B] hover:text-[#E85D9E] hover:bg-[#FAD1E6]/40 rounded-full transition-all duration-300"
@@ -173,7 +193,7 @@ export default function Navbar() {
 
           {/* MOBILE TOGGLE */}
           <button
-            className="lg:hidden flex items-center justify-center p-2 text-[#33182B] hover:text-[#E85D9E] hover:bg-[#FAD1E6]/40 rounded-full active:scale-95 transition-all"
+            className="lg:hidden flex items-center justify-center p-2 text-[#33182B] hover:text-[#E85D9E] hover:bg-[#FAD1E6]/40 rounded-full active:scale-95 transition-all relative z-50"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
@@ -182,33 +202,43 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU - DISEÑO PRINCESA */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }} 
+            exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="lg:hidden absolute top-[100%] left-0 right-0 bg-white/95 backdrop-blur-2xl border-b border-[#FAD1E6]/50 shadow-[0_10px_40px_-10px_rgba(232,93,158,0.15)] overflow-y-auto"
+            // Fondo con gradiente mágico y bordes suaves
+            className="lg:hidden absolute top-[100%] left-0 right-0 bg-gradient-to-b from-white via-[#FFFDFE] to-[#FFF0F7] border-b-2 border-[#FAD1E6] shadow-[0_20px_50px_-10px_rgba(232,93,158,0.2)] overflow-y-auto"
             style={{ maxHeight: "calc(100vh - 70px)" }} 
           >
-            <div className="p-6 flex flex-col gap-2 pb-10"> 
+            <div className="p-6 flex flex-col gap-3 pb-10 relative overflow-hidden"> 
               
-              {navLinks.map((link) => (
+              {/* Detalle mágico en el fondo */}
+              <Crown className="absolute -top-4 -right-4 w-32 h-32 text-[#FAD1E6]/20 rotate-12 pointer-events-none" />
+              
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className="text-lg font-semibold text-[#33182B] p-4 rounded-2xl hover:bg-[#FAD1E6]/30 active:bg-[#FAD1E6]/50 active:text-[#E85D9E] transition-all"
+                  className="group flex items-center gap-4 text-[17px] font-bold text-[#7B5C73] p-4 rounded-[2rem] hover:bg-[#FAD1E6]/40 hover:text-[#E85D9E] active:bg-[#FAD1E6]/70 active:text-[#E85D9E] transition-all relative overflow-hidden"
                   onClick={(e) => handleScrollTo(e, link.href)}
                 >
+                  <div className="bg-white p-2.5 rounded-full shadow-sm text-[#E85D9E] group-hover:scale-110 transition-transform">
+                    <Icon className="w-5 h-5" />
+                  </div>
                   {link.name}
+                  <Sparkles className="w-4 h-4 text-[#FAD1E6] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Link>
-              ))}
+              )})}
               
-              <div className="flex flex-col gap-3 mt-4 pt-6 border-t border-[#FAD1E6]/50">
-                 <button className="w-full py-4 flex items-center justify-center gap-2 bg-[#FAD1E6]/30 hover:bg-[#FAD1E6]/60 rounded-2xl text-[#E85D9E] font-bold text-sm transition-all">
-                    <Search className="w-5 h-5" /> Buscar productos
+              <div className="flex flex-col gap-3 mt-4 pt-6 border-t-2 border-dashed border-[#FAD1E6]/60">
+                 <button className="w-full py-4 flex items-center justify-center gap-2 bg-gradient-to-r from-[#E85D9E] to-[#F188B9] text-white rounded-[2rem] font-bold text-[15px] shadow-[0_8px_20px_-6px_rgba(232,93,158,0.5)] active:scale-95 transition-all">
+                    <Search className="w-5 h-5" /> Buscar vestido ideal
                  </button>
               </div>
             </div>
