@@ -1,45 +1,60 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import { ChevronDown, MessageCircleQuestion } from "lucide-react";
 
 const FAQS = [
-  { q: "Is shipping discreet?", a: "Yes. All parcels are shipped in plain packaging with no reference to contents or 'peptides'. The label indicates 'Research Reagents' for customs clearance." },
-  { q: "What is the purity guarantee?", a: "Every batch undergoes HPLC and Mass Spectrometry analysis. We guarantee >99% purity. COA (Certificate of Analysis) is available upon request for institutional buyers." },
-  { q: "Do you ship internationally?", a: "Yes. We utilize specialized logistics partners for global delivery (USA, EU, LatAm). Delivery success rate is 98.7%." },
-  { q: "How should I store the product?", a: "Upon receipt, store lyophilized vials at -20°C. Once reconstituted, keep at 4°C and use within 14-21 days for optimal integrity." },
+  {
+    q: "¿Cómo sé qué talla elegir?",
+    a: "Nuestras tallas son estándar (0 a 12 años). Te recomendamos elegir la talla que tu pequeña usa normalmente. Si está entre dos tallas o es altita, sugerimos llevar la talla más grande para mayor comodidad."
+  },
+  {
+    q: "¿Cuáles son los cuidados de lavado?",
+    a: "Para que la magia dure mucho más, recomendamos lavar a mano o en ciclo delicado con agua fría. No usar blanqueador, no retorcer y secar a la sombra. Los vestidos de tul o con apliques siempre deben lavarse por el revés."
+  },
+  {
+    q: "¿Cuánto tarda en llegar mi pedido?",
+    a: "Despachamos todos los pedidos en un plazo de 24 horas hábiles. Dependiendo de tu ciudad, la transportadora puede tardar entre 2 y 5 días hábiles en entregar en tu puerta."
+  },
+  {
+    q: "¿Tienen política de cambios?",
+    a: "¡Sí! Si la prenda no le quedó, tienes 15 días calendario para solicitar un cambio por talla, siempre y cuando la prenda esté nueva, con etiquetas y sin señales de uso."
+  }
 ];
 
 export default function ProtocolFAQ() {
-  const [open, setOpen] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="mb-16">
-      <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] mb-6 flex items-center gap-2">
-         <HelpCircle className="w-3 h-3" /> Protocol Database / FAQ
-      </h3>
-      
-      <div className="grid gap-2">
-        {FAQS.map((faq, i) => (
-          <div key={i} className="border border-[var(--glass-border)] bg-[var(--glass-bg)] rounded-xl overflow-hidden">
-            <button 
-              onClick={() => setOpen(open === i ? null : i)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-[var(--glass-border)]/30 transition-colors"
+    <div className="max-w-3xl mx-auto">
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-display font-bold text-[#33182B] flex items-center justify-center gap-3">
+            <MessageCircleQuestion className="text-[#E85D9E]" /> Dudas Frecuentes
+        </h2>
+        <p className="text-[#7B5C73] mt-2">Todo lo que necesitas saber antes de tu compra</p>
+      </div>
+
+      <div className="space-y-4">
+        {FAQS.map((faq, index) => (
+          <div key={index} className="border border-[#FAD1E6] rounded-2xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <button
+              onClick={() => setOpenIndex(openIndex === index ? null : index)}
+              className="w-full px-6 py-5 flex items-center justify-between bg-white cursor-pointer"
             >
-              <span className="font-mono text-sm font-bold text-[var(--text-main)]">{faq.q}</span>
-              <ChevronDown className={`w-4 h-4 text-[var(--color-brand-primary)] transition-transform ${open === i ? "rotate-180" : ""}`} />
+              <span className="font-bold text-[#33182B] text-left">{faq.q}</span>
+              <ChevronDown className={`w-5 h-5 text-[#E85D9E] transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""}`} />
             </button>
             <AnimatePresence>
-              {open === i && (
-                <motion.div 
+              {openIndex === index && (
+                <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
                 >
-                  <p className="p-4 pt-0 text-xs text-[var(--text-muted)] leading-relaxed border-t border-[var(--glass-border)]/50">
+                  <div className="px-6 pb-5 text-[#7B5C73] text-sm leading-relaxed border-t border-gray-50 pt-4">
                     {faq.a}
-                  </p>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

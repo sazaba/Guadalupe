@@ -2,7 +2,7 @@
 
 import { useState, useRef, memo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ShoppingCart, Minus, Plus, CheckCircle2, Activity, AlertCircle } from "lucide-react";
+import { Heart, Minus, Plus, CheckCircle2, Sparkles, Gift } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -11,26 +11,18 @@ import { useCart } from "@/context/CartContext";
 // Componentes secundarios
 import ProductReviews from "./ProductReviews";
 import StickyPurchase from "./StickyPurchase";
-import ResearchChallenges from "./ResearchChallenges";
-import ProtocolFAQ from "./ProtocolFAQ";
+import ResearchChallenges from "./ResearchChallenges"; // Ahora es "Por qué elegirnos"
+import ProtocolFAQ from "./ProtocolFAQ"; // Ahora es "Dudas Frecuentes"
 
-const StaticNoise = memo(() => (
-  <div 
-    className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay z-0"
-    style={{
-      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
-    }}
-  />
+// Partículas de fondo mágicas (en lugar de ruido estático)
+const MagicSparkles = memo(() => (
+  <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-40">
+      <div className="absolute top-[20%] left-[10%] w-2 h-2 rounded-full bg-[#E85D9E] shadow-[0_0_10px_#E85D9E] animate-pulse" />
+      <div className="absolute top-[60%] right-[15%] w-3 h-3 rounded-full bg-[#FFA8C5] shadow-[0_0_15px_#FFA8C5] animate-ping" style={{ animationDuration: '3s' }} />
+      <div className="absolute bottom-[20%] left-[30%] w-1.5 h-1.5 rounded-full bg-[#FAD1E6] shadow-[0_0_8px_#FAD1E6] animate-pulse" style={{ animationDuration: '4s' }} />
+  </div>
 ));
-StaticNoise.displayName = "StaticNoise";
-
-const getAccentColor = (category: string) => {
-  switch (category?.toLowerCase()) {
-    case "peptides": return "#00C9FF";
-    case "nootropics": return "#92FE9D";
-    default: return "#00C9FF";
-  }
-};
+MagicSparkles.displayName = "MagicSparkles";
 
 interface Product {
   id: string;
@@ -39,7 +31,7 @@ interface Product {
   price: number;
   stock: number;
   images: string;
-  purity?: string;
+  purity?: string; // Lo usaremos como material/calidad
   description: string;
   slug: string;
 }
@@ -49,7 +41,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const { addItem } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const accentColor = getAccentColor(product.category);
   const isOutOfStock = product.stock <= 0;
 
   const { scrollYProgress } = useScroll({
@@ -58,53 +49,49 @@ export default function ProductTemplate({ product }: { product: Product }) {
   });
 
   const textParallax = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
 
   return (
-    <div className="bg-[var(--bg-page)] min-h-screen text-[var(--text-main)] transition-colors duration-300 overflow-x-hidden selection:bg-[var(--color-brand-primary)] selection:text-white">
+    <div className="bg-[#FFFDFE] min-h-screen text-[#33182B] transition-colors duration-300 overflow-x-hidden selection:bg-[#FAD1E6] selection:text-[#E85D9E]">
       <Navbar />
 
       <section ref={containerRef} className="relative min-h-[100dvh] w-full flex flex-col justify-center pt-24 pb-12 lg:pt-0 lg:pb-0">
         
+        {/* Glow de fondo suave */}
         <div className="absolute inset-0 pointer-events-none">
-            <div 
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full blur-[120px] opacity-20"
-              style={{ background: `radial-gradient(circle, ${accentColor} 0%, transparent 70%)` }}
-            />
-            <StaticNoise />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] rounded-full blur-[120px] opacity-20 bg-gradient-to-tr from-[#FAD1E6] to-pink-100" />
+            <MagicSparkles />
         </div>
         
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden opacity-10">
+        {/* Marca de agua de fondo */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden opacity-[0.03]">
           <motion.h2
-            style={{ 
-                y: textParallax,
-                WebkitTextStroke: "1px var(--text-muted)", 
-                color: "transparent"
-            }}
-            className="text-[18vw] font-display font-black uppercase leading-none whitespace-nowrap select-none"
+            style={{ y: textParallax, WebkitTextStroke: "2px #E85D9E", color: "transparent" }}
+            className="text-[20vw] font-handwriting font-bold whitespace-nowrap select-none"
           >
-             {product.slug?.split("-")[0] || "LABS"}
+             Boutique
           </motion.h2>
         </div>
 
         <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 lg:px-12 h-full flex items-center">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
 
+                {/* COLUMNA IZQUIERDA: Textos */}
                 <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1 text-center lg:text-left items-center lg:items-start">
                     
-                    <div className="flex items-center gap-3 text-xs font-mono text-[var(--text-muted)]">
-                        <span>ID_{product.id ? product.id.slice(-4).toUpperCase() : "001"}</span>
-                        <span className="h-px w-8 bg-[var(--glass-border)]" />
-                        <span style={{ color: accentColor }} className="font-bold uppercase tracking-widest bg-[var(--glass-bg)] border border-[var(--glass-border)] px-2 py-0.5 rounded-sm">
+                    <div className="flex items-center gap-3 text-[10px] font-sans text-[#7B5C73] uppercase tracking-widest font-bold">
+                        <span>REF: {product.id ? product.id.slice(-4).toUpperCase() : "001"}</span>
+                        <span className="h-px w-8 bg-[#FAD1E6]" />
+                        <span className="text-[#E85D9E] bg-[#FAD1E6]/20 border border-[#FAD1E6] px-3 py-1 rounded-full">
                             {product.category}
                         </span>
                     </div>
 
                     <div>
-                        <h1 className="text-5xl lg:text-7xl font-display font-black leading-[0.9] tracking-tighter mb-4 text-[var(--text-main)]">
+                        <h1 className="text-4xl lg:text-6xl font-display font-bold leading-[1.1] mb-4 text-[#33182B]">
                             {product.name}
                         </h1>
-                        <p className="text-sm lg:text-base text-[var(--text-muted)] leading-relaxed max-w-md font-sans">
+                        <p className="text-sm lg:text-base text-[#7B5C73] font-medium leading-relaxed max-w-md font-sans">
                             {product.description.length > 180 
                                 ? product.description.slice(0, 180) + "..." 
                                 : product.description}
@@ -113,94 +100,105 @@ export default function ProductTemplate({ product }: { product: Product }) {
 
                     <div className="w-full max-w-sm flex flex-col gap-5 mt-2">
                         <div className="flex items-baseline gap-2 justify-center lg:justify-start">
-                             <span className="text-4xl font-display font-black tracking-tighter text-[var(--text-main)]">
+                             <span className="text-3xl lg:text-4xl font-display font-bold text-[#E85D9E]">
                                 ${product.price.toLocaleString()}
-                             </span>
-                             <span className="text-[10px] font-mono uppercase text-[var(--text-muted)]">
-                                USD / Lyophilized
                              </span>
                         </div>
 
-                        <div className="flex gap-3 h-12">
-                            <div className={`flex items-center justify-between border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-md rounded px-3 w-32 ${isOutOfStock ? "opacity-30 pointer-events-none" : ""}`}>
-                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[var(--text-muted)] hover:text-[var(--text-main)]">
-                                    <Minus size={14} />
+                        <div className="flex gap-3 h-14">
+                            <div className={`flex items-center justify-between border-2 border-[#FAD1E6] bg-white rounded-full px-4 w-32 ${isOutOfStock ? "opacity-30 pointer-events-none" : ""}`}>
+                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#7B5C73] hover:text-[#E85D9E]">
+                                    <Minus size={16} />
                                 </button>
-                                <span className="font-mono font-bold text-[var(--text-main)]">{qty}</span>
-                                <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-[var(--text-muted)] hover:text-[var(--text-main)]">
-                                    <Plus size={14} />
+                                <span className="font-bold text-[#33182B] text-lg">{qty}</span>
+                                <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-[#7B5C73] hover:text-[#E85D9E]">
+                                    <Plus size={16} />
                                 </button>
                             </div>
                             
                             <button
                                 onClick={() => !isOutOfStock && addItem(product, qty)}
                                 disabled={isOutOfStock}
-                                className={`flex-1 font-bold uppercase tracking-widest text-[10px] md:text-xs rounded shadow-lg transition-all flex items-center justify-center gap-2 group
+                                className={`flex-1 font-bold tracking-wider text-xs md:text-sm rounded-full shadow-lg transition-all flex items-center justify-center gap-2 group
                                     ${isOutOfStock 
-                                        ? "bg-[var(--glass-border)] text-[var(--text-muted)] cursor-not-allowed" 
-                                        : "bg-[var(--text-main)] text-[var(--bg-page)] hover:opacity-90 active:scale-95"
+                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300" 
+                                        : "bg-gradient-to-r from-[#E85D9E] to-[#D14D8B] text-white hover:scale-[1.02] hover:shadow-[0_10px_25px_-5px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer"
                                     }`}
                             >
-                                <span>{isOutOfStock ? "Temporarily Depleted" : "Add to Lab Cart"}</span>
-                                {!isOutOfStock && <ShoppingCart className="w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-1 transition-transform" />}
+                                <span>{isOutOfStock ? "Agotado" : "Agregar al Carrito"}</span>
+                                {!isOutOfStock && <Heart className="w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform fill-white/20" />}
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className="lg:col-span-4 order-1 lg:order-2 h-[40vh] lg:h-[60vh] flex items-center justify-center relative">
-                    <div 
-                        className="absolute w-[280px] h-[280px] lg:w-[400px] lg:h-[400px] rounded-full border border-[var(--glass-border)] animate-[spin_20s_linear_infinite]"
-                        style={{ borderTopColor: accentColor }}
-                    />
-                    <div className="absolute w-[220px] h-[220px] lg:w-[320px] lg:h-[320px] rounded-full border border-dashed border-[var(--glass-border)] animate-[spin_30s_linear_infinite_reverse] opacity-40" />
+                {/* COLUMNA CENTRAL: Imagen Mágica */}
+                <div className="lg:col-span-4 order-1 lg:order-2 h-[45vh] lg:h-[65vh] flex items-center justify-center relative mt-8 lg:mt-0">
                     
-                    <motion.div style={{ scale: imageScale }} className="relative w-[85%] h-[85%] z-20 flex items-center justify-center">
+                    {/* Anillos Rotatorios Estilo Hero */}
+                    <div className="absolute w-[280px] h-[280px] lg:w-[420px] lg:h-[420px] rounded-full border border-dashed border-[#FAD1E6] animate-[spin_40s_linear_infinite] opacity-60" />
+                    <div className="absolute w-[220px] h-[220px] lg:w-[340px] lg:h-[340px] rounded-full border border-[#FAD1E6]/40 animate-[spin_50s_linear_infinite_reverse]">
+                        <div className="absolute top-4 right-10 w-2.5 h-2.5 bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5] rounded-full shadow-[0_0_12px_#E85D9E]" />
+                    </div>
+                    
+                    {/* CORRECCIÓN APLICADA AQUÍ: style solo tiene scale, animate tiene 'y' */}
+                    <motion.div 
+                        style={{ scale: imageScale }} 
+                        animate={{ y: [-10, 10, -10] }} 
+                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
+                        className="relative w-[80%] h-[80%] lg:w-[85%] lg:h-[85%] z-20 flex items-center justify-center bg-white/40 backdrop-blur-md rounded-[2.5rem] lg:rounded-[4rem] border-[4px] border-white shadow-[0_25px_50px_-12px_rgba(232,93,158,0.25)] overflow-hidden group"
+                    >
                         <Image
                             src={product.images}
                             alt={product.name}
                             fill
-                            className={`object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)] ${isOutOfStock ? "grayscale opacity-50" : ""}`}
+                            className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isOutOfStock ? "grayscale opacity-50" : ""}`}
                             priority
                             sizes="(max-width: 768px) 100vw, 33vw"
                         />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/20 via-transparent to-transparent pointer-events-none" />
                     </motion.div>
                 </div>
 
+                {/* COLUMNA DERECHA: Specs y Detalles */}
                 <div className="lg:col-span-4 order-3 lg:order-3 flex flex-col gap-8 text-center lg:text-right items-center lg:items-end">
                     
                     <div>
-                        <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] block mb-1">
-                            HPLC Purity
+                        <span className="text-[10px] font-sans uppercase tracking-widest text-[#7B5C73] font-bold block mb-1">
+                            Calidad & Material
                         </span>
                         <div className="flex items-center gap-2 justify-center lg:justify-end">
-                            <span className="text-3xl font-display font-bold text-[var(--text-main)]">
-                                {product.purity || "99.8%"}
+                            <span className="text-xl lg:text-2xl font-display font-bold text-[#33182B]">
+                                {product.purity || "Algodón Premium"}
                             </span>
-                            <CheckCircle2 size={18} color={accentColor} />
+                            <CheckCircle2 size={20} className="text-[#E85D9E]" />
                         </div>
                     </div>
 
                     <div>
-                        <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[var(--text-muted)] block mb-2">
-                            Inventory Status
+                        <span className="text-[10px] font-sans uppercase tracking-widest text-[#7B5C73] font-bold block mb-2">
+                            Disponibilidad
                         </span>
-                        <div className={`inline-flex items-center gap-3 border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-2 rounded-full backdrop-blur-sm ${isOutOfStock ? "border-red-500/30" : ""}`}>
-                            <div className={`w-1.5 h-1.5 rounded-full ${!isOutOfStock ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
-                            <span className={`text-xs font-bold ${!isOutOfStock ? "text-[var(--text-main)]" : "text-red-500"}`}>
-                                {!isOutOfStock ? `${product.stock} Vials Available` : "OUT OF STOCK"}
+                        <div className={`inline-flex items-center gap-3 border border-[#FAD1E6] bg-white px-5 py-2.5 rounded-full shadow-sm ${isOutOfStock ? "border-gray-300" : ""}`}>
+                            <div className={`w-2 h-2 rounded-full ${!isOutOfStock ? "bg-[#E85D9E] animate-pulse" : "bg-gray-400"}`} />
+                            <span className={`text-xs font-bold uppercase tracking-wider ${!isOutOfStock ? "text-[#E85D9E]" : "text-gray-500"}`}>
+                                {!isOutOfStock ? `${product.stock} Unidades en Stock` : "Agotado Temporalmente"}
                             </span>
                         </div>
                     </div>
 
-                    <div className="w-full lg:w-auto pt-6 border-t border-[var(--glass-border)]">
-                        <span style={{ color: accentColor }} className="text-[9px] uppercase tracking-widest font-mono block mb-3">
-                            Specifications
+                    <div className="w-full lg:w-auto pt-6 border-t border-[#FAD1E6]">
+                        <span className="text-[#E85D9E] text-[10px] uppercase tracking-widest font-sans font-bold block mb-4">
+                            Por qué te encantará
                         </span>
-                        <ul className="flex flex-col gap-2">
-                            {["Research Grade", "Sterile Vial", "Mass Spec Verified"].map((item, i) => (
-                                <li key={i} className="text-sm font-bold uppercase tracking-wide text-[var(--text-main)]">
-                                    {item}
+                        <ul className="flex flex-col gap-3">
+                            {[
+                                { t: "Hecho con Amor", i: Heart }, 
+                                { t: "Envíos a todo el país", i: Gift }, 
+                                { t: "Diseños Exclusivos", i: Sparkles }
+                            ].map((item, i) => (
+                                <li key={i} className="flex items-center justify-center lg:justify-end gap-2 text-sm font-bold text-[#33182B]">
+                                    <item.i className="w-4 h-4 text-[#FFA8C5]" /> {item.t}
                                 </li>
                             ))}
                         </ul>
@@ -211,20 +209,21 @@ export default function ProductTemplate({ product }: { product: Product }) {
         </div>
       </section>
 
-      <section className="border-t border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-sm relative z-20">
+      {/* SECCIÓN INFERIOR BLANCA */}
+      <section className="bg-white relative z-20 shadow-[0_-20px_50px_rgba(232,93,158,0.05)] border-t border-[#FAD1E6]/50">
         <div className="max-w-7xl mx-auto px-6 py-20">
              
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
-                <div className="prose dark:prose-invert max-w-none">
-                    <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] mb-6 text-[var(--text-muted)]">
-                        <Activity className="w-4 h-4" /> Comprehensive Abstract
+                <div className="prose prose-pink max-w-none">
+                    <h3 className="flex items-center gap-2 text-xl font-display font-bold text-[#E85D9E] mb-6">
+                        <Sparkles className="w-5 h-5" /> Detalles Mágicos
                     </h3>
-                    <p className="whitespace-pre-line text-[var(--text-muted)] leading-relaxed text-sm md:text-base">
+                    <p className="whitespace-pre-line text-[#7B5C73] leading-relaxed text-sm md:text-base font-medium">
                         {product.description}
                     </p>
                 </div>
                 <div>
-                   <ResearchChallenges />
+                   <ResearchChallenges /> {/* Se renombró internamente a Por qué elegirnos */}
                 </div>
             </div>
             
@@ -232,7 +231,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                  <ProtocolFAQ />
             </div>
             
-            <div className="pt-10 border-t border-[var(--glass-border)]">
+            <div className="pt-10 border-t border-[#FAD1E6]/50">
                 <ProductReviews />
             </div>
         </div>
