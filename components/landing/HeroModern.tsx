@@ -1,6 +1,6 @@
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Heart, Sparkles, Gift, Star } from "lucide-react";
+import { ArrowRight, Heart, Sparkles, Gift, Star, Plane } from "lucide-react";
 import Image from "next/image";
 
 import heroImage from "@/app/assets/PG1.webp"; 
@@ -62,13 +62,13 @@ export default function HeroBoutique() {
         <motion.div 
           animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-0 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-gradient-to-br from-pink-100/40 to-purple-100/40 rounded-full blur-[80px] md:blur-[100px] -translate-y-1/2 translate-x-1/3" 
+          className="absolute top-0 right-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-gradient-to-br from-pink-100/40 to-purple-100/40 rounded-full blur-[80px] md:blur-[100px] -translate-y-1/2 translate-x-1/3 will-change-transform" 
         />
       </div>
 
       <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
         
-        {/* COLUMNA IZQUIERDA (Texto de Boutique) */}
+        {/* COLUMNA IZQUIERDA */}
         <motion.div 
           variants={staggerContainer}
           initial="hidden"
@@ -78,46 +78,81 @@ export default function HeroBoutique() {
           <div className="w-full flex flex-col items-center lg:items-start">
             <motion.h1 variants={fadeInUp} className="flex flex-col items-center lg:items-start leading-[1.1] relative w-full">
               <span className="block text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-[#33182B] mb-2">
-                Vestidos para
+                Exclusivos
               </span>
               
-              {/* EFECTO DE ESCRITURA ESTILO LÁPIZ/CURSIVA */}
+              {/* EFECTO DE ESCRITURA ACTUALIZADO Y OPTIMIZADO PARA SAFARI */}
               <div className="relative inline-block py-2 w-full flex justify-center lg:justify-start">
-                {/* Contenedor que revela el texto gradualmente */}
-                <motion.div 
-                  initial={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0% 100%)" }}
-                  animate={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }}
-                  transition={{ 
-                    duration: 3, 
-                    ease: "linear", // Un movimiento constante simula mejor un lápiz
-                    delay: 0.6 
-                  }}
-                  className="inline-block relative"
-                >
-                  <span className="block text-[3.5rem] md:text-7xl lg:text-8xl font-handwriting font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] via-[#D14D8B] to-[#FFA8C5] drop-shadow-md pr-2 sm:pr-4 py-2 leading-none">
-                    Princesas
-                  </span>
-                </motion.div>
-                
-                {/* Destello mágico que sigue el borde del texto ("La punta del lápiz") */}
-                <motion.div
-                  initial={{ left: "0%", opacity: 0 }}
-                  animate={{ left: "100%", opacity: [0, 1, 1, 0] }}
-                  transition={{ 
-                    duration: 3, 
-                    ease: "linear", 
-                    delay: 0.6 
-                  }}
-                  className="absolute top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 pointer-events-none z-10"
-                >
-                  <motion.div
-                    animate={{ rotate: [0, 180, 360], scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="w-full h-full"
+                <div className="relative inline-block">
+                  
+                  {/* Contenedor con clip-path estilo inset (más seguro en Safari iOS) */}
+                  <motion.div 
+                    initial={{ clipPath: "inset(0 100% 0 0)" }}
+                    animate={{ clipPath: "inset(0 0% 0 0)" }}
+                    transition={{ 
+                      duration: 2.5, 
+                      ease: "easeInOut",
+                      delay: 0.4 
+                    }}
+                    className="inline-block relative z-10 will-change-transform"
+                    style={{ WebkitClipPath: "inset(0 100% 0 0)" }}
                   >
-                    <Sparkles className="w-full h-full text-[#E85D9E] drop-shadow-[0_0_10px_#FFA8C5] fill-white" />
+                    <span className="block text-[3.5rem] md:text-7xl lg:text-8xl font-handwriting tracking-normal text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] via-[#D14D8B] to-[#FFA8C5] drop-shadow-sm pr-2 sm:pr-4 py-2 leading-tight">
+                      Guadalupe
+                    </span>
                   </motion.div>
-                </motion.div>
+
+                  {/* SUBRAYADO ESPECTACULAR */}
+                  <svg 
+                    className="absolute -bottom-2 md:-bottom-4 left-0 w-full h-8 md:h-12 pointer-events-none z-0" 
+                    viewBox="0 0 300 30" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                    preserveAspectRatio="none"
+                  >
+                    <motion.path 
+                      d="M 5,15 Q 80,5 150,15 T 295,15" 
+                      stroke="url(#paint0_linear)" 
+                      strokeWidth="6" 
+                      strokeLinecap="round"
+                      initial={{ pathLength: 0, opacity: 0 }}
+                      animate={{ pathLength: 1, opacity: 1 }}
+                      transition={{ duration: 1.2, delay: 2.8, ease: "circOut" }} 
+                    />
+                    <defs>
+                      <linearGradient id="paint0_linear" x1="0" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#E85D9E" />
+                        <stop offset="0.5" stopColor="#D14D8B" />
+                        <stop offset="1" stopColor="#FFA8C5" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  
+                  {/* DESTELLO (Lápiz natural) */}
+                  <motion.div
+                    initial={{ left: "0%", top: "50%", opacity: 0 }}
+                    animate={{ 
+                      left: ["0%", "15%", "35%", "50%", "75%", "100%"], 
+                      top: ["50%", "30%", "65%", "40%", "60%", "50%"], 
+                      opacity: [0, 1, 1, 1, 1, 0] 
+                    }}
+                    transition={{ 
+                      duration: 2.5, 
+                      ease: "easeInOut", 
+                      delay: 0.4 
+                    }}
+                    className="absolute -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 pointer-events-none z-20 will-change-transform"
+                  >
+                    <motion.div
+                      animate={{ rotate: [0, 180, 360], scale: [1, 1.3, 1] }}
+                      transition={{ duration: 0.6, repeat: Infinity }}
+                      className="w-full h-full"
+                    >
+                      <Sparkles className="w-full h-full text-[#E85D9E] drop-shadow-[0_0_10px_#FFA8C5] fill-white" />
+                    </motion.div>
+                  </motion.div>
+
+                </div>
               </div>
             </motion.h1>
           </div>
@@ -138,7 +173,7 @@ export default function HeroBoutique() {
               <motion.div 
                 animate={{ x: ["-100%", "200%"] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
-                className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
+                className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 will-change-transform"
               />
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Explorar Colección <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -162,7 +197,7 @@ export default function HeroBoutique() {
           </motion.div>
         </motion.div>
 
-        {/* COLUMNA DERECHA (Composición Mágica con FOTO REAL) */}
+        {/* COLUMNA DERECHA */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -171,25 +206,25 @@ export default function HeroBoutique() {
         >
           <div className="relative w-[280px] h-[280px] md:w-[420px] md:h-[420px]">
             
-            {/* Anillos rotatorios decorativos */}
+            {/* Anillos rotatorios */}
             <motion.div 
               animate={{ rotate: 360 }}
               transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-[-20px] rounded-full border-[1.5px] border-dashed border-[#E85D9E]/30 opacity-60"
+              className="absolute inset-[-20px] rounded-full border-[1.5px] border-dashed border-[#E85D9E]/30 opacity-60 will-change-transform"
             />
             <motion.div 
               animate={{ rotate: -360 }}
               transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-[-40px] rounded-full border-[1px] border-[#FAD1E6]/40"
+              className="absolute inset-[-40px] rounded-full border-[1px] border-[#FAD1E6]/40 will-change-transform"
             >
               <div className="absolute top-4 right-10 w-2.5 h-2.5 bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5] rounded-full shadow-[0_0_12px_#E85D9E]" />
             </motion.div>
 
-            {/* CONTENEDOR DE IMAGEN PRINCIPAL */}
+            {/* CONTENEDOR DE IMAGEN */}
             <motion.div 
               animate={{ y: [-10, 10, -10] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2.5rem] md:rounded-[4rem] border-[4px] border-white/80 shadow-[0_25px_50px_-12px_rgba(232,93,158,0.3)] flex items-center justify-center z-20 overflow-hidden group"
+              className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2.5rem] md:rounded-[4rem] border-[4px] border-white/80 shadow-[0_25px_50px_-12px_rgba(232,93,158,0.3)] flex items-center justify-center z-20 overflow-hidden group will-change-transform"
             >
                {heroImage ? (
                   <Image 
@@ -207,12 +242,30 @@ export default function HeroBoutique() {
                <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/30 via-transparent to-transparent pointer-events-none" />
             </motion.div>
 
+            {/* Tarjeta Flotante: Envíos Internacionales */}
+            <motion.div 
+              initial={{ opacity: 0, x: -30, y: 10 }}
+              animate={{ opacity: 1, x: 0, y: [0, 10, 0], rotate: [0, 2, 0] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2, opacity: { duration: 1, delay: 1.5 } }}
+              className="absolute top-1/4 -left-10 md:-left-20 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/50 z-30 pointer-events-none will-change-transform"
+            >
+               <div className="flex items-center gap-3">
+                 <div className="p-2.5 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-sm">
+                    <Plane className="w-5 h-5 text-indigo-400" />
+                 </div>
+                 <div>
+                   <p className="text-[10px] text-[#7B5C73] font-bold uppercase tracking-wider">Envíos</p>
+                   <p className="text-xs md:text-sm font-bold text-[#33182B]">Internacionales</p>
+                 </div>
+               </div>
+            </motion.div>
+
             {/* Tarjeta Flotante Superior (Regalo) */}
             <motion.div 
               initial={{ opacity: 0, x: 20, y: 20 }}
               animate={{ opacity: 1, x: 0, y: [0, -8, 0], rotate: [0, 3, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", opacity: { duration: 1, delay: 0.8 } }}
-              className="absolute -top-4 -right-4 md:top-8 md:-right-12 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/50 z-30 pointer-events-none"
+              className="absolute -top-4 -right-4 md:top-8 md:-right-12 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/50 z-30 pointer-events-none will-change-transform"
             >
                <div className="flex items-center gap-3">
                  <div className="p-2.5 bg-gradient-to-br from-[#FAD1E6] to-pink-100 rounded-xl shadow-sm">
@@ -230,7 +283,7 @@ export default function HeroBoutique() {
               initial={{ opacity: 0, x: -20, y: -20 }}
               animate={{ opacity: 1, x: 0, y: [0, 8, 0], rotate: [0, -3, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5, opacity: { duration: 1, delay: 1 } }}
-              className="absolute -bottom-8 -left-6 md:-bottom-4 md:-left-16 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/50 z-30 pointer-events-none"
+              className="absolute -bottom-8 -left-6 md:-bottom-4 md:-left-12 bg-white/90 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/50 z-30 pointer-events-none will-change-transform"
             >
                <div className="flex items-center gap-3">
                  <motion.div 
@@ -248,10 +301,10 @@ export default function HeroBoutique() {
             </motion.div>
 
             {/* Chispas flotantes */}
-            <motion.div animate={{ rotate: 180, scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-1/4 -left-8 md:-left-12 z-30 pointer-events-none">
+            <motion.div animate={{ rotate: 180, scale: [1, 1.2, 1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-1/4 -right-8 md:-right-12 z-30 pointer-events-none will-change-transform">
                <Star className="w-6 h-6 text-[#FFA8C5] fill-[#FFA8C5] opacity-80" />
             </motion.div>
-            <motion.div animate={{ rotate: -180, scale: [1, 1.3, 1] }} transition={{ duration: 5, repeat: Infinity, delay: 1 }} className="absolute bottom-1/4 -right-6 md:-right-10 z-30 pointer-events-none">
+            <motion.div animate={{ rotate: -180, scale: [1, 1.3, 1] }} transition={{ duration: 5, repeat: Infinity, delay: 1 }} className="absolute bottom-1/4 -right-6 md:-right-10 z-30 pointer-events-none will-change-transform">
                <Sparkles className="w-8 h-8 text-[#E85D9E] opacity-60" />
             </motion.div>
 

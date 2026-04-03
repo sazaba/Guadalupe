@@ -1,18 +1,19 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
+/* ✨ Cambiamos a Pacifico para igualar el estilo de la imagen */
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
 
 @theme {
-  /* 1. TIPOGRAFÍA (Asegúrate de importar Quicksand en tu layout.tsx luego) */
+  /* 1. TIPOGRAFÍA */
   --font-display: var(--font-quicksand, var(--font-poppins)), sans-serif;
   --font-sans: var(--font-inter), sans-serif;
   --font-mono: monospace;
-  --font-handwriting: 'Dancing Script', cursive; /* ✨ NUEVA FUENTE PARA EL HERO */
+  --font-handwriting: 'Pacifico', cursive; /* ✨ FUENTE ACTUALIZADA */
 
-  /* 2. COLORES DE MARCA (Boutique Infantil - Palo de Rosa) */
-  --color-brand-dark: #4A154B; /* Un ciruela oscuro en vez de negro puro */
-  --color-brand-light: #FFF5F8; /* Un blanco con un ligerísimo toque rosa */
-  --color-brand-primary: #E85D9E; /* Rosa principal vibrante (tipo el del logo) */
-  --color-brand-secondary: #FAD1E6; /* Rosa pastel suave */
+  /* 2. COLORES DE MARCA */
+  --color-brand-dark: #4A154B; 
+  --color-brand-light: #FFF5F8; 
+  --color-brand-primary: #E85D9E; 
+  --color-brand-secondary: #FAD1E6; 
 
   /* 3. EL PUENTE MÁGICO */
   --color-page: var(--bg-page);
@@ -31,17 +32,15 @@
 /* Capa base */
 @layer base {
   :root {
-    /* MODO CLARO (Default - Ideal para ropa de niños) */
-    --bg-page: #FFFDFE; /* Blanco perlado */
-    --text-main: #33182B; /* Gris oscuro con tinte rosa/morado */
-    --text-muted: #7B5C73; /* Gris suave */
+    --bg-page: #FFFDFE;
+    --text-main: #33182B;
+    --text-muted: #7B5C73;
     --glass-bg: rgba(255, 255, 255, 0.8);
-    --glass-border: rgba(232, 93, 158, 0.15); /* Borde rosa sutil */
-    --accent-glow: rgba(232, 93, 158, 0.15); /* Resplandor rosa */
+    --glass-border: rgba(232, 93, 158, 0.15);
+    --accent-glow: rgba(232, 93, 158, 0.15);
   }
 
   [data-theme="dark"] {
-    /* MODO OSCURO (Ajustado para no ser negro total, sino un tono vino/ciruela oscuro) */
     --bg-page: #200B1A;
     --text-main: #FFF5F8;
     --text-muted: #D3A4C2;
@@ -77,7 +76,6 @@
   }
 
   .text-gradient-hero {
-    /* Degradado de palo de rosa a un rosa más encendido */
     background: linear-gradient(to right, #E85D9E 0%, #FFA8C5 50%, #E85D9E 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -96,13 +94,11 @@
   50% { transform: translateY(-15px); }
 }
 
-/* --- LOGICA NUEVA PARA OCULTAR BOTÓN DE TEMA --- */
 body.sticky-active #theme-toggle-btn {
   transform: translateY(200%);
   pointer-events: none;
 }
 
-/* Personalización de la selección de texto (al resaltar con el mouse) */
 ::selection {
   background-color: rgba(232, 93, 158, 0.2);
   color: #E85D9E;
