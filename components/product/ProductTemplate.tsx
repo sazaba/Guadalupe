@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, memo } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { Heart, Minus, Plus, CheckCircle2, Sparkles, Gift } from "lucide-react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { Heart, Minus, Plus, CheckCircle2, Sparkles, Gift, Crown, Star, ShieldCheck, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
@@ -11,18 +11,44 @@ import { useCart } from "@/context/CartContext";
 // Componentes secundarios
 import ProductReviews from "./ProductReviews";
 import StickyPurchase from "./StickyPurchase";
-import ResearchChallenges from "./ResearchChallenges"; // Ahora es "Por qué elegirnos"
-import ProtocolFAQ from "./ProtocolFAQ"; // Ahora es "Dudas Frecuentes"
+import ResearchChallenges from "./ResearchChallenges"; 
+import ProtocolFAQ from "./ProtocolFAQ"; 
 
-// Partículas de fondo mágicas (en lugar de ruido estático)
+// Formateador de moneda colombiana
+const formatCOP = (price: number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    maximumFractionDigits: 0
+  }).format(Number(price));
+};
+
+// Partículas de fondo mágicas mejoradas
 const MagicSparkles = memo(() => (
-  <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-40">
-      <div className="absolute top-[20%] left-[10%] w-2 h-2 rounded-full bg-[#E85D9E] shadow-[0_0_10px_#E85D9E] animate-pulse" />
-      <div className="absolute top-[60%] right-[15%] w-3 h-3 rounded-full bg-[#FFA8C5] shadow-[0_0_15px_#FFA8C5] animate-ping" style={{ animationDuration: '3s' }} />
-      <div className="absolute bottom-[20%] left-[30%] w-1.5 h-1.5 rounded-full bg-[#FAD1E6] shadow-[0_0_8px_#FAD1E6] animate-pulse" style={{ animationDuration: '4s' }} />
+  <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-50 mix-blend-screen">
+      <div className="absolute top-[15%] left-[10%] w-64 h-64 bg-pink-300/20 rounded-full blur-[80px] animate-pulse" />
+      <div className="absolute top-[60%] right-[5%] w-80 h-80 bg-fuchsia-300/20 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className="absolute top-[30%] left-[20%] w-2 h-2 rounded-full bg-[#E85D9E] shadow-[0_0_15px_#E85D9E] animate-ping" style={{ animationDuration: '3s' }} />
+      <div className="absolute top-[70%] right-[25%] w-3 h-3 rounded-full bg-[#FFA8C5] shadow-[0_0_20px_#FFA8C5] animate-pulse" style={{ animationDuration: '2s' }} />
+      <div className="absolute bottom-[20%] left-[30%] w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_white] animate-pulse" style={{ animationDuration: '4s' }} />
   </div>
 ));
 MagicSparkles.displayName = "MagicSparkles";
+
+// SVG Animado Decorativo (Estrella/Destello)
+const AnimatedStarIcon = ({ className }: { className?: string }) => (
+    <motion.svg 
+        animate={{ rotate: 360, scale: [1, 1.2, 1] }} 
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="1.5" 
+        className={className}
+    >
+        <path d="M12 2v20M17 5l-10 14M22 12H2M19 17L5 7" />
+    </motion.svg>
+);
 
 interface Product {
   id: string;
@@ -31,13 +57,16 @@ interface Product {
   price: number;
   stock: number;
   images: string;
-  purity?: string; // Lo usaremos como material/calidad
+  material?: string; 
+  color?: string;
+  size?: string;
   description: string;
   slug: string;
 }
 
 export default function ProductTemplate({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
   const { addItem } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -48,163 +77,186 @@ export default function ProductTemplate({ product }: { product: Product }) {
     offset: ["start start", "end start"],
   });
 
-  const textParallax = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
+  const textParallax = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 0.90]);
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 50]);
+
+  const handleAddToCart = () => {
+    if (isOutOfStock) return;
+    setIsAdding(true);
+    addItem(product, qty);
+    setTimeout(() => setIsAdding(false), 1000);
+  };
 
   return (
     <div className="bg-[#FFFDFE] min-h-screen text-[#33182B] transition-colors duration-300 overflow-x-hidden selection:bg-[#FAD1E6] selection:text-[#E85D9E]">
       <Navbar />
 
-      <section ref={containerRef} className="relative min-h-[100dvh] w-full flex flex-col justify-center pt-24 pb-12 lg:pt-0 lg:pb-0">
+      <section ref={containerRef} className="relative min-h-[100dvh] w-full flex flex-col justify-center pt-28 pb-16 lg:pt-0 lg:pb-0 perspective-1000">
         
         {/* Glow de fondo suave */}
-        <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] rounded-full blur-[120px] opacity-20 bg-gradient-to-tr from-[#FAD1E6] to-pink-100" />
-            <MagicSparkles />
-        </div>
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-pink-100/40 via-transparent to-transparent" />
+        <MagicSparkles />
         
-        {/* Marca de agua de fondo */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden opacity-[0.03]">
+        {/* Marca de agua de fondo animada */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden opacity-[0.02]">
           <motion.h2
             style={{ y: textParallax, WebkitTextStroke: "2px #E85D9E", color: "transparent" }}
-            className="text-[20vw] font-handwriting font-bold whitespace-nowrap select-none"
+            className="text-[25vw] font-handwriting font-bold whitespace-nowrap select-none tracking-tighter"
           >
-             Boutique
+             Magia
           </motion.h2>
         </div>
 
-        <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 lg:px-12 h-full flex items-center">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
+        <div className="relative z-10 w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center w-full mt-10 lg:mt-20">
 
-                {/* COLUMNA IZQUIERDA: Textos */}
-                <div className="lg:col-span-4 flex flex-col gap-6 order-2 lg:order-1 text-center lg:text-left items-center lg:items-start">
+                {/* COLUMNA IZQUIERDA: Imagen Impactante */}
+                <div className="lg:col-span-6 h-[50vh] sm:h-[60vh] lg:h-[75vh] flex items-center justify-center relative">
                     
-                    <div className="flex items-center gap-3 text-[10px] font-sans text-[#7B5C73] uppercase tracking-widest font-bold">
-                        <span>REF: {product.id ? product.id.slice(-4).toUpperCase() : "001"}</span>
-                        <span className="h-px w-8 bg-[#FAD1E6]" />
-                        <span className="text-[#E85D9E] bg-[#FAD1E6]/20 border border-[#FAD1E6] px-3 py-1 rounded-full">
-                            {product.category}
-                        </span>
-                    </div>
+                    {/* Elementos SVG decorativos flotantes */}
+                    <AnimatedStarIcon className="absolute top-10 left-10 w-8 h-8 text-[#FFA8C5] opacity-60" />
+                    <AnimatedStarIcon className="absolute bottom-20 right-5 w-6 h-6 text-[#E85D9E] opacity-40" />
 
-                    <div>
-                        <h1 className="text-4xl lg:text-6xl font-display font-bold leading-[1.1] mb-4 text-[#33182B]">
-                            {product.name}
-                        </h1>
-                        <p className="text-sm lg:text-base text-[#7B5C73] font-medium leading-relaxed max-w-md font-sans">
-                            {product.description.length > 180 
-                                ? product.description.slice(0, 180) + "..." 
-                                : product.description}
-                        </p>
-                    </div>
+                    {/* Marco Mágico */}
+                    <div className="absolute inset-4 lg:inset-10 rounded-[3rem] border border-pink-200/50 bg-gradient-to-tr from-pink-50/50 to-white/30 backdrop-blur-sm -rotate-3 transition-transform duration-700 hover:rotate-0" />
+                    <div className="absolute inset-4 lg:inset-10 rounded-[3rem] border border-white bg-white/40 backdrop-blur-md rotate-2 transition-transform duration-700 hover:rotate-0 shadow-[0_20px_50px_-15px_rgba(232,93,158,0.15)]" />
 
-                    <div className="w-full max-w-sm flex flex-col gap-5 mt-2">
-                        <div className="flex items-baseline gap-2 justify-center lg:justify-start">
-                             <span className="text-3xl lg:text-4xl font-display font-bold text-[#E85D9E]">
-                                ${product.price.toLocaleString()}
-                             </span>
-                        </div>
-
-                        <div className="flex gap-3 h-14">
-                            <div className={`flex items-center justify-between border-2 border-[#FAD1E6] bg-white rounded-full px-4 w-32 ${isOutOfStock ? "opacity-30 pointer-events-none" : ""}`}>
-                                <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#7B5C73] hover:text-[#E85D9E]">
-                                    <Minus size={16} />
-                                </button>
-                                <span className="font-bold text-[#33182B] text-lg">{qty}</span>
-                                <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-[#7B5C73] hover:text-[#E85D9E]">
-                                    <Plus size={16} />
-                                </button>
-                            </div>
-                            
-                            <button
-                                onClick={() => !isOutOfStock && addItem(product, qty)}
-                                disabled={isOutOfStock}
-                                className={`flex-1 font-bold tracking-wider text-xs md:text-sm rounded-full shadow-lg transition-all flex items-center justify-center gap-2 group
-                                    ${isOutOfStock 
-                                        ? "bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300" 
-                                        : "bg-gradient-to-r from-[#E85D9E] to-[#D14D8B] text-white hover:scale-[1.02] hover:shadow-[0_10px_25px_-5px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer"
-                                    }`}
-                            >
-                                <span>{isOutOfStock ? "Agotado" : "Agregar al Carrito"}</span>
-                                {!isOutOfStock && <Heart className="w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform fill-white/20" />}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* COLUMNA CENTRAL: Imagen Mágica */}
-                <div className="lg:col-span-4 order-1 lg:order-2 h-[45vh] lg:h-[65vh] flex items-center justify-center relative mt-8 lg:mt-0">
-                    
-                    {/* Anillos Rotatorios Estilo Hero */}
-                    <div className="absolute w-[280px] h-[280px] lg:w-[420px] lg:h-[420px] rounded-full border border-dashed border-[#FAD1E6] animate-[spin_40s_linear_infinite] opacity-60" />
-                    <div className="absolute w-[220px] h-[220px] lg:w-[340px] lg:h-[340px] rounded-full border border-[#FAD1E6]/40 animate-[spin_50s_linear_infinite_reverse]">
-                        <div className="absolute top-4 right-10 w-2.5 h-2.5 bg-gradient-to-r from-[#E85D9E] to-[#FFA8C5] rounded-full shadow-[0_0_12px_#E85D9E]" />
-                    </div>
-                    
-                    {/* CORRECCIÓN APLICADA AQUÍ: style solo tiene scale, animate tiene 'y' */}
                     <motion.div 
-                        style={{ scale: imageScale }} 
-                        animate={{ y: [-10, 10, -10] }} 
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} 
-                        className="relative w-[80%] h-[80%] lg:w-[85%] lg:h-[85%] z-20 flex items-center justify-center bg-white/40 backdrop-blur-md rounded-[2.5rem] lg:rounded-[4rem] border-[4px] border-white shadow-[0_25px_50px_-12px_rgba(232,93,158,0.25)] overflow-hidden group"
+                        style={{ scale: imageScale, y: imageY }} 
+                        className="relative w-full h-full z-20 flex items-center justify-center rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden group p-8 lg:p-12"
                     >
-                        <Image
-                            src={product.images}
-                            alt={product.name}
-                            fill
-                            className={`object-cover transition-transform duration-700 group-hover:scale-110 ${isOutOfStock ? "grayscale opacity-50" : ""}`}
-                            priority
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/20 via-transparent to-transparent pointer-events-none" />
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+                            <Image
+                                src={product.images}
+                                alt={product.name}
+                                fill
+                                className={`object-cover transition-transform duration-1000 group-hover:scale-[1.03] ${isOutOfStock ? "grayscale opacity-60" : ""}`}
+                                priority
+                                sizes="(max-width: 1024px) 100vw, 50vw"
+                            />
+                            {/* Overlay de gradiente */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        </div>
                     </motion.div>
                 </div>
 
-                {/* COLUMNA DERECHA: Specs y Detalles */}
-                <div className="lg:col-span-4 order-3 lg:order-3 flex flex-col gap-8 text-center lg:text-right items-center lg:items-end">
+                {/* COLUMNA DERECHA: Información y Compra */}
+                <div className="lg:col-span-6 flex flex-col gap-6 lg:gap-8 lg:pl-10">
                     
-                    <div>
-                        <span className="text-[10px] font-sans uppercase tracking-widest text-[#7B5C73] font-bold block mb-1">
-                            Calidad & Material
-                        </span>
-                        <div className="flex items-center gap-2 justify-center lg:justify-end">
-                            <span className="text-xl lg:text-2xl font-display font-bold text-[#33182B]">
-                                {product.purity || "Algodón Premium"}
+                    {/* Header del Producto */}
+                    <div className="space-y-4 text-center lg:text-left">
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FAD1E6]/40 border border-[#FAD1E6] text-[#E85D9E] text-xs font-bold uppercase tracking-wider">
+                                <Crown className="w-3.5 h-3.5" />
+                                {product.category}
                             </span>
-                            <CheckCircle2 size={20} className="text-[#E85D9E]" />
+                            {isOutOfStock ? (
+                                <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-bold uppercase tracking-wider border border-gray-200">
+                                    Agotado
+                                </span>
+                            ) : (
+                                <span className="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-bold uppercase tracking-wider border border-green-200 flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                    En Stock
+                                </span>
+                            )}
+                        </div>
+
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold leading-[1.1] text-[#33182B] tracking-tight">
+                            {product.name}
+                        </h1>
+
+                        <div className="flex items-baseline justify-center lg:justify-start gap-4 mt-2">
+                             <span className="text-4xl lg:text-5xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#D14D8B]">
+                                {formatCOP(product.price)}
+                             </span>
                         </div>
                     </div>
 
-                    <div>
-                        <span className="text-[10px] font-sans uppercase tracking-widest text-[#7B5C73] font-bold block mb-2">
-                            Disponibilidad
-                        </span>
-                        <div className={`inline-flex items-center gap-3 border border-[#FAD1E6] bg-white px-5 py-2.5 rounded-full shadow-sm ${isOutOfStock ? "border-gray-300" : ""}`}>
-                            <div className={`w-2 h-2 rounded-full ${!isOutOfStock ? "bg-[#E85D9E] animate-pulse" : "bg-gray-400"}`} />
-                            <span className={`text-xs font-bold uppercase tracking-wider ${!isOutOfStock ? "text-[#E85D9E]" : "text-gray-500"}`}>
-                                {!isOutOfStock ? `${product.stock} Unidades en Stock` : "Agotado Temporalmente"}
-                            </span>
+                    {/* Descripción Corta */}
+                    <p className="text-base text-[#7B5C73] font-medium leading-relaxed font-sans text-center lg:text-left bg-white/50 p-5 rounded-2xl border border-pink-100 shadow-sm backdrop-blur-sm">
+                        {product.description.length > 200 
+                            ? product.description.slice(0, 200) + "..." 
+                            : product.description}
+                    </p>
+
+                    {/* Ficha Técnica (Tallas, Color, Material) */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Tallas</span>
+                            <span className="text-sm font-bold text-[#33182B]">{product.size || "Única"}</span>
+                        </div>
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Color</span>
+                            <span className="text-sm font-bold text-[#33182B] truncate w-full">{product.color || "Mágico"}</span>
+                        </div>
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 rounded-xl items-center lg:items-start text-center lg:text-left transition-colors hover:bg-pink-50 md:col-span-1 col-span-2">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Material</span>
+                            <span className="text-sm font-bold text-[#33182B] truncate w-full">{product.material || "Calidad Premium"}</span>
                         </div>
                     </div>
 
-                    <div className="w-full lg:w-auto pt-6 border-t border-[#FAD1E6]">
-                        <span className="text-[#E85D9E] text-[10px] uppercase tracking-widest font-sans font-bold block mb-4">
-                            Por qué te encantará
-                        </span>
-                        <ul className="flex flex-col gap-3">
-                            {[
-                                { t: "Hecho con Amor", i: Heart }, 
-                                { t: "Envíos a todo el país", i: Gift }, 
-                                { t: "Diseños Exclusivos", i: Sparkles }
-                            ].map((item, i) => (
-                                <li key={i} className="flex items-center justify-center lg:justify-end gap-2 text-sm font-bold text-[#33182B]">
-                                    <item.i className="w-4 h-4 text-[#FFA8C5]" /> {item.t}
-                                </li>
-                            ))}
-                        </ul>
+                    {/* Controles de Compra */}
+                    <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                        <div className={`flex items-center justify-between border-2 border-pink-200 bg-white rounded-full px-5 py-3 sm:w-36 h-14 shadow-sm transition-colors hover:border-[#E85D9E] ${isOutOfStock ? "opacity-40 pointer-events-none" : ""}`}>
+                            <button onClick={() => setQty(q => Math.max(1, q - 1))} className="text-[#7B5C73] hover:text-[#E85D9E] transition-colors p-1">
+                                <Minus size={18} />
+                            </button>
+                            <span className="font-bold text-[#33182B] text-xl w-8 text-center">{qty}</span>
+                            <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-[#7B5C73] hover:text-[#E85D9E] transition-colors p-1">
+                                <Plus size={18} />
+                            </button>
+                        </div>
+                        
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={isOutOfStock || isAdding}
+                            className={`flex-1 h-14 rounded-full font-bold tracking-wider text-sm md:text-base transition-all flex items-center justify-center gap-3 group relative overflow-hidden
+                                ${isOutOfStock 
+                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200" 
+                                    : "bg-[#E85D9E] text-white shadow-[0_10px_20px_-5px_rgba(232,93,158,0.4)] hover:shadow-[0_15px_30px_-5px_rgba(232,93,158,0.5)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer"
+                                }`}
+                        >
+                            {/* Brillo del botón */}
+                            {!isOutOfStock && (
+                                <motion.div 
+                                    animate={{ x: ["-100%", "200%"] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+                                    className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 pointer-events-none"
+                                />
+                            )}
+
+                            <AnimatePresence mode="wait">
+                                {isOutOfStock ? (
+                                    <motion.span key="oos">Prenda Agotada</motion.span>
+                                ) : isAdding ? (
+                                    <motion.span key="adding" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2">
+                                        <CheckCircle2 className="w-5 h-5" /> ¡Añadido!
+                                    </motion.span>
+                                ) : (
+                                    <motion.span key="default" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2">
+                                        <ShoppingBag className="w-5 h-5" /> Agregar al Carrito
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
+                        </button>
                     </div>
+
+                    {/* Badges de Confianza */}
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 mt-4 pt-6 border-t border-pink-100/60">
+                        <div className="flex items-center gap-2 text-xs font-bold text-[#7B5C73]">
+                            <ShieldCheck className="w-4 h-4 text-[#FFA8C5]" /> Pago Seguro
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-bold text-[#7B5C73]">
+                            <Gift className="w-4 h-4 text-[#FFA8C5]" /> Empaque Mágico
+                        </div>
+                        <div className="flex items-center gap-2 text-xs font-bold text-[#7B5C73]">
+                            <Star className="w-4 h-4 text-[#FFA8C5]" /> Calidad Garantizada
+                        </div>
+                    </div>
+
                 </div>
-
             </div>
         </div>
       </section>
@@ -215,15 +267,17 @@ export default function ProductTemplate({ product }: { product: Product }) {
              
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
                 <div className="prose prose-pink max-w-none">
-                    <h3 className="flex items-center gap-2 text-xl font-display font-bold text-[#E85D9E] mb-6">
-                        <Sparkles className="w-5 h-5" /> Detalles Mágicos
+                    <h3 className="flex items-center justify-center lg:justify-start gap-2 text-2xl font-display font-bold text-[#E85D9E] mb-6">
+                        <Sparkles className="w-6 h-6" /> Detalles Mágicos
                     </h3>
-                    <p className="whitespace-pre-line text-[#7B5C73] leading-relaxed text-sm md:text-base font-medium">
-                        {product.description}
-                    </p>
+                    <div className="bg-pink-50/30 border border-pink-100 rounded-3xl p-8 shadow-sm">
+                        <p className="whitespace-pre-line text-[#7B5C73] leading-relaxed text-base font-medium">
+                            {product.description}
+                        </p>
+                    </div>
                 </div>
                 <div>
-                   <ResearchChallenges /> {/* Se renombró internamente a Por qué elegirnos */}
+                   <ResearchChallenges /> 
                 </div>
             </div>
             
@@ -237,7 +291,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
         </div>
       </section>
 
-      {!isOutOfStock && <StickyPurchase product={product} qty={qty} />}
+      {!isOutOfStock && <StickyPurchase product={{...product, price: product.price}} qty={qty} />}
       <Footer />
     </div>
   );
