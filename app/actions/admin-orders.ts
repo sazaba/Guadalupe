@@ -9,10 +9,10 @@ export async function updateOrderStatus(orderId: string, newStatus: 'PENDING' | 
       where: { id: orderId },
       data: { status: newStatus },
     });
-    revalidatePath('/admin/orders'); // Actualiza la vista sin recargar
-    return { ok: true, message: "Estado actualizado" };
+    revalidatePath('/admin/orders'); 
+    return { ok: true, message: "Estado actualizado correctamente" };
   } catch (error) {
-    return { ok: false, message: "Error al actualizar estado" };
+    return { ok: false, message: "Error al actualizar el estado del pedido" };
   }
 }
 
@@ -29,9 +29,9 @@ export async function deleteOrder(orderId: string) {
     });
     
     revalidatePath('/admin/orders');
-    return { ok: true, message: "Orden eliminada" };
+    return { ok: true, message: "Pedido eliminado con éxito" };
   } catch (error) {
     console.error(error);
-    return { ok: false, message: "Error al eliminar orden" };
+    return { ok: false, message: "Error al eliminar el pedido" };
   }
 }

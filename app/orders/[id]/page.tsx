@@ -3,15 +3,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  Clock, Package, ShieldCheck, ArrowRight, CreditCard, Lock, AlertCircle, Edit, CheckCircle2, Receipt, MapPin, User
+  Clock, Package, ShieldCheck, ArrowRight, CreditCard, Lock, AlertCircle, Edit, CheckCircle2, Receipt, MapPin, User, Heart
 } from "lucide-react";
 
-// Función para formatear dinero
+// Función para formatear dinero en Pesos Colombianos
 const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
+  return "$" + amount.toLocaleString("es-CO");
 };
 
 // Fetch de datos
@@ -46,26 +43,26 @@ export default async function OrderPage({ params }: Props) {
   const isPaid = order.status === 'PAID' || order.isPaid === true;
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--bg-page)] text-[var(--text-main)] font-sans pb-10 pt-24 md:pt-32">
+    <div className="min-h-[100dvh] bg-[#FFFDFE] text-[#33182B] font-sans pb-10 pt-24 md:pt-32">
       
-      <main className="container mx-auto px-4 max-w-5xl">
+      <main className="container mx-auto px-4 max-w-5xl relative z-10">
         
         {/* BARRA DE PROGRESO - Dinámica según el estado */}
         <div className="flex justify-center mb-8 md:mb-12">
-            <div className="flex items-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-80">
-                <span className="flex items-center gap-2 text-emerald-500">
-                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-[var(--bg-page)] flex items-center justify-center">1</span>
-                    Review
+            <div className="flex items-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-90">
+                <span className="flex items-center gap-2 text-[#E85D9E]">
+                    <span className="w-5 h-5 rounded-full bg-[#E85D9E] text-white flex items-center justify-center shadow-sm">1</span>
+                    Revisión
                 </span>
-                <div className="w-4 md:w-8 h-[1px] bg-emerald-500/50" />
-                <span className={`flex items-center gap-2 ${isPaid ? 'text-emerald-500' : 'text-[var(--text-main)]'}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center ${isPaid ? 'bg-emerald-500 text-[var(--bg-page)]' : 'bg-[var(--text-main)] text-[var(--bg-page)] animate-pulse'}`}>2</span>
-                    Payment
+                <div className="w-4 md:w-8 h-[2px] bg-[#E85D9E]/30 rounded-full" />
+                <span className={`flex items-center gap-2 ${isPaid ? 'text-[#E85D9E]' : 'text-[#33182B]'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center shadow-sm transition-colors ${isPaid ? 'bg-[#E85D9E] text-white' : 'bg-[#33182B] text-white animate-pulse'}`}>2</span>
+                    Pago
                 </span>
-                <div className={`w-4 md:w-8 h-[1px] ${isPaid ? 'bg-emerald-500/50' : 'bg-[var(--glass-border)]'}`} />
-                <span className={`flex items-center gap-2 ${isPaid ? 'text-emerald-500' : 'opacity-50'}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center ${isPaid ? 'bg-emerald-500 text-[var(--bg-page)]' : 'border border-[var(--glass-border)]'}`}>3</span>
-                    {isPaid ? 'Confirmed' : 'Shipping'}
+                <div className={`w-4 md:w-8 h-[2px] rounded-full transition-colors ${isPaid ? 'bg-[#E85D9E]/30' : 'bg-[#FAD1E6]'}`} />
+                <span className={`flex items-center gap-2 ${isPaid ? 'text-[#E85D9E]' : 'text-[#7B5C73]/50'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${isPaid ? 'bg-[#E85D9E] text-white shadow-sm' : 'border-2 border-[#FAD1E6] bg-white'}`}>3</span>
+                    {isPaid ? 'Confirmado' : 'Envío'}
                 </span>
             </div>
         </div>
@@ -76,30 +73,37 @@ export default async function OrderPage({ params }: Props) {
           <div className="lg:col-span-2 space-y-4 md:space-y-6 w-full">
             
             {/* PRODUCTOS */}
-            <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl overflow-hidden shadow-sm">
-              <div className="p-4 md:p-6 border-b border-[var(--glass-border)] flex justify-between items-center bg-[var(--bg-page)]/50">
-                <h2 className="font-bold flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider text-[var(--text-muted)]">
+            <div className="bg-white border border-[#FAD1E6]/80 rounded-[24px] overflow-hidden shadow-[0_8px_30px_rgb(232,93,158,0.04)]">
+              <div className="p-5 md:p-6 border-b border-[#FAD1E6]/50 flex justify-between items-center bg-[#FFF6F9]">
+                <h2 className="font-bold flex items-center gap-2 text-xs md:text-sm uppercase tracking-widest text-[#E85D9E]">
                   <Package className="w-4 h-4" />
-                  Order #{order.id.slice(0, 8)}
+                  Pedido #{order.id.slice(0, 8)}
                 </h2>
-                <span className="text-[10px] bg-[var(--glass-border)] px-2 py-1 rounded-full text-[var(--text-muted)]">
-                  {new Date(order.createdAt).toLocaleDateString()}
+                <span className="text-[10px] font-bold bg-white border border-[#FAD1E6] px-3 py-1.5 rounded-full text-[#7B5C73] shadow-sm">
+                  {new Date(order.createdAt).toLocaleDateString('es-CO')}
                 </span>
               </div>
               
-              <div className="divide-y divide-[var(--glass-border)]">
+              <div className="divide-y divide-[#FAD1E6]/30">
                 {order.items.map((item) => (
-                  <div key={item.id} className="p-4 flex gap-3 md:gap-4">
-                    <div className="relative w-14 h-14 md:w-16 md:h-16 bg-[var(--bg-page)] rounded-lg overflow-hidden border border-[var(--glass-border)] shrink-0">
+                  <div key={item.id} className="p-5 flex gap-4">
+                    <div className="relative w-16 h-16 md:w-20 md:h-20 bg-[#FFF6F9] rounded-2xl overflow-hidden border border-[#FAD1E6]/50 shrink-0">
                       {item.product.images ? (
-                         <Image src={item.product.images} alt={item.product.name} fill className="object-contain p-1" />
-                      ) : ( <div className="w-full h-full bg-gray-100" /> )}
+                         <Image src={item.product.images.split(',')[0]} alt={item.product.name} fill className="object-cover" />
+                      ) : ( <div className="w-full h-full flex items-center justify-center"><Package className="w-6 h-6 text-[#FAD1E6]" /></div> )}
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
-                        <h3 className="font-bold text-sm truncate">{item.product.name}</h3>
-                        <div className="flex justify-between items-center mt-1">
-                            <span className="text-xs text-[var(--text-muted)]">Qty: {item.quantity}</span>
-                            <span className="font-mono text-sm font-bold">{formatCurrency(Number(item.price))}</span>
+                        <h3 className="font-bold text-[#33182B] text-base truncate">{item.product.name}</h3>
+                        
+                        {/* Mostramos talla y color si existen */}
+                        <div className="flex gap-2 mt-1">
+                           {item.product.size && <span className="text-[10px] font-bold text-[#7B5C73] bg-[#FAD1E6]/20 px-2 py-0.5 rounded-md uppercase border border-[#FAD1E6]/50">Talla: {item.product.size}</span>}
+                           {item.product.color && <span className="text-[10px] font-bold text-[#7B5C73] bg-[#FAD1E6]/20 px-2 py-0.5 rounded-md uppercase border border-[#FAD1E6]/50">{item.product.color}</span>}
+                        </div>
+
+                        <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-[#7B5C73] font-medium">Cant: <b className="text-[#E85D9E]">{item.quantity}</b></span>
+                            <span className="font-display text-base font-bold">{formatCurrency(Number(item.price))}</span>
                         </div>
                     </div>
                   </div>
@@ -107,38 +111,41 @@ export default async function OrderPage({ params }: Props) {
               </div>
             </div>
 
-            {/* DETALLES DE ENVÍO Y CONTACTO (NUEVO) */}
+            {/* DETALLES DE ENVÍO Y CONTACTO */}
             {isPaid && (
-              <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-5 md:p-6 shadow-sm">
-                <h2 className="font-bold text-sm uppercase tracking-wider text-[var(--text-muted)] mb-4 flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Shipping & Contact Details
+              <div className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-5 md:p-6 shadow-[0_8px_30px_rgb(232,93,158,0.04)]">
+                <h2 className="font-bold text-xs uppercase tracking-widest text-[#E85D9E] mb-5 flex items-center gap-2 bg-[#FFF6F9] w-fit px-4 py-2 rounded-xl border border-[#FAD1E6]/50">
+                  <MapPin className="w-4 h-4" /> Datos de Envío y Contacto
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1"><User className="w-3 h-3"/> Contact Info</p>
-                    <p className="text-sm font-medium">{order.customerName}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{order.customerEmail}</p>
-                    <p className="text-xs text-[var(--text-muted)]">{order.customerPhone}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-2">
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-[#7B5C73] flex items-center gap-1.5"><User className="w-3.5 h-3.5 text-[#E85D9E]"/> Información</p>
+                    <p className="text-sm font-bold capitalize text-[#33182B]">{order.customerName}</p>
+                    <p className="text-xs text-[#7B5C73] font-medium">{order.customerEmail}</p>
+                    <p className="text-xs text-[#7B5C73] font-mono font-medium">{order.customerPhone}</p>
                   </div>
                   
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-[var(--text-muted)] flex items-center gap-1"><MapPin className="w-3 h-3"/> Delivery Address</p>
-                    <p className="text-sm font-medium">{order.addressLine1}</p>
-                    <p className="text-xs text-[var(--text-muted)]">
-                      {order.city}, {order.state} {order.postalCode}
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-[#7B5C73] flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#E85D9E]"/> Dirección</p>
+                    <p className="text-sm font-bold text-[#33182B]">{order.addressLine1}</p>
+                    <p className="text-xs text-[#7B5C73] font-medium">
+                      {order.city}, {order.state} - {order.postalCode}
                     </p>
-                    <p className="text-xs text-[var(--text-muted)]">{order.country}</p>
+                    <p className="text-xs text-[#7B5C73] font-medium">{order.country}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 flex gap-3 items-start">
-              <ShieldCheck className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                <strong className="text-blue-400 block mb-1">Scientific Grade Guarantee</strong>
-                Items reserved. Purity certificates included.
+            {/* Tarjeta de Garantía de la Boutique */}
+            <div className="bg-[#FFF6F9] border border-[#FAD1E6] rounded-[20px] p-5 flex gap-4 items-center shadow-sm">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shrink-0 border border-[#FAD1E6]/50 shadow-sm">
+                 <Heart className="w-6 h-6 text-[#E85D9E] fill-[#E85D9E]/20" />
+              </div>
+              <p className="text-xs text-[#7B5C73] leading-relaxed font-medium">
+                <strong className="text-[#E85D9E] block mb-0.5 text-sm">Preparado con Amor</strong>
+                Cada prenda es cuidadosamente revisada y empacada para que la magia llegue perfecta a las manos de tu princesa.
               </p>
             </div>
           </div>
@@ -148,71 +155,68 @@ export default async function OrderPage({ params }: Props) {
             
             {isPaid ? (
                 // --- VISTA DE ÉXITO (PAGADO) ---
-                <div className="bg-[var(--bg-page)] border border-emerald-500/30 ring-1 ring-emerald-500/10 rounded-2xl p-5 md:p-6 space-y-6 shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/5 blur-3xl -z-10 rounded-full translate-x-10 -translate-y-10" />
+                <div className="bg-white border border-emerald-200 rounded-[24px] p-6 space-y-6 shadow-[0_10px_40px_-10px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-50 blur-3xl -z-10 rounded-full translate-x-10 -translate-y-10" />
 
                     <div className="text-center space-y-2">
-                        <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-full mb-2">
-                            <CheckCircle2 className="w-6 h-6" />
+                        <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-100 text-emerald-500 rounded-full mb-2 shadow-sm border border-emerald-200">
+                            <CheckCircle2 className="w-7 h-7" />
                         </div>
-                        <h1 className="text-xl md:text-2xl font-display font-bold text-emerald-600 dark:text-emerald-400">Payment Successful</h1>
-                        <p className="text-xs text-[var(--text-muted)]">Your order is being processed.</p>
+                        <h1 className="text-2xl md:text-3xl font-display font-bold text-[#33182B]">¡Pago Exitoso!</h1>
+                        <p className="text-sm text-[#7B5C73] font-medium">Tu pedido está siendo preparado.</p>
                     </div>
 
-                    <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl p-4 text-sm space-y-3">
-                        <div className="flex justify-between border-b border-[var(--glass-border)] pb-2">
-                            <span className="text-[var(--text-muted)]">Amount Paid</span>
-                            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                                ${Number(order.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    <div className="bg-[#FFF6F9] border border-[#FAD1E6] rounded-[20px] p-5 text-sm space-y-3">
+                        <div className="flex justify-between border-b border-[#FAD1E6]/60 pb-3 items-center">
+                            <span className="text-[#7B5C73] font-bold text-xs uppercase tracking-wide">Total Pagado</span>
+                            <span className="font-display text-xl font-bold text-emerald-600">
+                                {formatCurrency(Number(order.total))}
                             </span>
                         </div>
-                        <div className="flex justify-between">
-                            <span className="text-[var(--text-muted)]">Payment Method</span>
-                            <span className="font-bold flex items-center gap-1">
-                                <CreditCard className="w-3 h-3" /> Secure Checkout
+                        <div className="flex justify-between items-center pt-1">
+                            <span className="text-[#7B5C73] font-medium text-xs">Método de Pago</span>
+                            <span className="font-bold flex items-center gap-1.5 text-xs text-[#33182B]">
+                                <CreditCard className="w-3.5 h-3.5 text-[#E85D9E]" /> Pago Seguro
                             </span>
                         </div>
-                        <div className="flex justify-between text-xs pt-2">
-                            <span className="text-[var(--text-muted)]">Transaction ID</span>
-                            <span className="font-mono opacity-70">sq_{order.id.slice(0, 8)}</span>
+                        <div className="flex justify-between text-xs pt-1">
+                            <span className="text-[#7B5C73] font-medium">ID Transacción</span>
+                            <span className="font-mono font-medium text-[#7B5C73]">ord_{order.id.slice(0, 6)}</span>
                         </div>
                     </div>
 
-                    <Link href="/#catalog" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-main)] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-sm flex items-center justify-center gap-2 hover:bg-[var(--glass-border)] transition-colors text-sm md:text-base">
-    <Package className="w-4 h-4" />
-    Continue Shopping
-</Link>
+                    <Link href="/#catalog" className="w-full bg-white border-2 border-[#FAD1E6] text-[#E85D9E] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-sm flex items-center justify-center gap-2 hover:bg-[#FFF6F9] hover:border-[#E85D9E]/50 transition-all text-xs md:text-sm">
+                      <Package className="w-4 h-4" /> Seguir Comprando
+                    </Link>
                 </div>
             ) : (
-                // --- VISTA DE ERROR O PENDIENTE ---
-                <div className="bg-[var(--bg-page)] border border-amber-500/30 ring-1 ring-amber-500/10 rounded-2xl p-5 md:p-6 space-y-6 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/5 blur-3xl -z-10 rounded-full translate-x-10 -translate-y-10" />
+                // --- VISTA DE PAGO PENDIENTE ---
+                <div className="bg-white border border-[#FAD1E6] rounded-[24px] p-6 space-y-6 shadow-[0_10px_40px_-10px_rgba(232,93,158,0.15)] relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#FFF6F9] blur-3xl -z-10 rounded-full translate-x-10 -translate-y-10" />
 
-                <div className="text-center space-y-2">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-bold uppercase tracking-widest border border-amber-500/20">
-                        <Clock className="w-3 h-3" /> Pending Payment
+                <div className="text-center space-y-3">
+                    <div className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-50 text-amber-600 rounded-full text-[10px] font-bold uppercase tracking-widest border border-amber-200 shadow-sm">
+                        <Clock className="w-3.5 h-3.5" /> Pago Pendiente
                     </div>
-                    <h1 className="text-xl md:text-2xl font-display font-bold">Total Due</h1>
+                    <h1 className="text-xl md:text-2xl font-display font-bold text-[#33182B]">Total a Pagar</h1>
                 </div>
 
-                <div className="flex justify-center items-baseline gap-1 py-2 border-y border-dashed border-[var(--glass-border)]">
-                    <span className="text-sm text-[var(--text-muted)] align-top mt-1">$</span>
-                    <span className="text-4xl md:text-5xl font-mono font-bold tracking-tight text-[var(--color-brand-primary)]">
-                        {Number(order.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                <div className="flex justify-center items-center py-4 border-y border-dashed border-[#FAD1E6]">
+                    <span className="text-3xl md:text-4xl font-display font-bold tracking-tight text-[#E85D9E]">
+                        {formatCurrency(Number(order.total))}
                     </span>
                 </div>
 
                 <Link 
                     href="/checkout"
-                    className="w-full bg-[var(--text-main)] text-[var(--bg-page)] py-3.5 rounded-xl font-bold uppercase tracking-widest shadow-lg flex items-center justify-center gap-2 text-sm md:text-base"
+                    className="w-full bg-[#E85D9E] text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-[0_8px_20px_-6px_rgba(232,93,158,0.5)] flex items-center justify-center gap-2 text-xs md:text-sm hover:bg-[#D6488B] transition-colors"
                 >
-                    <CreditCard className="w-4 h-4" />
-                    Complete Payment
+                    <CreditCard className="w-4 h-4" /> Completar Pago
                 </Link>
                 
-                <div className="bg-amber-100 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-2 rounded text-[10px] text-center text-amber-700 dark:text-amber-400">
-                    <AlertCircle className="w-3 h-3 inline mr-1 mb-0.5" />
-                    Awaiting secure payment.
+                <div className="bg-[#FFF6F9] border border-[#FAD1E6] p-3 rounded-xl text-[11px] text-center text-[#7B5C73] font-medium flex items-center justify-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-[#E85D9E]" />
+                    Esperando confirmación de pago seguro.
                 </div>
                 </div>
             )}
