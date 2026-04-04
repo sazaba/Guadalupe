@@ -112,16 +112,18 @@ export default function CheckoutPage() {
                             <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Dirección Completa</label>
                             <input required name="address" onChange={handleInputChange} type="text" placeholder="Ej: Calle 10 # 5-20, Apto 301" className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                         </div>
-                        <div className="grid grid-cols-6 gap-4">
-                            <div className="col-span-6 md:col-span-3">
+                        
+                        {/* ESTA ES LA ZONA CORREGIDA (100% RESPONSIVE) */}
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+                            <div className="md:col-span-5">
                                 <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Ciudad / Municipio</label>
                                 <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Ej: Sabaneta, Dosquebradas..." : "Miami"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                             </div>
-                            <div className="col-span-3 md:col-span-2">
+                            <div className="md:col-span-4">
                                 <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">{formData.country === "CO" ? "Departamento" : "Estado"}</label>
                                 <input required name="state" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Antioquia" : "FL"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40 capitalize" maxLength={formData.country === "US" ? 2 : 30} />
                             </div>
-                            <div className="col-span-3 md:col-span-1">
+                            <div className="md:col-span-3">
                                 <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Cód. Postal</label>
                                 <input required name="postalCode" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "055450" : "33101"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40 font-mono" />
                             </div>
@@ -140,7 +142,6 @@ export default function CheckoutPage() {
                 {/* Lista de Productos */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     {items.map((item) => {
-                        // PARACAÍDAS: Si no hay imagen, no se rompe
                         const safeImageUrl = (item.image && typeof item.image === 'string') 
                             ? item.image.split(',')[0] 
                             : '';
@@ -201,7 +202,6 @@ export default function CheckoutPage() {
                         <span className="text-xs font-bold uppercase tracking-widest text-[#E85D9E]">Pago Seguro</span>
                     </div>
 
-                    {/* Botón visual de prueba de Wompi */}
                     <button
                         type="button"
                         onClick={(e) => {
