@@ -97,7 +97,7 @@ export default function Footer() {
            <div className="flex flex-col md:flex-row items-center gap-6">
                {/* Redes Sociales */}
                <div className="flex items-center gap-5">
-                  <a href="https://instagram.com/exclusivosguadalupe" target="_blank" rel="noopener noreferrer" className="p-2 bg-[#FAD1E6]/30 rounded-full text-[#E85D9E] hover:bg-[#E85D9E] hover:text-white transition-all duration-300">
+                  <a href="https://www.instagram.com/exclusivosguadalupe/" target="_blank" rel="noopener noreferrer" className="p-2 bg-[#FAD1E6]/30 rounded-full text-[#E85D9E] hover:bg-[#E85D9E] hover:text-white transition-all duration-300">
                     <Instagram className="w-4.5 h-4.5" />
                   </a>
                </div>
@@ -108,7 +108,6 @@ export default function Footer() {
                   </p>
 
                   {/* --- ACCESO OCULTO AL PANEL DE ADMIN --- */}
-                  {/* Se mantiene la lógica exacta pero con colores de la boutique */}
                   <div className="ml-4 pl-4 border-l border-[#FAD1E6] flex items-center gap-2">
                     {!isAuthenticated ? (
                        <Link 
