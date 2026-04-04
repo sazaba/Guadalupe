@@ -127,17 +127,17 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         style={{ y: imageY }} 
                         className="relative w-full h-full z-20 flex items-center justify-center rounded-[2rem] lg:rounded-[3rem] overflow-hidden group p-6 lg:p-10 will-change-transform"
                     >
-                        <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-xl bg-white">
+                        {/* Contenedor adaptado para object-contain transparente */}
+                        <div className="relative w-full h-full rounded-2xl overflow-hidden bg-transparent">
                             <Image
                                 src={product.images}
                                 alt={product.name}
                                 fill
-                                className={`object-cover transition-transform duration-700 ${isOutOfStock ? "grayscale opacity-60" : ""}`}
+                                className={`object-contain drop-shadow-2xl transition-transform duration-700 ${isOutOfStock ? "grayscale opacity-60" : ""}`}
                                 priority
                                 sizes="(max-width: 1024px) 100vw, 50vw"
-                                quality={90} // Ligera optimización de peso
+                                quality={90} 
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/20 via-transparent to-transparent pointer-events-none" />
                         </div>
                     </motion.div>
                 </div>
