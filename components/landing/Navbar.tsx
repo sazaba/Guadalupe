@@ -114,7 +114,7 @@ export default function Navbar() {
       } ${
         scrolled
           ? "bg-white/90 backdrop-blur-xl py-3 shadow-[0_4px_25px_-10px_rgba(232,93,158,0.2)]"
-          : "bg-transparent py-6"
+          : "bg-white py-6"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
