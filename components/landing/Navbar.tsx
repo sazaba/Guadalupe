@@ -84,8 +84,8 @@ export default function Navbar() {
         setMobileOpen(false); // Cierra el menú en móviles
         
         setTimeout(() => {
-           // Scroll suave calculando el header
-           const offset = 80; // Espacio extra para que el navbar no tape el título
+           // Scroll suave calculando el header con el offset ajustado
+           const offset = 65; 
            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
            window.scrollTo({
              top: elementPosition - offset,
@@ -116,8 +116,8 @@ export default function Navbar() {
         mobileOpen ? "rounded-none" : "rounded-b-3xl"
       } ${
         scrolled
-          ? "bg-white/90 backdrop-blur-xl py-3 shadow-[0_4px_25px_-10px_rgba(232,93,158,0.2)]"
-          : "bg-white/[0.90] py-6"
+          ? "bg-white/90 backdrop-blur-xl py-2 shadow-[0_4px_25px_-10px_rgba(232,93,158,0.2)]"
+          : "bg-white/[0.90] py-3 lg:py-4"
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex items-center justify-between">
