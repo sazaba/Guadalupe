@@ -12,7 +12,7 @@ import TrustTicker from "@/components/landing/TrustTicker";
 import BoutiqueFeaturesGrid from "@/components/landing/BoutiqueFeaturesGrid";
 import BoutiqueShowcase from "@/components/landing/BoutiqueShowcase";
 import PrincessGallery from "@/components/landing/PrincessGallery"; 
-import BoutiqueReels from "@/components/landing/BoutiqueReels"; // 🎬 NUEVO COMPONENTE
+import BoutiqueReels from "@/components/landing/BoutiqueReels";
 import CustomerReviews from "@/components/landing/CustomerReviews"; 
 import SizeGuide from "@/components/landing/SizeGuide"; 
 import FAQSection from "@/components/landing/FAQSection";
@@ -36,31 +36,51 @@ export default async function Home() {
   }));
 
   return (
-    <main className="relative flex min-h-dvh flex-col overflow-x-hidden selection:bg-pink-200 selection:text-pink-900">
+    <main className="relative flex min-h-dvh flex-col overflow-x-hidden selection:bg-pink-200 selection:text-pink-900 bg-white">
       
       <Navbar /> 
+      {/* Es posible que debas eliminar o modificar PremiumBackground si choca con los fondos de las secciones */}
       <PremiumBackground />
       
       {/* Textura sutil de ruido */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay fixed z-0"></div>
 
-      <section id="hero"><HeroBoutique /></section>
-      <section id="promises" className="scroll-mt-24"><TrustTicker /></section>
-      <section id="about" className="scroll-mt-24"><BoutiqueFeaturesGrid /></section>
+      {/* Alternancia de bloques de color aplicada a las secciones */}
+      <section id="hero" className="w-full bg-white relative z-10">
+        <HeroBoutique />
+      </section>
+
+      <section id="promises" className="scroll-mt-24 w-full bg-white relative z-10">
+        <TrustTicker />
+      </section>
+
+      <section id="about" className="scroll-mt-24 w-full bg-[#FFF6F9] relative z-10">
+        <BoutiqueFeaturesGrid />
+      </section>
       
-      <section id="catalog" className="scroll-mt-24">
+      <section id="catalog" className="scroll-mt-24 w-full bg-white relative z-10">
         <BoutiqueShowcase products={serializedProducts} />
       </section>
 
-      <section id="gallery" className="scroll-mt-24"><PrincessGallery /></section>
+      <section id="gallery" className="scroll-mt-24 w-full bg-[#FFF6F9] relative z-10">
+        <PrincessGallery />
+      </section>
       
-      {/* 🎬 SECCIÓN DE REELS (VIDEOS EN ACCIÓN) */}
-      <section id="reels" className="scroll-mt-24"><BoutiqueReels /></section> 
+      <section id="reels" className="scroll-mt-24 w-full bg-white relative z-10">
+        <BoutiqueReels />
+      </section> 
 
-      <section id="reviews" className="scroll-mt-24"><CustomerReviews /></section> 
+      <section id="reviews" className="scroll-mt-24 w-full bg-[#FFF6F9] relative z-10">
+        <CustomerReviews />
+      </section> 
 
-      <section id="sizes" className="scroll-mt-24"><SizeGuide /></section> 
-      <section id="faq" className="scroll-mt-24"><FAQSection /></section>
+      <section id="sizes" className="scroll-mt-24 w-full bg-white relative z-10">
+        <SizeGuide />
+      </section> 
+
+      <section id="faq" className="scroll-mt-24 w-full bg-[#FFF6F9] relative z-10 border-b border-pink-50">
+        <FAQSection />
+      </section>
       
       <Footer />
 
