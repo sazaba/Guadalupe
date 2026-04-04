@@ -361,7 +361,7 @@ export default function HeroBoutique() {
           />
         </div>
 
-        {/* Desktop */}
+        {/* Desktop - CON CAMBIOS */}
         <div className="hidden md:block relative w-full h-full">
           <Image
             src={bgDesktop}
@@ -371,10 +371,12 @@ export default function HeroBoutique() {
             priority
             quality={90}
           />
+          {/* Nueva capa de opacidad leve (solo desktop) */}
+          <div className="absolute inset-0 bg-white/5"></div>
         </div>
 
-        {/* Gradiente inferior */}
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white/90 via-white/50 to-transparent"></div>
+        {/* Gradiente inferior más blanco (solo desktop) */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white/98 via-white/75 to-transparent"></div>
       </div>
 
       {/* Título oculto para SEO */}
