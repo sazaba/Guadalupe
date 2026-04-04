@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Plus, Check, Crown, Heart, Sparkles, ShoppingBag, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
-// --- INTERFAZ BACKEND (SIN CAMBIOS) ---
+// --- INTERFAZ BACKEND ---
 interface Product {
     id: string;
     name: string;
@@ -66,6 +67,7 @@ const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: str
 };
 
 export default function CatalogModal({ products, onClose }: { products: Product[], onClose: () => void }) {
+  const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [filtered, setFiltered] = useState(products);
@@ -73,6 +75,19 @@ export default function CatalogModal({ products, onClose }: { products: Product[
   const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
   
   const { addItem } = useCart();
+
+  // Gestión de estado y bloqueo de scroll
+  useEffect(() => {
+    setMounted(true);
+    
+    // Bloquear explícitamente el scroll del body
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
 
   useEffect(() => {
     let result = products;
@@ -112,12 +127,15 @@ export default function CatalogModal({ products, onClose }: { products: Product[
     setTimeout(() => setParticles((prev) => prev.filter((p) => p.id !== newParticle.id)), 850);
   };
 
-  return (
+  if (!mounted) return null;
+
+  // Construcción del contenido que será inyectado por el Portal
+  const modalContent = (
     <motion.div 
       initial={{ opacity: 0, y: 40, scale: 0.98 }} 
       animate={{ opacity: 1, y: 0, scale: 1 }} 
       exit={{ opacity: 0, y: 30, scale: 0.98 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="fixed inset-0 z-[99999] bg-[#FFFDFE] md:bg-[#FFFDFE]/95 md:backdrop-blur-3xl overflow-hidden flex flex-col h-[100dvh] w-full overscroll-none"
     >
         <div className="fixed inset-0 pointer-events-none z-[100000] overflow-hidden">
@@ -308,4 +326,7 @@ export default function CatalogModal({ products, onClose }: { products: Product[
         </div>
     </motion.div>
   );
+
+  // Ejecución del Portal al Body
+  return createPortal(modalContent, document.body);
 }
