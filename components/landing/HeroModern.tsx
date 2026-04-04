@@ -312,14 +312,12 @@
 
 "use client";
 import { motion, Variants } from "framer-motion";
-import { ArrowRight, Heart, Sparkles, Gift, Star, Plane } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 
-// IMPORTACIONES SOLICITADAS
-// Asegúrate de que las rutas y las extensiones coincidan con tus archivos reales en la carpeta assets.
+// IMPORTACIONES
 import bgDesktop from "@/app/assets/bg-desktop.webp"; 
 import bgMobile from "@/app/assets/bg-mobile.webp";
-import heroImage from "@/app/assets/PG1.webp"; 
 
 export default function HeroBoutique() {
   const fadeInUp: Variants = {
@@ -335,7 +333,7 @@ export default function HeroBoutique() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.1 }
+      transition: { staggerChildren: 0.15, delayChildren: 0.8 } // Retardo para que se vea primero la foto
     }
   };
 
@@ -346,36 +344,30 @@ export default function HeroBoutique() {
     }
   };
 
-  const floatingParticles = Array.from({ length: 6 }).map((_, i) => ({
-    id: i,
-    size: Math.random() * 4 + 2,
-    x: Math.random() * 100,
-    duration: Math.random() * 10 + 10,
-    delay: Math.random() * 5
-  }));
-
   return (
-    <section className="relative w-full min-h-[100dvh] md:min-h-screen flex flex-col justify-center overflow-hidden bg-[#FFFDFE] transition-colors duration-500 pt-32 pb-12 lg:pt-40 lg:pb-12">
+    // Se cambió a flex-col justify-end para empujar el contenido hacia abajo
+    <section className="relative w-full min-h-[100dvh] flex flex-col justify-end overflow-hidden bg-[#FFFDFE] pt-32 pb-8 md:pb-12 px-4 md:px-6">
       
-      {/* --- IMPLEMENTACIÓN DE IMÁGENES DE FONDO --- */}
+      {/* --- FONDO PROTAGONISTA --- */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-        {/* Imagen de fondo para Móvil */}
+        
+        {/* Móvil */}
         <div className="block md:hidden relative w-full h-full">
           <Image
             src={bgMobile}
-            alt="Fondo Guadalupe Móvil"
+            alt="Fondo Exclusivos Guadalupe Móvil"
             fill
-            className="object-cover object-center"
+            className="object-cover object-top"
             priority
             quality={85}
           />
         </div>
 
-        {/* Imagen de fondo para Desktop y Tablets */}
+        {/* Desktop */}
         <div className="hidden md:block relative w-full h-full">
           <Image
             src={bgDesktop}
-            alt="Fondo Guadalupe Desktop"
+            alt="Fondo Exclusivos Guadalupe Desktop"
             fill
             className="object-cover object-center"
             priority
@@ -383,233 +375,61 @@ export default function HeroBoutique() {
           />
         </div>
 
-        {/* OVERLAY OBLIGATORIO: Capa blanca al 85% para opacar la imagen y permitir la legibilidad de la tipografía y UI actual */}
-        <div className="absolute inset-0 bg-white/85 backdrop-blur-sm"></div>
-
-        {/* Partículas originales */}
-        {floatingParticles.map((particle) => (
-           <motion.div
-             key={particle.id}
-             className="absolute bottom-[-10px] rounded-full bg-[#E85D9E]/30 shadow-[0_0_8px_#E85D9E]"
-             style={{ width: particle.size, height: particle.size, left: `${particle.x}%` }}
-             animate={{ 
-               y: ["0vh", "-100vh"],
-               x: [`${particle.x}%`, `${particle.x + (Math.random() * 10 - 5)}%`],
-               opacity: [0, 1, 0]
-             }}
-             transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay, ease: "linear" }}
-           />
-        ))}
+        {/* Gradiente inferior: Solo oscurece la parte de abajo para dar contraste al contenedor de texto */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/95 via-white/70 to-transparent"></div>
       </div>
 
-      <div className="container relative z-10 px-4 md:px-6 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+      {/* Título oculto para SEO. Indispensable para los motores de búsqueda */}
+      <h1 className="sr-only">Exclusivos Guadalupe - Ropa exclusiva para niñas</h1>
+
+      {/* --- CONTENEDOR DE INFORMACIÓN (TARJETA INFERIOR) --- */}
+      <motion.div 
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center bg-white/40 backdrop-blur-md border border-white/60 p-6 md:p-10 rounded-[2rem] shadow-[0_8px_32px_rgba(209,77,139,0.15)]"
+      >
         
-        {/* COLUMNA IZQUIERDA */}
-        <motion.div 
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-6 md:space-y-8 w-full max-w-2xl mx-auto lg:mx-0"
-        >
-          <div className="w-full flex flex-col items-center lg:items-start">
-            <motion.h1 variants={fadeInUp} className="flex flex-col items-center lg:items-start leading-none relative w-full">
-              
-              <span className="block text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1A0C16] -mb-2 md:-mb-4 lg:-mb-6 relative z-10">
-                Exclusivos
-              </span>
-              
-              <div className="relative inline-block py-2 w-full flex justify-center lg:justify-start">
-                <div className="relative inline-block">
-                  
-                  <motion.div 
-                    initial={{ clipPath: "inset(0 100% 0 0)" }}
-                    animate={{ clipPath: "inset(0 0% 0 0)" }}
-                    transition={{ 
-                      duration: 1.2, 
-                      ease: "easeInOut",
-                      delay: 0.4 
-                    }}
-                    className="inline-block relative z-10 will-change-transform"
-                    style={{ WebkitClipPath: "inset(0 100% 0 0)" }}
-                  >
-                    {/* Se alteró la opacidad de la sombra para mayor legibilidad sobre el fondo */}
-                    <span className="block text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#D14D8B] drop-shadow-[2px_2px_0px_rgba(255,255,255,0.8)] pr-2 sm:pr-4 py-2 leading-tight">
-                      Guadalupe
-                    </span>
-                  </motion.div>
+        <motion.p variants={fadeInUp} className="w-full text-base md:text-lg lg:text-xl text-[#33182B] leading-relaxed font-medium max-w-2xl">
+          Ropa exclusiva, vestidos hermosos y accesorios mágicos para niñas. 
+          Cada prenda está cuidadosamente seleccionada para hacerla brillar.
+          <span className="block mt-2 font-bold text-[#D14D8B]">
+            Diseñados para sus momentos más especiales.
+          </span>
+        </motion.p>
 
-                  <svg 
-                    className="absolute -bottom-2 md:-bottom-4 left-0 w-full h-8 md:h-12 pointer-events-none z-0" 
-                    viewBox="0 0 300 30" 
-                    fill="none" 
-                    xmlns="http://www.w3.org/2000/svg"
-                    preserveAspectRatio="none"
-                  >
-                    <motion.path 
-                      d="M 5,15 Q 80,5 150,15 T 295,15" 
-                      stroke="url(#paint0_linear)" 
-                      strokeWidth="6" 
-                      strokeLinecap="round"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      animate={{ pathLength: 1, opacity: 1 }}
-                      transition={{ duration: 0.8, delay: 1.6, ease: "circOut" }} 
-                    />
-                    <defs>
-                      <linearGradient id="paint0_linear" x1="0" y1="0" x2="300" y2="0" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#E85D9E" />
-                        <stop offset="0.5" stopColor="#D14D8B" />
-                        <stop offset="1" stopColor="#FFA8C5" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-              </div>
-            </motion.h1>
-          </div>
-
-          {/* Color oscurecido a #5A4053 para mayor contraste contra el overlay blanco */}
-          <motion.p variants={fadeInUp} className="w-full text-base md:text-lg text-[#5A4053] leading-relaxed px-2 lg:px-0 font-medium">
-            Ropa exclusiva, vestidos hermosos y accesorios mágicos para niñas. 
-            Cada prenda está cuidadosamente seleccionada para hacerla brillar.
-            <span className="block mt-2 font-bold text-[#D14D8B]">
-              Diseñados para sus momentos más especiales.
-            </span>
-          </motion.p>
-
-          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4 sm:px-0 justify-center lg:justify-start">
-            <button 
-                onClick={scrollToCatalog}
-                className="group relative px-8 py-4 bg-gradient-to-r from-[#D14D8B] to-[#B03A70] text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_10px_25px_-5px_rgba(209,77,139,0.5)] active:scale-95 cursor-pointer border border-[#FAD1E6]/30"
-            >
-              <motion.div 
-                animate={{ x: ["-100%", "200%"] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
-                className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 will-change-transform"
-              />
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Explorar Colección <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </button>
-          </motion.div>
-          
-          <motion.div variants={fadeInUp} className="pt-6 md:pt-8 flex flex-wrap gap-6 md:gap-10 border-t border-[#FAD1E6] w-full lg:w-auto justify-center lg:justify-start">
-            <motion.div whileHover={{ y: -2 }} className="text-center lg:text-left transition-transform">
-              <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">0 a 12</h3>
-              <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">Tallas Disp.</p>
-            </motion.div>
-            <motion.div whileHover={{ y: -2 }} className="text-center lg:text-left transition-transform">
-              <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">Local 114</h3>
-              <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">CC El Progreso</p>
-            </motion.div>
-            <motion.div whileHover={{ y: -2 }} className="text-center lg:text-left transition-transform">
-              <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">100%</h3>
-              <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">Garantizado</p>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-
-        {/* COLUMNA DERECHA */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.3, type: "spring", stiffness: 40 }}
-          className="relative h-[350px] md:h-[450px] lg:h-[600px] flex items-center justify-center mt-4 lg:mt-0"
-        >
-          <div className="relative w-[280px] h-[280px] md:w-[420px] md:h-[420px]">
-            
+        <motion.div variants={fadeInUp} className="mt-8 mb-8">
+          <button 
+              onClick={scrollToCatalog}
+              className="group relative px-8 py-4 bg-gradient-to-r from-[#D14D8B] to-[#B03A70] text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_10px_25px_-5px_rgba(209,77,139,0.5)] active:scale-95 cursor-pointer border border-[#FAD1E6]/30"
+          >
             <motion.div 
-              animate={{ rotate: 360 }}
-              transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-[-20px] rounded-full border-[1.5px] border-dashed border-[#E85D9E]/50 opacity-80 will-change-transform"
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
+              className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 will-change-transform"
             />
-            <motion.div 
-              animate={{ rotate: -360 }}
-              transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-[-40px] rounded-full border-[1px] border-[#D14D8B]/40 will-change-transform"
-            >
-              <div className="absolute top-4 right-10 w-2.5 h-2.5 bg-gradient-to-r from-[#D14D8B] to-[#FFA8C5] rounded-full shadow-[0_0_12px_#D14D8B]" />
-            </motion.div>
-
-            <motion.div 
-              animate={{ y: [-10, 10, -10] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 bg-white/60 backdrop-blur-md rounded-[2.5rem] md:rounded-[4rem] border-[4px] border-white shadow-[0_25px_50px_-12px_rgba(209,77,139,0.3)] flex items-center justify-center z-20 overflow-hidden group will-change-transform"
-            >
-               {heroImage ? (
-                  <Image 
-                    src={heroImage} 
-                    alt="Colección Guadalupe" 
-                    fill 
-                    className="object-cover scale-105 transition-transform duration-700 group-hover:scale-110"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-               ) : (
-                  <div className="text-[#D14D8B] font-medium opacity-50">Sube tu foto aquí</div>
-               )}
-               
-               <div className="absolute inset-0 bg-gradient-to-t from-[#1A0C16]/30 via-transparent to-transparent pointer-events-none" />
-            </motion.div>
-
-            {/* Tarjetas Flotantes - Aumento de opacidad del fondo blanco para contrastar con el nuevo background general */}
-            <motion.div 
-              initial={{ opacity: 0, x: -30, y: 10 }}
-              animate={{ opacity: 1, x: 0, y: [0, 10, 0], rotate: [0, 2, 0] }}
-              transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.2, opacity: { duration: 1, delay: 1.5 } }}
-              className="absolute top-1/4 -left-10 md:-left-20 bg-white/95 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/80 z-30 pointer-events-none will-change-transform"
-            >
-               <div className="flex items-center gap-3">
-                 <div className="p-2.5 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-sm">
-                    <Plane className="w-5 h-5 text-indigo-500" />
-                 </div>
-                 <div>
-                   <p className="text-[10px] text-[#5A4053] font-bold uppercase tracking-wider">Envíos</p>
-                   <p className="text-xs md:text-sm font-bold text-[#1A0C16]">Internacionales</p>
-                 </div>
-               </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: 20, y: 20 }}
-              animate={{ opacity: 1, x: 0, y: [0, -8, 0], rotate: [0, 3, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", opacity: { duration: 1, delay: 0.8 } }}
-              className="absolute -top-4 -right-4 md:top-8 md:-right-12 bg-white/95 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/80 z-30 pointer-events-none will-change-transform"
-            >
-               <div className="flex items-center gap-3">
-                 <div className="p-2.5 bg-gradient-to-br from-[#FAD1E6] to-pink-100 rounded-xl shadow-sm">
-                    <Gift className="w-5 h-5 text-[#D14D8B]" />
-                 </div>
-                 <div>
-                   <p className="text-[10px] text-[#5A4053] font-bold uppercase tracking-wider">Envíos</p>
-                   <p className="text-xs md:text-sm font-bold text-[#1A0C16]">A todo el país</p>
-                 </div>
-               </div>
-            </motion.div>
-
-            <motion.div 
-              initial={{ opacity: 0, x: -20, y: -20 }}
-              animate={{ opacity: 1, x: 0, y: [0, 8, 0], rotate: [0, -3, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5, opacity: { duration: 1, delay: 1 } }}
-              className="absolute -bottom-8 -left-6 md:-bottom-4 md:-left-12 bg-white/95 backdrop-blur-xl p-3 md:p-4 rounded-2xl shadow-xl border border-white/80 z-30 pointer-events-none will-change-transform"
-            >
-               <div className="flex items-center gap-3">
-                 <motion.div 
-                    animate={{ scale: [1, 1.15, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="p-2.5 bg-red-50 rounded-xl shadow-sm"
-                 >
-                    <Heart className="w-5 h-5 text-red-500 fill-red-500" />
-                 </motion.div>
-                 <div>
-                   <p className="text-[10px] text-[#5A4053] font-bold uppercase tracking-wider">Detalles</p>
-                   <p className="text-xs md:text-sm font-bold text-[#1A0C16]">Hechos con amor</p>
-                 </div>
-               </div>
-            </motion.div>
-
-          </div>
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Explorar Colección <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </button>
         </motion.div>
-      </div>
+        
+        <motion.div variants={fadeInUp} className="flex flex-wrap gap-6 md:gap-16 border-t border-[#D14D8B]/20 pt-6 w-full justify-center">
+          <motion.div whileHover={{ y: -2 }} className="text-center transition-transform">
+            <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">0 a 12</h3>
+            <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">Tallas Disp.</p>
+          </motion.div>
+          <motion.div whileHover={{ y: -2 }} className="text-center transition-transform">
+            <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">Local 114</h3>
+            <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">CC El Progreso</p>
+          </motion.div>
+          <motion.div whileHover={{ y: -2 }} className="text-center transition-transform">
+            <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">100%</h3>
+            <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">Garantizado</p>
+          </motion.div>
+        </motion.div>
+
+      </motion.div>
     </section>
   );
 }
