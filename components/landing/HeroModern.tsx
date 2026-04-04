@@ -333,7 +333,7 @@ export default function HeroBoutique() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.8 } // Retardo para que se vea primero la foto
+      transition: { staggerChildren: 0.15, delayChildren: 0.8 }
     }
   };
 
@@ -345,8 +345,7 @@ export default function HeroBoutique() {
   };
 
   return (
-    // Se cambió a flex-col justify-end para empujar el contenido hacia abajo
-    <section className="relative w-full min-h-[100dvh] flex flex-col justify-end overflow-hidden bg-[#FFFDFE] pt-32 pb-8 md:pb-12 px-4 md:px-6">
+    <section className="relative w-full min-h-[100dvh] flex flex-col justify-end overflow-hidden bg-[#FFFDFE] pb-10 md:pb-12 px-4 md:px-6">
       
       {/* --- FONDO PROTAGONISTA --- */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
@@ -375,30 +374,24 @@ export default function HeroBoutique() {
           />
         </div>
 
-        {/* Gradiente inferior: Solo oscurece la parte de abajo para dar contraste al contenedor de texto */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-white/95 via-white/70 to-transparent"></div>
+        {/* Gradiente inferior: Reducido a 1/3 para no tapar los maniquíes, solo da legibilidad a los textos inferiores */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white/90 via-white/50 to-transparent"></div>
       </div>
 
-      {/* Título oculto para SEO. Indispensable para los motores de búsqueda */}
+      {/* Título oculto para SEO */}
       <h1 className="sr-only">Exclusivos Guadalupe - Ropa exclusiva para niñas</h1>
 
-      {/* --- CONTENEDOR DE INFORMACIÓN (TARJETA INFERIOR) --- */}
+      {/* --- CONTENEDOR DE INFORMACIÓN (SIN RECUADRO) --- */}
       <motion.div 
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center bg-white/40 backdrop-blur-md border border-white/60 p-6 md:p-10 rounded-[2rem] shadow-[0_8px_32px_rgba(209,77,139,0.15)]"
+        // Se removieron los fondos, bordes y el backdrop-blur. Se maneja solo como contenedor flex.
+        className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center gap-8"
       >
         
-        <motion.p variants={fadeInUp} className="w-full text-base md:text-lg lg:text-xl text-[#33182B] leading-relaxed font-medium max-w-2xl">
-          Ropa exclusiva, vestidos hermosos y accesorios mágicos para niñas. 
-          Cada prenda está cuidadosamente seleccionada para hacerla brillar.
-          <span className="block mt-2 font-bold text-[#D14D8B]">
-            Diseñados para sus momentos más especiales.
-          </span>
-        </motion.p>
-
-        <motion.div variants={fadeInUp} className="mt-8 mb-8">
+        {/* Botón Explorar Colección */}
+        <motion.div variants={fadeInUp}>
           <button 
               onClick={scrollToCatalog}
               className="group relative px-8 py-4 bg-gradient-to-r from-[#D14D8B] to-[#B03A70] text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_10px_25px_-5px_rgba(209,77,139,0.5)] active:scale-95 cursor-pointer border border-[#FAD1E6]/30"
@@ -408,13 +401,14 @@ export default function HeroBoutique() {
               transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
               className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 will-change-transform"
             />
-            <span className="relative z-10 flex items-center justify-center gap-2">
+            <span className="relative z-10 flex items-center justify-center gap-2 shadow-sm">
               Explorar Colección <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
           </button>
         </motion.div>
         
-        <motion.div variants={fadeInUp} className="flex flex-wrap gap-6 md:gap-16 border-t border-[#D14D8B]/20 pt-6 w-full justify-center">
+        {/* Información / Métricas */}
+        <motion.div variants={fadeInUp} className="flex flex-wrap gap-8 md:gap-16 w-full justify-center">
           <motion.div whileHover={{ y: -2 }} className="text-center transition-transform">
             <h3 className="text-xl md:text-2xl font-bold text-[#1A0C16]">0 a 12</h3>
             <p className="text-[10px] md:text-xs text-[#5A4053] uppercase tracking-wider font-semibold">Tallas Disp.</p>
