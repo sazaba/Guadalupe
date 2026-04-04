@@ -1,13 +1,12 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { placeOrder } from "@/app/actions/place-order";
+import { placeOrder } from "@/app/actions/place-order"; // Lo dejamos importado para cuando conectemos Wompi
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart } from "lucide-react";
 import Link from "next/link";
-import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
 
 export default function CheckoutPage() {
   const { items, cartSubtotal, shippingTotal, cartTotal, clearCart } = useCart();
@@ -22,10 +21,6 @@ export default function CheckoutPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
-  // Variables de entorno de Square (se pueden eliminar cuando migres a Wompi)
-  const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID as string;
-  const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID as string;
 
   // Formateador de moneda colombiana
   const formatCOP = (amount: number) => {
@@ -58,7 +53,7 @@ export default function CheckoutPage() {
         {/* COLUMNA IZQUIERDA: FORMULARIO */}
         <div className="space-y-8">
             <div className="flex items-center gap-3 mb-8">
-                <Link href="/cart" className="p-2.5 bg-white border border-[#FAD1E6] hover:bg-[#FFF6F9] hover:border-[#E85D9E]/50 rounded-full transition-colors shadow-sm text-[#7B5C73]">
+                <Link href="/" className="p-2.5 bg-white border border-[#FAD1E6] hover:bg-[#FFF6F9] hover:border-[#E85D9E]/50 rounded-full transition-colors shadow-sm text-[#7B5C73]">
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <h1 className="text-3xl font-display font-bold">Finalizar Compra</h1>
@@ -144,20 +139,31 @@ export default function CheckoutPage() {
                 
                 {/* Lista de Productos */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    {items.map((item) => (
-                        <div key={item.id} className="flex gap-4 p-3 bg-[#FFF6F9]/50 rounded-2xl border border-[#FAD1E6]/30">
-                            <div className="relative w-16 h-16 bg-white rounded-xl overflow-hidden shrink-0 border border-[#FAD1E6]/50 shadow-sm">
-                                <Image src={item.image.split(',')[0]} alt={item.name} fill className="object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0 flex flex-col justify-center">
-                                <p className="text-sm font-bold text-[#33182B] truncate">{item.name}</p>
-                                <div className="flex justify-between items-center mt-1">
-                                    <span className="text-xs text-[#7B5C73] font-medium">Cant: {item.quantity}</span>
-                                    <span className="font-display font-bold text-[#E85D9E]">{formatCOP(item.price * item.quantity)}</span>
+                    {items.map((item) => {
+                        // PARACAÍDAS: Si no hay imagen, no se rompe
+                        const safeImageUrl = (item.image && typeof item.image === 'string') 
+                            ? item.image.split(',')[0] 
+                            : '';
+
+                        return (
+                            <div key={item.id} className="flex gap-4 p-3 bg-[#FFF6F9]/50 rounded-2xl border border-[#FAD1E6]/30">
+                                <div className="relative w-16 h-16 bg-white rounded-xl overflow-hidden shrink-0 border border-[#FAD1E6]/50 shadow-sm flex items-center justify-center">
+                                    {safeImageUrl ? (
+                                        <Image src={safeImageUrl} alt={item.name} fill className="object-cover" />
+                                    ) : (
+                                        <Package className="w-6 h-6 text-[#FAD1E6]" />
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                    <p className="text-sm font-bold text-[#33182B] truncate">{item.name}</p>
+                                    <div className="flex justify-between items-center mt-1">
+                                        <span className="text-xs text-[#7B5C73] font-medium">Cant: {item.quantity}</span>
+                                        <span className="font-display font-bold text-[#E85D9E]">{formatCOP(item.price * item.quantity)}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
 
                 {/* Subtotales */}
@@ -186,7 +192,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* ========================================================= */}
-                {/* 💳 PASARELA DE PAGO (AQUÍ ENTRARÁ WOMPI MÁS ADELANTE) */}
+                {/* 💳 PASARELA DE PAGO (WOMPI - MODO DISEÑO) */}
                 {/* ========================================================= */}
                 <div className={`mt-8 p-5 bg-[#FFFDFE] border border-[#FAD1E6] rounded-[20px] ${isLoading ? "hidden" : "block"}`}>
                     
@@ -195,40 +201,25 @@ export default function CheckoutPage() {
                         <span className="text-xs font-bold uppercase tracking-widest text-[#E85D9E]">Pago Seguro</span>
                     </div>
 
-                    {/* TODO: INTEGRACIÓN WOMPI 
-                        Cuando vayas a integrar Wompi, eliminarás este componente <PaymentForm> 
-                        y colocarás aquí el script o el botón de pago nativo de Wompi.
-                    */}
-                    <div className="square-payment-wrapper">
-                        <PaymentForm
-                            applicationId={appId}
-                            locationId={locationId}
-                            cardTokenizeResponseReceived={async (token: any) => {
-                                if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
-                                    alert("Por favor, completa todos los datos de envío y contacto antes de pagar.");
-                                    return;
-                                }
-                                setIsLoading(true);
-                                try {
-                                    const cartPayload = items.map(item => ({ productId: item.id, quantity: item.quantity }));
-                                    const response = await placeOrder(cartPayload, formData, token.token);
-                                    if (response.ok && response.order) {
-                                        clearCart(); 
-                                        // IMPORTANTE: Asegúrate de que la ruta de éxito sea /order/[id]
-                                        router.push(`/order/${response.order.id}`); 
-                                    } else {
-                                        alert(response.message || "Error al procesar el pedido. Intenta nuevamente.");
-                                        setIsLoading(false);
-                                    }
-                                } catch (error) {
-                                    alert("Ha ocurrido un error inesperado. Por favor contacta soporte.");
-                                    setIsLoading(false);
-                                } 
-                            }}
-                        >
-                            <CreditCard />
-                        </PaymentForm>
-                    </div>
+                    {/* Botón visual de prueba de Wompi */}
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
+                                alert("Por favor, completa los datos de contacto y envío antes de pagar.");
+                                return;
+                            }
+                            alert("¡Diseño listo! 🚀 Aquí se abrirá la pasarela de Wompi cuando la integremos.");
+                        }}
+                        className="w-full bg-[#2A1C24] text-white py-4 rounded-xl font-bold tracking-wide shadow-md flex items-center justify-center gap-2 hover:bg-[#33182B] transition-all"
+                    >
+                        Pagar con Wompi
+                    </button>
+                    
+                    <p className="text-[10px] text-center text-[#7B5C73] mt-3 leading-relaxed">
+                        (Modo visual: Cuando tengas tu cuenta de Wompi configurada, reemplazaremos este botón por su widget oficial)
+                    </p>
 
                 </div>
                 {/* ========================================================= */}
