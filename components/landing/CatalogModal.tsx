@@ -21,7 +21,6 @@ interface Product {
     isFeatured?: boolean; 
 }
 
-// 1. ETIQUETAS ACTUALIZADAS (Igual al ProductShowcase)
 const CATEGORIES = ["Todos", "Nueva Coleccion", "Vestidos", "Accesorios", "Zapatos", "Sport"];
 const CATEGORY_MAP: Record<string, string> = {
   "Nueva Coleccion": "nueva coleccion",
@@ -31,10 +30,9 @@ const CATEGORY_MAP: Record<string, string> = {
   "Sport": "sport"
 };
 
-// 2. EFECTO DE IMAGEN MÁGICA REPLICADO
 const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: string, isOOS: boolean }) => {
   return (
-    <div className="relative w-32 h-40 md:w-40 md:h-52 mx-auto flex items-center justify-center mt-4 mb-6 transform-gpu">
+    <div className="relative w-32 h-40 md:w-40 md:h-52 mx-auto flex items-center justify-center mt-4 mb-6">
       <motion.div 
         animate={{ rotate: 360 }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
@@ -88,7 +86,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
       );
     }
     
-    // Ordenar para que los destacados salgan primero
     result.sort((a, b) => {
         if (a.isFeatured && !b.isFeatured) return -1;
         if (!a.isFeatured && b.isFeatured) return 1;
@@ -117,14 +114,13 @@ export default function CatalogModal({ products, onClose }: { products: Product[
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 40, scale: 0.98, filter: "blur(10px)" }} 
-      animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }} 
-      exit={{ opacity: 0, y: 30, scale: 0.98, filter: "blur(10px)" }}
+      initial={{ opacity: 0, y: 40, scale: 0.98 }} 
+      animate={{ opacity: 1, y: 0, scale: 1 }} 
+      exit={{ opacity: 0, y: 30, scale: 0.98 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-0 z-[9999] bg-[#FFFDFE]/95 backdrop-blur-3xl overflow-hidden flex flex-col h-[100dvh] w-screen transform-gpu"
+      className="fixed inset-0 z-[99999] bg-[#FFFDFE] md:bg-[#FFFDFE]/95 md:backdrop-blur-3xl overflow-hidden flex flex-col h-[100dvh] w-full overscroll-none"
     >
-        {/* PARTÍCULAS MÁGICAS AL AGREGAR */}
-        <div className="fixed inset-0 pointer-events-none z-[10000] overflow-hidden">
+        <div className="fixed inset-0 pointer-events-none z-[100000] overflow-hidden">
           <AnimatePresence>
             {particles.map((p) => (
               <motion.div
@@ -144,7 +140,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
           </AnimatePresence>
         </div>
 
-        {/* GLOW DE FONDO */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
             <motion.div 
               initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5 }}
@@ -156,7 +151,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
             />
         </div>
 
-        {/* HEADER */}
         <div className="relative z-10 flex items-center justify-between p-5 md:p-8 border-b border-[#FAD1E6]/50 shrink-0 bg-white/60 backdrop-blur-md shadow-sm">
             <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FAD1E6] to-white border border-white text-[#E85D9E] flex items-center justify-center shadow-[0_4px_15px_-3px_rgba(232,93,158,0.2)]">
@@ -175,7 +169,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
             </button>
         </div>
 
-        {/* CONTROLES (BUSCADOR Y CATEGORÍAS) */}
         <div className="relative z-10 px-5 md:px-8 py-6 grid gap-4 md:grid-cols-[1fr_auto] shrink-0 border-b border-[#FAD1E6]/30 bg-white/40 backdrop-blur-sm">
             <div className="relative group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7B5C73]/60 group-focus-within:text-[#E85D9E] transition-colors" />
@@ -204,7 +197,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
             </div>
         </div>
 
-        {/* GRID DE PRODUCTOS */}
         <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-8 pb-24 relative z-10 custom-scrollbar overscroll-contain">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 max-w-7xl mx-auto">
                 <AnimatePresence mode="popLayout">
@@ -225,14 +217,12 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                           >
                             <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-5 md:p-6 w-full h-full">
                                 
-                                {/* Badge de Más Vendido */}
                                 {!isOOS && product.stock < 50 && (
                                   <span className="absolute top-5 right-5 z-30 bg-gradient-to-r from-[#FFA8C5] to-[#E85D9E] text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
                                       <Sparkles className="w-3 h-3" /> MÁS VENDIDO
                                   </span>
                                 )}
 
-                                {/* Imagen con el Wrapper estilo Hero */}
                                 <div className="relative z-10 w-full mb-2 mt-2">
                                     <BoutiqueImageWrapper image={product.images} name={product.name} isOOS={isOOS} />
                                 </div>
@@ -305,7 +295,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                 </AnimatePresence>
             </div>
 
-            {/* ESTADO VACÍO */}
             {filtered.length === 0 && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
