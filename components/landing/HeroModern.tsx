@@ -345,7 +345,7 @@ export default function HeroBoutique() {
   };
 
   return (
-    <section className="relative w-full min-h-[100dvh] flex flex-col justify-end overflow-hidden bg-[#FFFDFE] pb-10 md:pb-12 px-4 md:px-6">
+    <section className="relative w-full min-h-[100svh] flex flex-col justify-end overflow-hidden bg-[#FFFDFE] pb-10 md:pb-12 px-4 md:px-6">
       
       {/* --- FONDO PROTAGONISTA --- */}
       <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
@@ -368,25 +368,24 @@ export default function HeroBoutique() {
             src={bgDesktop}
             alt="Fondo Exclusivos Guadalupe Desktop"
             fill
-            className="object-cover object-center"
+            className="object-cover object-[center_10%]"
             priority
             quality={90}
           />
         </div>
 
-        {/* Gradiente inferior: Reducido a 1/3 para no tapar los maniquíes, solo da legibilidad a los textos inferiores */}
+        {/* Gradiente inferior */}
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-white/90 via-white/50 to-transparent"></div>
       </div>
 
       {/* Título oculto para SEO */}
       <h1 className="sr-only">Exclusivos Guadalupe - Ropa exclusiva para niñas</h1>
 
-      {/* --- CONTENEDOR DE INFORMACIÓN (SIN RECUADRO) --- */}
+      {/* --- CONTENEDOR DE INFORMACIÓN --- */}
       <motion.div 
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        // Se removieron los fondos, bordes y el backdrop-blur. Se maneja solo como contenedor flex.
         className="relative z-10 w-full max-w-4xl mx-auto flex flex-col items-center text-center gap-8"
       >
         
