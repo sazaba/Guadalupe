@@ -40,7 +40,7 @@ export default async function Home() {
       
       <Navbar /> 
       {/* Es posible que debas eliminar o modificar PremiumBackground si choca con los fondos de las secciones */}
-      <PremiumBackground />
+      {/* <PremiumBackground /> */}
       
       {/* Textura sutil de ruido */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none mix-blend-overlay fixed z-0"></div>
