@@ -5,7 +5,7 @@ import { placeOrder } from "@/app/actions/place-order";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShieldCheck, Loader2, ArrowLeft } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart } from "lucide-react";
 import Link from "next/link";
 import { PaymentForm, CreditCard } from 'react-square-web-payments-sdk';
 
@@ -14,182 +14,231 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Por defecto inicializamos en Colombia (CO)
   const [formData, setFormData] = useState({
-    name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "US"
+    name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "CO"
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Variables de entorno de Square (se pueden eliminar cuando migres a Wompi)
   const appId = process.env.NEXT_PUBLIC_SQUARE_APP_ID as string;
   const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID as string;
 
+  // Formateador de moneda colombiana
+  const formatCOP = (amount: number) => {
+    return "$" + amount.toLocaleString("es-CO");
+  };
+
   if (items.length === 0 && !isLoading) {
       return (
-          <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg-page)] text-[var(--text-muted)]">
-              <p>Your cart is empty.</p>
-              <Link href="/" className="mt-4 text-[var(--color-brand-primary)] hover:underline">Return to catalog</Link>
+          <div className="min-h-screen flex flex-col items-center justify-center bg-[#FFFDFE] text-[#33182B] font-sans">
+              <div className="w-24 h-24 bg-[#FFF6F9] rounded-full flex items-center justify-center mb-4 border border-[#FAD1E6]/50">
+                 <Package className="w-10 h-10 text-[#FAD1E6]" />
+              </div>
+              <h2 className="text-2xl font-display font-bold mb-2">Tu carrito está vacío</h2>
+              <p className="text-[#7B5C73] mb-6 font-medium">Aún no has agregado magia a tu pedido.</p>
+              <Link href="/#catalog" className="bg-[#E85D9E] text-white px-8 py-3 rounded-xl font-bold tracking-wide shadow-[0_8px_20px_-6px_rgba(232,93,158,0.5)] hover:bg-[#D6488B] transition-colors">
+                 Volver a la tienda
+              </Link>
           </div>
       );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-page)] text-[var(--text-main)] font-sans pt-24 pb-12 px-4">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="min-h-screen bg-[#FFFDFE] text-[#33182B] font-sans pt-24 pb-12 px-4 relative z-10">
+      
+      {/* Mancha decorativa sutil en el fondo */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[#FFF6F9] to-transparent -z-10" />
+
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
         
+        {/* COLUMNA IZQUIERDA: FORMULARIO */}
         <div className="space-y-8">
-            <div className="flex items-center gap-2 mb-6">
-                <Link href="/" className="p-2 hover:bg-[var(--glass-border)] rounded-full transition-colors">
-                    <ArrowLeft className="w-5 h-5 text-[var(--text-muted)]" />
+            <div className="flex items-center gap-3 mb-8">
+                <Link href="/cart" className="p-2.5 bg-white border border-[#FAD1E6] hover:bg-[#FFF6F9] hover:border-[#E85D9E]/50 rounded-full transition-colors shadow-sm text-[#7B5C73]">
+                    <ArrowLeft className="w-5 h-5" />
                 </Link>
-                <h1 className="text-2xl font-display font-bold">Secure Checkout</h1>
+                <h1 className="text-3xl font-display font-bold">Finalizar Compra</h1>
             </div>
 
             <form id="checkout-form" className="space-y-8">
-                <section className="space-y-4">
-                    <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
-                        <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">1</div>
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">Contact Information</h2>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                        <div>
-                            <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Full Name</label>
-                            <input required name="name" onChange={handleInputChange} type="text" placeholder="John Doe" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                
+                {/* SECCIÓN 1: DATOS DE CONTACTO */}
+                <section className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-6 md:p-8 shadow-[0_8px_30px_rgb(232,93,158,0.04)] space-y-6">
+                    <div className="flex items-center gap-3 border-b border-[#FAD1E6]/50 pb-4">
+                        <div className="w-8 h-8 rounded-full bg-[#FFF6F9] border border-[#FAD1E6] text-[#E85D9E] flex items-center justify-center">
+                            <User className="w-4 h-4" />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-[#E85D9E]">1. Información de Contacto</h2>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-5">
+                        <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Nombre Completo</label>
+                            <input required name="name" onChange={handleInputChange} type="text" placeholder="Ej: Camila Restrepo" className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Email</label>
-                                <input required name="email" onChange={handleInputChange} type="email" placeholder="john@university.edu" className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Correo Electrónico</label>
+                                <input required name="email" onChange={handleInputChange} type="email" placeholder="camila@correo.com" className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Phone (Mobile)</label>
-                                <input required name="phone" onChange={handleInputChange} type="tel" placeholder="+57 300..." className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Celular</label>
+                                <input required name="phone" onChange={handleInputChange} type="tel" placeholder="300 123 4567" className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40 font-mono" />
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section className="space-y-4">
-                     <div className="flex items-center gap-2 border-b border-[var(--glass-border)] pb-2 mb-4">
-                        <div className="w-6 h-6 rounded-full bg-[var(--color-brand-primary)] text-white flex items-center justify-center text-xs font-bold">2</div>
-                        <h2 className="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">Shipping Address</h2>
+                {/* SECCIÓN 2: DIRECCIÓN DE ENVÍO */}
+                <section className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-6 md:p-8 shadow-[0_8px_30px_rgb(232,93,158,0.04)] space-y-6">
+                     <div className="flex items-center gap-3 border-b border-[#FAD1E6]/50 pb-4">
+                        <div className="w-8 h-8 rounded-full bg-[#FFF6F9] border border-[#FAD1E6] text-[#E85D9E] flex items-center justify-center">
+                            <MapPin className="w-4 h-4" />
+                        </div>
+                        <h2 className="text-sm font-bold uppercase tracking-widest text-[#E85D9E]">2. Dirección de Envío</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 gap-5">
                         <div>
-                            <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Country</label>
-                            <select name="country" onChange={handleInputChange} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors appearance-none cursor-pointer">
-                                <option value="US">United States</option>
-                                <option value="CO">Colombia</option>
-                            </select>
+                            <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">País</label>
+                            <div className="relative">
+                                <select name="country" defaultValue="CO" onChange={handleInputChange} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all appearance-none cursor-pointer font-bold text-[#33182B]">
+                                    <option value="CO">Colombia</option>
+                                    <option value="US">Estados Unidos</option>
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none border-l border-b border-[#7B5C73] w-2 h-2 -rotate-45" />
+                            </div>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Street Address</label>
-                            <input required name="address" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Calle 10 # 5-20" : "123 Science Dr"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                            <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Dirección Completa</label>
+                            <input required name="address" onChange={handleInputChange} type="text" placeholder="Ej: Calle 10 # 5-20, Apto 301" className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                         </div>
                         <div className="grid grid-cols-6 gap-4">
                             <div className="col-span-6 md:col-span-3">
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">City / Ciudad</label>
-                                <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Pereira" : "Boston"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Ciudad / Municipio</label>
+                                <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Ej: Sabaneta, Dosquebradas..." : "Miami"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                             </div>
                             <div className="col-span-3 md:col-span-2">
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">{formData.country === "CO" ? "Dept / Prov" : "State"}</label>
-                                <input required name="state" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Risaralda" : "MA"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors uppercase" maxLength={formData.country === "US" ? 2 : 20} />
+                                <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">{formData.country === "CO" ? "Departamento" : "Estado"}</label>
+                                <input required name="state" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Antioquia" : "FL"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40 capitalize" maxLength={formData.country === "US" ? 2 : 30} />
                             </div>
                             <div className="col-span-3 md:col-span-1">
-                                <label className="block text-xs font-bold mb-1 ml-1 text-[var(--text-muted)]">Zip Code</label>
-                                <input required name="postalCode" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "660001" : "02115"} className="w-full bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-3 outline-none focus:border-[var(--color-brand-primary)] transition-colors" />
+                                <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Cód. Postal</label>
+                                <input required name="postalCode" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "055450" : "33101"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40 font-mono" />
                             </div>
                         </div>
                     </div>
-                    {formData.country === "CO" && (
-                        <p className="text-[10px] text-amber-500 font-bold bg-amber-500/10 p-2 rounded-lg">
-                            Nota: Asegúrese de usar la dirección y código postal asociados a su cuenta de Bancolombia para evitar rechazos.
-                        </p>
-                    )}
                 </section>
             </form>
         </div>
 
+        {/* COLUMNA DERECHA: RESUMEN Y PAGO */}
         <div className="lg:sticky lg:top-24 h-fit space-y-6">
-            <div className="bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-2xl p-6 shadow-xl">
-                <h3 className="font-bold text-lg mb-4">Order Summary</h3>
+            <div className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-6 shadow-[0_15px_40px_-15px_rgba(232,93,158,0.15)] relative overflow-hidden">
+                
+                <h3 className="font-display font-bold text-xl mb-5 text-[#33182B]">Resumen del Pedido</h3>
+                
+                {/* Lista de Productos */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     {items.map((item) => (
-                        <div key={item.id} className="flex gap-3">
-                            <div className="relative w-12 h-12 bg-white rounded-lg overflow-hidden shrink-0 border border-[var(--glass-border)]">
-                                <Image src={item.image} alt={item.name} fill className="object-contain p-1" />
+                        <div key={item.id} className="flex gap-4 p-3 bg-[#FFF6F9]/50 rounded-2xl border border-[#FAD1E6]/30">
+                            <div className="relative w-16 h-16 bg-white rounded-xl overflow-hidden shrink-0 border border-[#FAD1E6]/50 shadow-sm">
+                                <Image src={item.image.split(',')[0]} alt={item.name} fill className="object-cover" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold truncate">{item.name}</p>
-                                <div className="flex justify-between text-xs text-[var(--text-muted)]">
-                                    <span>Qty: {item.quantity}</span>
-                                    <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            <div className="flex-1 min-w-0 flex flex-col justify-center">
+                                <p className="text-sm font-bold text-[#33182B] truncate">{item.name}</p>
+                                <div className="flex justify-between items-center mt-1">
+                                    <span className="text-xs text-[#7B5C73] font-medium">Cant: {item.quantity}</span>
+                                    <span className="font-display font-bold text-[#E85D9E]">{formatCOP(item.price * item.quantity)}</span>
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="border-t border-[var(--glass-border)] mt-4 pt-4 space-y-2">
-                    <div className="flex justify-between text-sm text-[var(--text-muted)]">
+                {/* Subtotales */}
+                <div className="border-t border-[#FAD1E6]/50 mt-5 pt-5 space-y-3">
+                    <div className="flex justify-between text-sm text-[#7B5C73] font-medium">
                         <span>Subtotal</span>
-                        <span className="font-mono">${cartSubtotal.toFixed(2)}</span>
+                        <span>{formatCOP(cartSubtotal)}</span>
                     </div>
-                    <div className="flex justify-between text-sm text-[var(--text-muted)]">
-                        <span>Shipping {shippingTotal === 0 && <span className="text-emerald-500 font-bold ml-1">(Free!)</span>}</span>
-                        <span className="font-mono">${shippingTotal.toFixed(2)}</span>
+                    <div className="flex justify-between text-sm text-[#7B5C73] font-medium">
+                        <span>Envío {shippingTotal === 0 && <span className="text-[#E85D9E] font-bold ml-1 text-xs uppercase tracking-wider bg-[#FAD1E6]/30 px-2 py-0.5 rounded-md">¡Gratis!</span>}</span>
+                        <span>{formatCOP(shippingTotal)}</span>
                     </div>
-                    <div className="flex justify-between text-xl font-bold pt-2 border-t border-[var(--glass-border)] text-[var(--color-brand-primary)]">
-                        <span>Total</span>
-                        <span>${cartTotal.toFixed(2)}</span>
+                    
+                    <div className="flex justify-between items-center text-xl font-bold pt-4 border-t border-[#FAD1E6] text-[#33182B]">
+                        <span>Total a Pagar</span>
+                        <span className="text-2xl font-display text-[#E85D9E]">{formatCOP(cartTotal)}</span>
                     </div>
                 </div>
 
+                {/* Estado de Carga */}
                 {isLoading && (
-                    <div className="flex justify-center items-center py-4 mt-4">
-                        <Loader2 className="w-6 h-6 animate-spin text-[var(--color-brand-primary)]" />
-                        <span className="ml-2 font-bold">Processing...</span>
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex flex-col justify-center items-center rounded-[24px]">
+                        <Loader2 className="w-8 h-8 animate-spin text-[#E85D9E] mb-3" />
+                        <span className="font-bold text-[#E85D9E] text-sm uppercase tracking-widest">Procesando Magia...</span>
                     </div>
                 )}
 
-                <div className={`mt-6 ${isLoading ? "hidden" : "block"}`}>
-                    <PaymentForm
-                        applicationId={appId}
-                        locationId={locationId}
-                        cardTokenizeResponseReceived={async (token: any) => {
-                            if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
-                                alert("Please fill in all information.");
-                                return;
-                            }
-                            setIsLoading(true);
-                            try {
-                                const cartPayload = items.map(item => ({ productId: item.id, quantity: item.quantity }));
-                                const response = await placeOrder(cartPayload, formData, token.token);
-                                if (response.ok && response.order) {
-                                    clearCart(); 
-                                    router.push(`/orders/${response.order.id}`); 
-                                } else {
-                                    alert(response.message || "Error processing order");
-                                    setIsLoading(false);
+                {/* ========================================================= */}
+                {/* 💳 PASARELA DE PAGO (AQUÍ ENTRARÁ WOMPI MÁS ADELANTE) */}
+                {/* ========================================================= */}
+                <div className={`mt-8 p-5 bg-[#FFFDFE] border border-[#FAD1E6] rounded-[20px] ${isLoading ? "hidden" : "block"}`}>
+                    
+                    <div className="flex items-center gap-2 mb-4">
+                        <ShieldCheck className="w-5 h-5 text-[#E85D9E]" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-[#E85D9E]">Pago Seguro</span>
+                    </div>
+
+                    {/* TODO: INTEGRACIÓN WOMPI 
+                        Cuando vayas a integrar Wompi, eliminarás este componente <PaymentForm> 
+                        y colocarás aquí el script o el botón de pago nativo de Wompi.
+                    */}
+                    <div className="square-payment-wrapper">
+                        <PaymentForm
+                            applicationId={appId}
+                            locationId={locationId}
+                            cardTokenizeResponseReceived={async (token: any) => {
+                                if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
+                                    alert("Por favor, completa todos los datos de envío y contacto antes de pagar.");
+                                    return;
                                 }
-                            } catch (error) {
-                                alert("Unexpected error.");
-                                setIsLoading(false);
-                            } 
-                        }}
-                    >
-                        <CreditCard />
-                    </PaymentForm>
+                                setIsLoading(true);
+                                try {
+                                    const cartPayload = items.map(item => ({ productId: item.id, quantity: item.quantity }));
+                                    const response = await placeOrder(cartPayload, formData, token.token);
+                                    if (response.ok && response.order) {
+                                        clearCart(); 
+                                        // IMPORTANTE: Asegúrate de que la ruta de éxito sea /order/[id]
+                                        router.push(`/order/${response.order.id}`); 
+                                    } else {
+                                        alert(response.message || "Error al procesar el pedido. Intenta nuevamente.");
+                                        setIsLoading(false);
+                                    }
+                                } catch (error) {
+                                    alert("Ha ocurrido un error inesperado. Por favor contacta soporte.");
+                                    setIsLoading(false);
+                                } 
+                            }}
+                        >
+                            <CreditCard />
+                        </PaymentForm>
+                    </div>
+
+                </div>
+                {/* ========================================================= */}
+
+                <div className="mt-5 flex justify-center">
+                    <p className="flex items-center gap-1.5 text-[10px] font-medium text-[#7B5C73] uppercase tracking-wide">
+                        <Heart className="w-3.5 h-3.5 text-[#E85D9E] fill-[#E85D9E]/20" /> Tu compra está protegida
+                    </p>
                 </div>
 
-                <div className="mt-4 flex flex-col items-center justify-center gap-1 text-center">
-                   <div className="flex items-center gap-2 text-[10px] text-[var(--text-muted)]">
-                       <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                       <span>SSL Secure Encrypted Payment via Square</span>
-                   </div>
-                </div>
             </div>
         </div>
       </div>
