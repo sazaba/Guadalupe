@@ -112,6 +112,9 @@ export default function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] will-change-transform ${
         showNavbar ? "translate-y-0" : "-translate-y-full"
       } ${
+        // Lógica para bordes redondeados: rectos si el menú móvil está abierto, redondos abajo por defecto.
+        mobileOpen ? "rounded-none" : "rounded-b-3xl"
+      } ${
         scrolled
           ? "bg-white/90 backdrop-blur-xl py-3 shadow-[0_4px_25px_-10px_rgba(232,93,158,0.2)]"
           : "bg-white/[0.85] py-6"
@@ -211,7 +214,7 @@ export default function Navbar() {
             exit={{ opacity: 0, y: -20, scale: 0.98 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             // Fondo con gradiente mágico y bordes suaves
-            className="lg:hidden absolute top-[100%] left-0 right-0 bg-gradient-to-b from-white via-[#FFFDFE] to-[#FFF0F7] border-b-2 border-[#FAD1E6] shadow-[0_20px_50px_-10px_rgba(232,93,158,0.2)] overflow-y-auto"
+            className="lg:hidden absolute top-[100%] left-0 right-0 bg-gradient-to-b from-white via-[#FFFDFE] to-[#FFF0F7] border-b-2 border-[#FAD1E6] shadow-[0_20px_50px_-10px_rgba(232,93,158,0.2)] overflow-y-auto rounded-b-3xl"
             style={{ maxHeight: "calc(100vh - 70px)" }} 
           >
             <div className="p-6 flex flex-col gap-3 pb-10 relative overflow-hidden"> 
