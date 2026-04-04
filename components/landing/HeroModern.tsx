@@ -309,7 +309,6 @@
 //   );
 // }
 
-
 "use client";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -368,7 +367,7 @@ export default function HeroBoutique() {
             src={bgDesktop}
             alt="Fondo Exclusivos Guadalupe Desktop"
             fill
-            className="object-cover object-[center_10%]"
+            className="object-cover object-top"
             priority
             quality={90}
           />
