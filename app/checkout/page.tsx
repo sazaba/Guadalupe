@@ -1,19 +1,26 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { placeOrder } from "@/app/actions/place-order"; // Lo dejamos importado para cuando conectemos Wompi
-import { useState } from "react";
+import { placeOrder } from "@/app/actions/place-order"; 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart } from "lucide-react";
 import Link from "next/link";
+// Importaciones de Mercado Pago
+import { initMercadoPago } from '@mercadopago/sdk-react';
+import { Payment } from '@mercadopago/sdk-react';
 
 export default function CheckoutPage() {
   const { items, cartSubtotal, shippingTotal, cartTotal, clearCart } = useCart();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Por defecto inicializamos en Colombia (CO)
+  // Inicializamos Mercado Pago al cargar el componente
+  useEffect(() => {
+    initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || '', { locale: 'es-CO' });
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "CO"
   });
@@ -22,9 +29,39 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Formateador de moneda colombiana
   const formatCOP = (amount: number) => {
     return "$" + amount.toLocaleString("es-CO");
+  };
+
+  // Función que se ejecuta cuando el Brick de MP tokeniza la tarjeta
+  const handlePaymentSubmit = async (mpFormData: any) => {
+    // 1. Validamos que el formulario de contacto esté lleno antes de procesar
+    if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state) {
+        alert("Por favor, completa tu información de contacto y envío antes de pagar.");
+        return new Promise((resolve, reject) => reject()); // Detiene el loading del Brick
+    }
+
+    setIsLoading(true);
+
+    // Mapeamos los items del carrito para que coincidan con el tipo CartItem que espera placeOrder
+    const formattedItems = items.map(item => ({
+        productId: item.id,
+        quantity: item.quantity
+    }));
+    
+    // 2. Enviamos todo al Server Action usando formattedItems
+    const result = await placeOrder(formattedItems, formData, mpFormData.formData);
+
+    if (result.ok) {
+        clearCart();
+        alert("¡Pago exitoso! Tu orden ha sido procesada.");
+        // router.push(`/checkout/success?orderId=${result.order.id}`); // Ideal redirigir a una página de éxito
+        router.push('/');
+    } else {
+        setIsLoading(false);
+        alert(`Error al procesar el pago: ${result.message}`);
+        return new Promise((resolve, reject) => reject());
+    }
   };
 
   if (items.length === 0 && !isLoading) {
@@ -44,13 +81,11 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-[#FFFDFE] text-[#33182B] font-sans pt-24 pb-12 px-4 relative z-10">
-      
-      {/* Mancha decorativa sutil en el fondo */}
       <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-[#FFF6F9] to-transparent -z-10" />
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
         
-        {/* COLUMNA IZQUIERDA: FORMULARIO */}
+        {/* COLUMNA IZQUIERDA: FORMULARIO DE ENVÍO */}
         <div className="space-y-8">
             <div className="flex items-center gap-3 mb-8">
                 <Link href="/" className="p-2.5 bg-white border border-[#FAD1E6] hover:bg-[#FFF6F9] hover:border-[#E85D9E]/50 rounded-full transition-colors shadow-sm text-[#7B5C73]">
@@ -60,7 +95,6 @@ export default function CheckoutPage() {
             </div>
 
             <form id="checkout-form" className="space-y-8">
-                
                 {/* SECCIÓN 1: DATOS DE CONTACTO */}
                 <section className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-6 md:p-8 shadow-[0_8px_30px_rgb(232,93,158,0.04)] space-y-6">
                     <div className="flex items-center gap-3 border-b border-[#FAD1E6]/50 pb-4">
@@ -113,11 +147,10 @@ export default function CheckoutPage() {
                             <input required name="address" onChange={handleInputChange} type="text" placeholder="Ej: Calle 10 # 5-20, Apto 301" className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                         </div>
                         
-                        {/* ESTA ES LA ZONA CORREGIDA (100% RESPONSIVE) */}
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
                             <div className="md:col-span-5">
                                 <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">Ciudad / Municipio</label>
-                                <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Ej: Sabaneta, Dosquebradas..." : "Miami"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
+                                <input required name="city" onChange={handleInputChange} type="text" placeholder={formData.country === "CO" ? "Ej: Sabaneta" : "Miami"} className="w-full bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl px-4 py-3.5 outline-none focus:border-[#E85D9E] focus:ring-4 focus:ring-[#FAD1E6]/30 transition-all text-[#33182B] placeholder:text-[#7B5C73]/40" />
                             </div>
                             <div className="md:col-span-4">
                                 <label className="block text-[11px] font-bold uppercase tracking-wide mb-1.5 ml-1 text-[#7B5C73]">{formData.country === "CO" ? "Departamento" : "Estado"}</label>
@@ -184,7 +217,6 @@ export default function CheckoutPage() {
                     </div>
                 </div>
 
-                {/* Estado de Carga */}
                 {isLoading && (
                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 flex flex-col justify-center items-center rounded-[24px]">
                         <Loader2 className="w-8 h-8 animate-spin text-[#E85D9E] mb-3" />
@@ -193,34 +225,33 @@ export default function CheckoutPage() {
                 )}
 
                 {/* ========================================================= */}
-                {/* 💳 PASARELA DE PAGO (WOMPI - MODO DISEÑO) */}
+                {/* 💳 PASARELA DE PAGO (MERCADO PAGO BRICKS) */}
                 {/* ========================================================= */}
-                <div className={`mt-8 p-5 bg-[#FFFDFE] border border-[#FAD1E6] rounded-[20px] ${isLoading ? "hidden" : "block"}`}>
-                    
+                <div className={`mt-8 ${isLoading ? "hidden" : "block"}`}>
                     <div className="flex items-center gap-2 mb-4">
                         <ShieldCheck className="w-5 h-5 text-[#E85D9E]" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-[#E85D9E]">Pago Seguro</span>
+                        <span className="text-xs font-bold uppercase tracking-widest text-[#E85D9E]">Pago Seguro con Mercado Pago</span>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state || !formData.postalCode) {
-                                alert("Por favor, completa los datos de contacto y envío antes de pagar.");
-                                return;
-                            }
-                            alert("¡Diseño listo! 🚀 Aquí se abrirá la pasarela de Wompi cuando la integremos.");
-                        }}
-                        className="w-full bg-[#2A1C24] text-white py-4 rounded-xl font-bold tracking-wide shadow-md flex items-center justify-center gap-2 hover:bg-[#33182B] transition-all"
-                    >
-                        Pagar con Wompi
-                    </button>
-                    
-                    <p className="text-[10px] text-center text-[#7B5C73] mt-3 leading-relaxed">
-                        (Modo visual: Cuando tengas tu cuenta de Wompi configurada, reemplazaremos este botón por su widget oficial)
-                    </p>
-
+                    <div className="min-h-[300px]">
+                        {cartTotal > 0 && (
+                            <Payment
+                                initialization={{ amount: cartTotal }}
+                                customization={{
+                                    paymentMethods: {
+                                        creditCard: "all",
+                                        debitCard: "all",
+                                    },
+                                    visual: {
+                                        style: {
+                                            theme: "default",
+                                        }
+                                    }
+                                }}
+                                onSubmit={handlePaymentSubmit}
+                            />
+                        )}
+                    </div>
                 </div>
                 {/* ========================================================= */}
 

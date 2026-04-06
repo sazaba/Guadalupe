@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import crypto from 'node:crypto';
 import { Resend } from 'resend';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 type ShippingData = {
   name: string;
@@ -20,32 +21,36 @@ type CartItem = {
   quantity: number;
 };
 
-export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, paymentToken: string) => {
+// Formateador para los correos
+const formatCOP = (amount: number) => {
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(amount);
+};
+
+export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, mpPaymentData: any) => {
   try {
-    const apiKey = process.env.RESEND_API_KEY;
-    const accessToken = process.env.SQUARE_ACCESS_TOKEN;
-    const locationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const mpAccessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
     // 1. Validaciones iniciales
-    if (cartItems.length === 0) return { ok: false, message: "Cart is empty" };
-    if (!shippingData.email || !shippingData.address || !shippingData.name || !shippingData.city || !shippingData.state || !shippingData.postalCode) {
-      return { ok: false, message: "Missing required shipping fields" };
+    if (cartItems.length === 0) return { ok: false, message: "El carrito está vacío" };
+    if (!shippingData.email || !shippingData.address || !shippingData.name || !shippingData.city) {
+      return { ok: false, message: "Faltan datos de envío requeridos" };
     }
-    if (!paymentToken) return { ok: false, message: "Payment token is missing" };
+    if (!mpPaymentData || !mpPaymentData.token) return { ok: false, message: "Faltan los datos de pago" };
+    if (!mpAccessToken) return { ok: false, message: "Error de configuración en el servidor (Mercado Pago)" };
 
-    // 2. Buscar productos y preparar datos para Square y DB
+    // 2. Buscar productos en la BD para evitar precios manipulados en el frontend
     const productIds = cartItems.map((item) => item.productId);
     const dbProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
     });
 
-    let totalAmount = 0;       // Subtotal de los productos
+    let totalAmount = 0;       
     const orderItemsData: any[] = [];
-    const squareLineItems: any[] = [];
 
     for (const item of cartItems) {
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
-      if (!dbProduct) throw new Error(`Product not found: ${item.productId}`);
+      if (!dbProduct) throw new Error(`Producto no encontrado: ${item.productId}`);
 
       const price = Number(dbProduct.price);
       totalAmount += price * item.quantity;
@@ -56,100 +61,52 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         price: price,
         name: dbProduct.name 
       });
-
-      // Formato para que Pirate Ship lea los productos desde Square (Precio BASE)
-      squareLineItems.push({
-        name: dbProduct.name,
-        quantity: item.quantity.toString(),
-        base_price_money: {
-          amount: Math.round(price * 100),
-          currency: 'USD'
-        }
-      });
     }
 
-    // --- NUEVO CÁLCULO DE ENVÍO: $9.95 si es menor a $300. Gratis si es $300 o más ---
-    const totalShipping = (totalAmount > 0 && totalAmount < 300) ? 9.95 : 0;
-    const finalTotalAmount = totalAmount + totalShipping; // Total real a cobrar
+    // --- NUEVO CÁLCULO DE ENVÍO ADAPTADO A COLOMBIA (COP) ---
+    // Ejemplo: Envío de $15.000 COP si la compra es menor a $200.000 COP. Gratis si es mayor.
+    const totalShipping = (totalAmount > 0 && totalAmount < 200000) ? 15000 : 0;
+    const finalTotalAmount = totalAmount + totalShipping; 
 
-    // Agregamos el envío como un ítem extra en Square para que Pirate Ship lo detecte (solo si se cobra)
-    if (totalShipping > 0) {
-      squareLineItems.push({
-        name: 'Flat Rate Shipping',
-        quantity: '1',
-        base_price_money: {
-          amount: Math.round(totalShipping * 100),
-          currency: 'USD'
-        }
-      });
-    }
-
-    // --- PASO 1: CREAR ORDEN Y PAGAR EN SQUARE (LIVE) ---
-    let squareOrderId = "";
+    // --- PASO 1: PROCESAR PAGO CON MERCADO PAGO ---
+    let paymentId = "";
     try {
-        // A. Creamos la Orden con los datos de envío (Fulfillment)
-        const orderResponse = await fetch('https://connect.squareup.com/v2/orders', {
-            method: 'POST',
-            headers: {
-                'Square-Version': '2024-01-18',
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
+        const client = new MercadoPagoConfig({ accessToken: mpAccessToken, options: { timeout: 10000 } });
+        const payment = new Payment(client);
+
+        const paymentResponse = await payment.create({
+            body: {
+                transaction_amount: finalTotalAmount,
+                token: mpPaymentData.token,
+                description: `Compra en Exclusivos Guadalupe - ${shippingData.name}`,
+                installments: mpPaymentData.installments,
+                payment_method_id: mpPaymentData.payment_method_id,
+                issuer_id: mpPaymentData.issuer_id,
+                payer: {
+                    email: shippingData.email,
+                    first_name: shippingData.name,
+                    identification: mpPaymentData.payer?.identification,
+                }
             },
-            body: JSON.stringify({
-                order: {
-                    location_id: locationId,
-                    line_items: squareLineItems, // Aquí ya va incluido el ítem de Shipping si aplica
-                    fulfillments: [{
-                        type: 'SHIPMENT',
-                        shipment_details: {
-                            recipient: {
-                                display_name: shippingData.name,
-                                address: {
-                                    address_line_1: shippingData.address,
-                                    locality: shippingData.city,
-                                    administrative_district_level_1: shippingData.state,
-                                    postal_code: shippingData.postalCode,
-                                    country: shippingData.country 
-                                }
-                            }
-                        }
-                    }]
-                },
-                idempotency_key: crypto.randomUUID()
-            })
+            requestOptions: {
+                idempotencyKey: crypto.randomUUID() // Evita cobros duplicados si hay reintentos de red
+            }
         });
 
-        const orderResult = await orderResponse.json();
-        if (!orderResponse.ok) throw new Error("Square Order Creation Failed");
-        squareOrderId = orderResult.order.id;
-
-        // B. Realizamos el cobro vinculado a esa Orden
-        const squarePaymentResponse = await fetch('https://connect.squareup.com/v2/payments', {
-            method: 'POST',
-            headers: {
-                'Square-Version': '2024-01-18', 
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                source_id: paymentToken,
-                idempotency_key: crypto.randomUUID(),
-                amount_money: { amount: Math.round(finalTotalAmount * 100), currency: 'USD' }, // Cobramos el Total Real
-                location_id: locationId,
-                order_id: squareOrderId
-            })
-        });
-
-        const paymentData = await squarePaymentResponse.json();
-        if (!squarePaymentResponse.ok || paymentData.errors) {
-            return { ok: false, message: "Payment declined. Check address and zip code." };
+        // Verificamos si el pago fue aprobado
+        if (paymentResponse.status !== 'approved') {
+            console.error("Pago rechazado o pendiente:", paymentResponse.status_detail);
+            return { ok: false, message: `El pago no pudo ser procesado. Razón: ${paymentResponse.status_detail}` };
         }
+        
+        paymentId = paymentResponse.id?.toString() || "";
+
     } catch (paymentError) {
-        console.error("Square Logic Error:", paymentError);
-        return { ok: false, message: "Error communicating with payment provider." };
+        console.error("Error en Mercado Pago:", paymentError);
+        return { ok: false, message: "Hubo un problema al comunicarse con el banco o pasarela." };
     }
 
-    // --- PASO 2: GUARDAR EN TU BASE DE DATOS ---
+    // --- PASO 2: GUARDAR ORDEN EN LA BASE DE DATOS ---
     const order = await prisma.$transaction(async (tx) => {
       return await tx.order.create({
         data: {
@@ -161,9 +118,10 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           state: shippingData.state,
           postalCode: shippingData.postalCode, 
           country: shippingData.country === "CO" ? "Colombia" : "United States",            
-          total: finalTotalAmount, // Guardamos el Total Real
+          total: finalTotalAmount, 
           status: 'PAID', 
-          isPaid: true,   
+          isPaid: true,
+          transactionId: paymentId, // Guardamos el ID de MP por si hay reclamos
           items: {
             create: orderItemsData.map(({ name, ...rest }) => rest),
           },
@@ -171,50 +129,49 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       });
     });
 
-    // --- PASO 3: ENVIAR CORREO ---
+    // --- PASO 3: ENVIAR CORREO (Adaptado a COP) ---
     try {
-      if (apiKey) {
-        const resend = new Resend(apiKey);
+      if (resendApiKey) {
+        const resend = new Resend(resendApiKey);
         const itemsHtml = orderItemsData.map(item => `
           <tr>
             <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">${item.name} (x${item.quantity})</td>
-            <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827; font-weight: bold;">$${(item.price * item.quantity).toFixed(2)}</td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #111827; font-weight: bold;">${formatCOP(item.price * item.quantity)}</td>
           </tr>
         `).join('');
 
         await resend.emails.send({
-          from: 'Transcendent Labs <orders@transcendent-labs.com>',
+          from: 'Exclusivos Guadalupe <pedidos@tu-dominio.com>', // Cambia esto por tu dominio verificado en Resend
           to: shippingData.email,
-          subject: `Order Confirmed #${order.id.slice(0, 8)}`,
+          subject: `¡Pedido Confirmado! #${order.id.slice(0, 8)}`,
           html: `
             <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
-              <h1 style="color: #111827; text-align: center; font-size: 24px;">Transcendent Labs</h1>
-              <div style="text-align: center; background-color: #ecfdf5; color: #065f46; padding: 8px; border-radius: 6px; font-weight: bold; margin-bottom: 20px;">Payment Successful</div>
-              <p>Hi <strong>${shippingData.name}</strong>, thank you for your purchase!</p>
+              <h1 style="color: #111827; text-align: center; font-size: 24px;">Exclusivos Guadalupe</h1>
+              <div style="text-align: center; background-color: #ecfdf5; color: #065f46; padding: 8px; border-radius: 6px; font-weight: bold; margin-bottom: 20px;">Pago Exitoso</div>
+              <p>Hola <strong>${shippingData.name}</strong>, ¡gracias por tu compra!</p>
               <table style="width: 100%; border-collapse: collapse;">
                 ${itemsHtml}
                 <tr>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Shipping & Handling</td>
-                  <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #6b7280; font-weight: bold;">$${totalShipping.toFixed(2)}</td>
+                  <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Envío</td>
+                  <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #6b7280; font-weight: bold;">${totalShipping === 0 ? 'Gratis' : formatCOP(totalShipping)}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Paid:</td>
-                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">$${finalTotalAmount.toFixed(2)}</td> </tr>
+                  <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Pagado:</td>
+                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">${formatCOP(finalTotalAmount)}</td> </tr>
               </table>
               <div style="background-color: #f9fafb; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #f3f4f6;">
-                <h4 style="margin: 0 0 8px 0;">Shipping Address</h4>
-                <p style="margin: 0; color: #6b7280; font-size: 14px;">${shippingData.address}, ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br>${shippingData.country === "CO" ? "Colombia" : "United States"}</p>
+                <h4 style="margin: 0 0 8px 0;">Dirección de Envío</h4>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">${shippingData.address}, ${shippingData.city}, ${shippingData.state} ${shippingData.postalCode}<br>${shippingData.country === "CO" ? "Colombia" : "Estados Unidos"}</p>
               </div>
-              <p style="text-align: center; font-size: 13px; color: #6b7280; margin-top: 20px;">Questions? <a href="mailto:transcendent.labs2@gmail.com">transcendent.labs2@gmail.com</a></p>
             </div>`
         });
       }
-    } catch (emailError) { console.error("Resend Error:", emailError); }
+    } catch (emailError) { console.error("Error enviando correo:", emailError); }
 
-    return { ok: true, order: order, message: "Order placed successfully" };
+    return { ok: true, order: order, message: "Pedido creado y pagado con éxito" };
 
   } catch (error: any) {
-    console.error("Critical Error:", error);
-    return { ok: false, message: "Internal server error" };
+    console.error("Error crítico en el servidor:", error);
+    return { ok: false, message: "Error interno del servidor" };
   }
 };

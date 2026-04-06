@@ -10,10 +10,8 @@ import { useEffect } from "react";
 export default function CartDrawer() {
   const { isCartOpen, toggleCart, items, removeItem, updateQuantity, cartSubtotal, shippingTotal, cartTotal } = useCart();
   
-  // Verificamos si hay algún producto que se quedó sin stock en el carrito
   const hasInvalidItems = items.some(item => (item.stock || 0) <= 0);
 
-  // Formateador de moneda colombiana
   const formatCOP = (price: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -104,12 +102,10 @@ export default function CartDrawer() {
                       key={item.id} 
                       className={`flex gap-4 bg-white border p-3.5 rounded-2xl relative group overflow-hidden transition-all shadow-[0_2px_10px_-4px_rgba(232,93,158,0.1)] hover:border-[#E85D9E]/30 hover:shadow-[0_8px_20px_-6px_rgba(232,93,158,0.15)] ${isItemOOS ? "border-red-200 bg-red-50" : "border-[#FAD1E6]/50"}`}
                     >
-                      {/* Imagen del Producto */}
                       <div className={`relative w-24 h-28 bg-[#FAD1E6]/10 rounded-xl overflow-hidden border border-[#FAD1E6]/50 shrink-0 flex items-center justify-center ${isItemOOS ? "grayscale opacity-60" : ""}`}>
                         <Image src={item.image} alt={item.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
                       </div>
 
-                      {/* Detalles y Controles */}
                       <div className="flex-1 flex flex-col justify-between min-w-0 py-1">
                         <div className="flex justify-between items-start gap-2">
                           <div className="min-w-0 pr-2">
@@ -134,7 +130,6 @@ export default function CartDrawer() {
                         </div>
                         
                         <div className="flex items-end justify-between mt-3">
-                          {/* Botones de Cantidad */}
                           <div className={`flex items-center gap-3 bg-white rounded-xl border border-[#FAD1E6]/80 px-2 py-1 shadow-sm ${isItemOOS ? "opacity-40 pointer-events-none" : ""}`}>
                             <button 
                                 onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))} 
@@ -150,7 +145,6 @@ export default function CartDrawer() {
                               <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          {/* PRECIO FORMATEADO AQUÍ */}
                           <span className={`text-lg font-bold ${isItemOOS ? "text-[#7B5C73]/50 line-through decoration-1" : "text-[#E85D9E]"}`}>
                             {formatCOP(item.price * item.quantity)}
                           </span>
@@ -175,11 +169,9 @@ export default function CartDrawer() {
                     </div>
                 )}
 
-                {/* Resumen de Costos */}
                 <div className="space-y-3 border-b border-[#FAD1E6]/50 pb-4">
                   <div className="flex justify-between items-center text-sm font-medium">
                     <span className="text-[#7B5C73]">Subtotal vestidos</span>
-                    {/* PRECIO FORMATEADO AQUÍ */}
                     <span className="text-[#33182B] font-bold">{formatCOP(cartSubtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm font-medium">
@@ -187,7 +179,6 @@ export default function CartDrawer() {
                         Envío
                         {shippingTotal === 0 && <span className="text-[9px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">¡Gratis!</span>}
                     </span>
-                    {/* PRECIO FORMATEADO AQUÍ */}
                     <span className={`font-bold ${shippingTotal === 0 ? "text-green-500" : "text-[#33182B]"}`}>
                         {shippingTotal === 0 ? "$0" : formatCOP(shippingTotal)}
                     </span>
@@ -196,19 +187,16 @@ export default function CartDrawer() {
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-bold uppercase text-[#33182B]">Total Estimado</span>
-                  {/* PRECIO FORMATEADO AQUÍ */}
                   <span className="text-2xl font-bold text-[#E85D9E]">
                     {formatCOP(cartTotal)}
                   </span>
                 </div>
 
-                {/* Nota de seguridad dulce */}
                 <div className="flex items-center justify-center gap-1.5 text-xs font-medium text-[#7B5C73]">
                     <Sparkles className="w-3.5 h-3.5 text-[#FFA8C5]" />
                     <span>Tu compra es 100% segura con nosotros</span>
                 </div>
 
-                {/* Botones de Acción */}
                 <div className="grid gap-3 pt-2">
                     {hasInvalidItems ? (
                         <button 
