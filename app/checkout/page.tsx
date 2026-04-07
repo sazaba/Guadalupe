@@ -2,7 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { placeOrder } from "@/app/actions/place-order"; 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart } from "lucide-react";
@@ -15,7 +15,6 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isMpInitialized, setIsMpInitialized] = useState(false);
 
-  // Inicializamos Mercado Pago de forma segura
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
     if (key && !isMpInitialized) {
@@ -27,17 +26,28 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "CO"
   });
+  
+  // FIX: Usamos useRef para guardar una copia silenciosa de los datos
+  const formDataRef = useRef(formData);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData((prev) => {
+        const newState = { ...prev, [name]: value };
+        formDataRef.current = newState; // Actualizamos la copia silenciosa
+        return newState;
+    });
   };
 
   const formatCOP = (amount: number) => {
     return "$" + amount.toLocaleString("es-CO");
   };
 
-  const handlePaymentSubmit = async (mpFormData: any) => {
-    if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state) {
+  // FIX: Envolvemos la función en useCallback y leemos de formDataRef
+  const handlePaymentSubmit = useCallback(async (mpFormData: any) => {
+    const currentData = formDataRef.current; // Usamos los datos más recientes de la copia silenciosa
+
+    if (!currentData.name || !currentData.email || !currentData.address || !currentData.city || !currentData.state) {
         alert("Por favor, completa tu información de contacto y envío antes de pagar.");
         return new Promise((resolve, reject) => reject()); 
     }
@@ -49,7 +59,7 @@ export default function CheckoutPage() {
         quantity: item.quantity
     }));
     
-    const result = await placeOrder(formattedItems, formData, mpFormData.formData);
+    const result = await placeOrder(formattedItems, currentData, mpFormData.formData);
 
     if (result.ok) {
         clearCart();
@@ -60,12 +70,8 @@ export default function CheckoutPage() {
         alert(`Error al procesar el pago: ${result.message}`);
         return new Promise((resolve, reject) => reject());
     }
-  };
+  }, [items, router, clearCart]); // Dependencias seguras
 
-  // =========================================================
-  // FIX: Aislamos el Brick de Mercado Pago para evitar parpadeos
-  // Solo se volverá a renderizar si el 'cartTotal' cambia.
-  // =========================================================
   const memoizedPaymentBrick = useMemo(() => {
     if (!isMpInitialized || cartTotal <= 0) return null;
 
@@ -86,11 +92,7 @@ export default function CheckoutPage() {
             onSubmit={handlePaymentSubmit}
         />
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMpInitialized, cartTotal]); 
-  // Nota: Omitimos formData intencionalmente en las dependencias de useMemo 
-  // para que escribir en el input NO reinicie el Brick. La función handlePaymentSubmit 
-  // usará el estado de formData más reciente gracias a cómo funciona React.
+  }, [isMpInitialized, cartTotal, handlePaymentSubmit]); 
 
   if (items.length === 0 && !isLoading) {
       return (
@@ -123,7 +125,6 @@ export default function CheckoutPage() {
             </div>
 
             <form id="checkout-form" className="space-y-8">
-                {/* SECCIÓN 1: DATOS DE CONTACTO */}
                 <section className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-6 md:p-8 shadow-[0_8px_30px_rgb(232,93,158,0.04)] space-y-6">
                     <div className="flex items-center gap-3 border-b border-[#FAD1E6]/50 pb-4">
                         <div className="w-8 h-8 rounded-full bg-[#FFF6F9] border border-[#FAD1E6] text-[#E85D9E] flex items-center justify-center">
@@ -150,7 +151,6 @@ export default function CheckoutPage() {
                     </div>
                 </section>
 
-                {/* SECCIÓN 2: DIRECCIÓN DE ENVÍO */}
                 <section className="bg-white border border-[#FAD1E6]/80 rounded-[24px] p-6 md:p-8 shadow-[0_8px_30px_rgb(232,93,158,0.04)] space-y-6">
                      <div className="flex items-center gap-3 border-b border-[#FAD1E6]/50 pb-4">
                         <div className="w-8 h-8 rounded-full bg-[#FFF6F9] border border-[#FAD1E6] text-[#E85D9E] flex items-center justify-center">
@@ -200,7 +200,6 @@ export default function CheckoutPage() {
                 
                 <h3 className="font-display font-bold text-xl mb-5 text-[#33182B]">Resumen del Pedido</h3>
                 
-                {/* Lista de Productos */}
                 <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     {items.map((item) => {
                         const safeImageUrl = (item.image && typeof item.image === 'string') 
@@ -228,7 +227,6 @@ export default function CheckoutPage() {
                     })}
                 </div>
 
-                {/* Subtotales */}
                 <div className="border-t border-[#FAD1E6]/50 mt-5 pt-5 space-y-3">
                     <div className="flex justify-between text-sm text-[#7B5C73] font-medium">
                         <span>Subtotal</span>
@@ -252,9 +250,6 @@ export default function CheckoutPage() {
                     </div>
                 )}
 
-                {/* ========================================================= */}
-                {/* 💳 PASARELA DE PAGO (MERCADO PAGO BRICKS) */}
-                {/* ========================================================= */}
                 <div className={`mt-8 ${isLoading ? "hidden" : "block"}`}>
                     <div className="flex items-center gap-2 mb-4">
                         <ShieldCheck className="w-5 h-5 text-[#E85D9E]" />
@@ -265,7 +260,6 @@ export default function CheckoutPage() {
                         {memoizedPaymentBrick}
                     </div>
                 </div>
-                {/* ========================================================= */}
 
                 <div className="mt-5 flex justify-center">
                     <p className="flex items-center gap-1.5 text-[10px] font-medium text-[#7B5C73] uppercase tracking-wide">
