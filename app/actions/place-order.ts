@@ -63,20 +63,34 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
       if (!dbProduct) throw new Error(`Producto no encontrado: ${item.productId}`);
 
-      const price = Number(dbProduct.price);
-      totalAmount += price * item.quantity;
+      // 1. BLINDAJE: Forzamos a que precio y cantidad sean números estrictos
+      const price = Number(dbProduct.price.valueOf());
+      const quantity = Number(item.quantity);
+
+      if (isNaN(price) || isNaN(quantity)) {
+          console.error(`Error de cálculo en el producto ${dbProduct.name}. Precio: ${price}, Cantidad: ${quantity}`);
+          return { ok: false, message: "Error interno procesando los precios del carrito." };
+      }
+
+      totalAmount += price * quantity;
 
       orderItemsData.push({
         productId: dbProduct.id,
-        quantity: item.quantity,
+        quantity: quantity,
         price: price,
         name: dbProduct.name 
       });
     }
 
+    // 2. BLINDAJE: Calculamos el total y forzamos un redondeo para evitar decimales rotos
     // Envío en $0 para tu prueba de $1.000 COP
     const totalShipping = (totalAmount > 0 && totalAmount < 200000) ? 0 : 0; 
-    const finalTotalAmount = totalAmount + totalShipping; 
+    const finalTotalAmount = Math.round(totalAmount + totalShipping); 
+
+    // 3. LA VALIDACIÓN DE ORO ANTES DE COBRAR:
+    if (finalTotalAmount < 1000) {
+        return { ok: false, message: `El total a cobrar (${finalTotalAmount} COP) es menor al mínimo de $1.000 COP permitido por Mercado Pago.` };
+    }
 
     let paymentId = "";
     try {
@@ -85,7 +99,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
 
         const paymentResponse = await payment.create({
             body: {
-                transaction_amount: finalTotalAmount,
+                transaction_amount: finalTotalAmount, // <-- Ahora es un número entero perfecto y validado
                 token: mpPaymentData.token,
                 description: `Compra en Exclusivos Guadalupe - ${shippingData.name}`,
                 installments: mpPaymentData.installments,

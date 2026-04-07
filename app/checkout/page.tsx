@@ -2,60 +2,58 @@
 
 import { useCart } from "@/context/CartContext";
 import { placeOrder } from "@/app/actions/place-order"; 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart } from "lucide-react";
 import Link from "next/link";
-// Importaciones de Mercado Pago
-import { initMercadoPago } from '@mercadopago/sdk-react';
-import { Payment } from '@mercadopago/sdk-react';
+import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 export default function CheckoutPage() {
   const { items, cartSubtotal, shippingTotal, cartTotal, clearCart } = useCart();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isMpInitialized, setIsMpInitialized] = useState(false);
 
-  // Inicializamos Mercado Pago al cargar el componente
+  // Inicializamos Mercado Pago de forma segura
   useEffect(() => {
-    initMercadoPago(process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY || '', { locale: 'es-CO' });
-  }, []);
+    const key = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
+    if (key && !isMpInitialized) {
+        initMercadoPago(key, { locale: 'es-CO' });
+        setIsMpInitialized(true);
+    }
+  }, [isMpInitialized]);
 
   const [formData, setFormData] = useState({
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "CO"
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const formatCOP = (amount: number) => {
     return "$" + amount.toLocaleString("es-CO");
   };
 
-  // Función que se ejecuta cuando el Brick de MP tokeniza la tarjeta
   const handlePaymentSubmit = async (mpFormData: any) => {
-    // 1. Validamos que el formulario de contacto esté lleno antes de procesar
     if (!formData.name || !formData.email || !formData.address || !formData.city || !formData.state) {
         alert("Por favor, completa tu información de contacto y envío antes de pagar.");
-        return new Promise((resolve, reject) => reject()); // Detiene el loading del Brick
+        return new Promise((resolve, reject) => reject()); 
     }
 
     setIsLoading(true);
 
-    // Mapeamos los items del carrito para que coincidan con el tipo CartItem que espera placeOrder
     const formattedItems = items.map(item => ({
         productId: item.id,
         quantity: item.quantity
     }));
     
-    // 2. Enviamos todo al Server Action usando formattedItems
     const result = await placeOrder(formattedItems, formData, mpFormData.formData);
 
     if (result.ok) {
         clearCart();
         alert("¡Pago exitoso! Tu orden ha sido procesada.");
-        // router.push(`/checkout/success?orderId=${result.order.id}`); // Ideal redirigir a una página de éxito
         router.push('/');
     } else {
         setIsLoading(false);
@@ -63,6 +61,36 @@ export default function CheckoutPage() {
         return new Promise((resolve, reject) => reject());
     }
   };
+
+  // =========================================================
+  // FIX: Aislamos el Brick de Mercado Pago para evitar parpadeos
+  // Solo se volverá a renderizar si el 'cartTotal' cambia.
+  // =========================================================
+  const memoizedPaymentBrick = useMemo(() => {
+    if (!isMpInitialized || cartTotal <= 0) return null;
+
+    return (
+        <Payment
+            initialization={{ amount: cartTotal }}
+            customization={{
+                paymentMethods: {
+                    creditCard: "all",
+                    debitCard: "all",
+                },
+                visual: {
+                    style: {
+                        theme: "default",
+                    }
+                }
+            }}
+            onSubmit={handlePaymentSubmit}
+        />
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMpInitialized, cartTotal]); 
+  // Nota: Omitimos formData intencionalmente en las dependencias de useMemo 
+  // para que escribir en el input NO reinicie el Brick. La función handlePaymentSubmit 
+  // usará el estado de formData más reciente gracias a cómo funciona React.
 
   if (items.length === 0 && !isLoading) {
       return (
@@ -234,23 +262,7 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="min-h-[300px]">
-                        {cartTotal > 0 && (
-                            <Payment
-                                initialization={{ amount: cartTotal }}
-                                customization={{
-                                    paymentMethods: {
-                                        creditCard: "all",
-                                        debitCard: "all",
-                                    },
-                                    visual: {
-                                        style: {
-                                            theme: "default",
-                                        }
-                                    }
-                                }}
-                                onSubmit={handlePaymentSubmit}
-                            />
-                        )}
+                        {memoizedPaymentBrick}
                     </div>
                 </div>
                 {/* ========================================================= */}
