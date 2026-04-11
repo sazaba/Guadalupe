@@ -62,7 +62,8 @@ interface Product {
   id: string;
   name: string;
   category: string;
-  images: string;
+  // AHORA RECIBIMOS EL ARREGLO
+  images: string[];
   material?: string; 
   color?: string;
   description: string;
@@ -72,6 +73,8 @@ interface Product {
 
 export default function ProductTemplate({ product }: { product: Product }) {
   const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
+  // ESTADO PARA LA GALERÍA: Guarda el índice de la foto actual
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
@@ -97,7 +100,9 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const handleAddToCart = () => {
     if (isOutOfStock || !selectedVariation) return;
     setIsAdding(true);
-    addItem(product, selectedVariation, qty);
+    // Para el carrito enviamos solo la primera foto en texto
+    const productForCart = { ...product, images: product.images[0] || "" };
+    addItem(productForCart as any, selectedVariation, qty);
     setTimeout(() => setIsAdding(false), 800);
   };
 
@@ -122,37 +127,67 @@ export default function ProductTemplate({ product }: { product: Product }) {
         </div>
 
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 h-full flex items-center">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start w-full">
 
-                {/* COLUMNA IZQUIERDA: Imagen Impactante Mejorada */}
-                <div className="lg:col-span-6 h-[50vh] sm:h-[60vh] lg:h-[75vh] flex items-center justify-center relative mt-4 lg:mt-0">
+                {/* COLUMNA IZQUIERDA: GALERÍA DE IMÁGENES */}
+                <div className="lg:col-span-6 flex flex-col gap-4 mt-4 lg:mt-0 relative">
                     <AnimatedStarIcon className="absolute top-0 left-4 lg:top-8 lg:left-8 w-6 h-6 lg:w-8 lg:h-8 text-[#FFA8C5] opacity-60 z-30" />
-                    <AnimatedStarIcon className="absolute bottom-8 right-2 lg:bottom-16 lg:right-4 w-5 h-5 lg:w-6 lg:h-6 text-[#E85D9E] opacity-40 z-30" />
+                    <AnimatedStarIcon className="absolute bottom-20 right-2 lg:bottom-28 lg:right-4 w-5 h-5 lg:w-6 lg:h-6 text-[#E85D9E] opacity-40 z-30" />
 
-                    {/* Marcos decorativos traseros */}
-                    <div className="absolute inset-2 lg:inset-6 rounded-[2.5rem] lg:rounded-[3.5rem] border border-pink-200/50 bg-gradient-to-tr from-pink-100/40 to-white/30 backdrop-blur-sm -rotate-2 scale-[0.98]" />
-                    <div className="absolute inset-2 lg:inset-6 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/80 bg-white/40 backdrop-blur-md rotate-1 shadow-[0_20px_50px_-15px_rgba(232,93,158,0.15)] scale-[0.98]" />
+                    {/* IMAGEN PRINCIPAL GIGANTE */}
+                    <div className="h-[50vh] sm:h-[60vh] lg:h-[65vh] flex items-center justify-center relative w-full">
+                        {/* Marcos decorativos traseros */}
+                        <div className="absolute inset-2 lg:inset-6 rounded-[2.5rem] lg:rounded-[3.5rem] border border-pink-200/50 bg-gradient-to-tr from-pink-100/40 to-white/30 backdrop-blur-sm -rotate-2 scale-[0.98]" />
+                        <div className="absolute inset-2 lg:inset-6 rounded-[2.5rem] lg:rounded-[3.5rem] border border-white/80 bg-white/40 backdrop-blur-md rotate-1 shadow-[0_20px_50px_-15px_rgba(232,93,158,0.15)] scale-[0.98]" />
 
-                    {/* Contenedor principal de la imagen con bordes curvos reales */}
-                    <motion.div 
-                        style={{ y: imageY }} 
-                        className="relative w-full h-full z-20 flex items-center justify-center p-3 lg:p-5 will-change-transform group"
-                    >
-                        {/* AQUÍ ESTÁ LA MAGIA DEL BORDE REDONDO */}
-                        <div className="relative w-full h-full rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-white shadow-inner border-[6px] border-white ring-1 ring-pink-100/50">
-                            <Image
-                                src={product.images}
-                                alt={product.name}
-                                fill
-                                className={`object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${isOutOfStock ? "grayscale opacity-60" : ""}`}
-                                priority
-                                sizes="(max-width: 1024px) 100vw, 50vw"
-                                quality={95} 
-                            />
-                            {/* Gradiente sutil interno para darle volumen a la foto */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 via-transparent to-transparent pointer-events-none" />
+                        <motion.div 
+                            style={{ y: imageY }} 
+                            className="relative w-full h-full z-20 flex items-center justify-center p-3 lg:p-5 will-change-transform group"
+                        >
+                            <div className="relative w-full h-full rounded-[2rem] lg:rounded-[3rem] overflow-hidden bg-white shadow-inner border-[6px] border-white ring-1 ring-pink-100/50">
+                                {/* Animación al cambiar de foto */}
+                                <AnimatePresence mode="wait">
+                                    <motion.div 
+                                        key={currentImageIndex}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="w-full h-full relative"
+                                    >
+                                        <Image
+                                            src={product.images[currentImageIndex] || ""}
+                                            alt={`${product.name} - Vista ${currentImageIndex + 1}`}
+                                            fill
+                                            className={`object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${isOutOfStock ? "grayscale opacity-60" : ""}`}
+                                            priority={currentImageIndex === 0}
+                                            sizes="(max-width: 1024px) 100vw, 50vw"
+                                            quality={95} 
+                                        />
+                                    </motion.div>
+                                </AnimatePresence>
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 via-transparent to-transparent pointer-events-none" />
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* MINIATURAS (THUMBNAILS) - Solo se muestran si hay más de 1 foto */}
+                    {product.images.length > 1 && (
+                        <div className="flex gap-3 justify-center z-20 px-4">
+                            {product.images.map((img, index) => (
+                                <button 
+                                    key={index}
+                                    onClick={() => setCurrentImageIndex(index)}
+                                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-[3px] transition-all duration-300 transform
+                                        ${currentImageIndex === index 
+                                            ? "border-[#E85D9E] scale-110 shadow-md ring-2 ring-pink-200" 
+                                            : "border-white opacity-60 hover:opacity-100 hover:scale-105 shadow-sm"}`}
+                                >
+                                    <Image src={img} alt={`Miniatura ${index + 1}`} fill className="object-cover" sizes="80px" />
+                                </button>
+                            ))}
                         </div>
-                    </motion.div>
+                    )}
                 </div>
 
                 {/* COLUMNA DERECHA: Información y Compra */}
@@ -359,7 +394,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
       `}</style>
 
       {/* Pasamos el precio dinámico y la TALLA al widget Sticky inferior si existe */}
-{!isOutOfStock && <StickyPurchase product={{...product, price: currentPrice} as any} qty={qty} variation={selectedVariation} />}
+{!isOutOfStock && <StickyPurchase product={{...product, images: product.images[0] || "", price: currentPrice} as any} qty={qty} variation={selectedVariation} />}
       <Footer />
     </div>
   );
