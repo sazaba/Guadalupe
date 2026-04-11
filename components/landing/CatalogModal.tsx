@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, Plus, Check, Crown, Heart, Sparkles, ShoppingBag, Eye } from "lucide-react";
+import { X, Search, Crown, Sparkles, ShoppingBag, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCart } from "@/context/CartContext";
 
 // --- INTERFAZ BACKEND ---
 interface Product {
@@ -71,10 +70,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [filtered, setFiltered] = useState(products);
-  const [addingId, setAddingId] = useState<string | null>(null);
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
-  
-  const { addItem } = useCart();
 
   // Gestión de estado y bloqueo de scroll
   useEffect(() => {
@@ -110,23 +105,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
     setFiltered(result);
   }, [searchTerm, selectedCategory, products]);
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (product.stock <= 0) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const newParticle = { id: Date.now(), x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-
-    setParticles((prev) => [...prev, newParticle]);
-    setAddingId(product.id);
-    addItem(product, 1);
-
-    setTimeout(() => setAddingId(null), 1200);
-    setTimeout(() => setParticles((prev) => prev.filter((p) => p.id !== newParticle.id)), 850);
-  };
-
   if (!mounted) return null;
 
   // Construcción del contenido que será inyectado por el Portal
@@ -138,26 +116,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="fixed inset-0 z-[99999] bg-[#FFFDFE] md:bg-[#FFFDFE]/95 md:backdrop-blur-3xl overflow-hidden flex flex-col h-[100dvh] w-full overscroll-none"
     >
-        <div className="fixed inset-0 pointer-events-none z-[100000] overflow-hidden">
-          <AnimatePresence>
-            {particles.map((p) => (
-              <motion.div
-                key={p.id}
-                initial={{ x: p.x, y: p.y, opacity: 1, scale: 1, rotate: 0 }}
-                animate={{ x: typeof window !== 'undefined' ? window.innerWidth - 60 : 1000, y: 60, opacity: 0, scale: 0.5, rotate: 360 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-                className="absolute will-change-transform"
-              >
-                <div className="relative">
-                  <div className="absolute inset-0 bg-[#E85D9E] blur-xl w-12 h-12 -translate-x-1/2 -translate-y-1/2 opacity-50" />
-                  <Heart className="w-8 h-8 text-[#E85D9E] fill-[#E85D9E] drop-shadow-[0_0_15px_rgba(232,93,158,0.8)]" />
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
         <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-40">
             <motion.div 
               initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5 }}
@@ -233,7 +191,11 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                                        bg-white/80 border backdrop-blur-xl transform-gpu
                                        ${isOOS ? "border-gray-200" : "border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)]"}`}
                           >
-                            <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-5 md:p-6 w-full h-full">
+                            <Link 
+                                href={`/product/${product.slug}`} 
+                                onClick={onClose} // <-- Agregamos esto para que el modal se cierre al ir al producto
+                                className="flex flex-col items-center text-center p-5 md:p-6 w-full h-full"
+                            >
                                 
                                 {!isOOS && product.stock < 50 && (
                                   <span className="absolute top-5 right-5 z-30 bg-gradient-to-r from-[#FFA8C5] to-[#E85D9E] text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
@@ -279,30 +241,15 @@ export default function CatalogModal({ products, onClose }: { products: Product[
                                                 <Eye className="w-4 h-4" /> Detalles
                                             </div>
                                             
-                                            <button 
-                                                onClick={(e) => !isOOS && handleAddToCart(e, product)}
+                                            <div 
                                                 className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm touch-manipulation ${
                                                     isOOS 
                                                     ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                                                    : addingId === product.id 
-                                                    ? "bg-green-400 text-white shadow-green-400/30" 
                                                     : "bg-[#E85D9E] text-white hover:bg-[#D14D8B] hover:shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer"
                                                 }`}
                                             >
-                                                <AnimatePresence mode="wait">
-                                                    {isOOS ? (
-                                                      <motion.span key="oos" className="flex items-center gap-1">Agotado</motion.span>
-                                                    ) : addingId === product.id ? (
-                                                        <motion.span key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-1">
-                                                            ¡Listo! <Check className="w-4 h-4" />
-                                                        </motion.span>
-                                                    ) : (
-                                                        <motion.span key="add" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-1">
-                                                            Agregar <Plus className="w-4 h-4" />
-                                                        </motion.span>
-                                                    )}
-                                                </AnimatePresence>
-                                            </button>
+                                                {isOOS ? "Agotado" : "Ver Tallas"}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
