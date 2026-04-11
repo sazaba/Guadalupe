@@ -1,9 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useCart } from "@/context/CartContext";
 
 const formatCOP = (price: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -15,7 +14,6 @@ const formatCOP = (price: number) => {
 
 export default function StickyPurchase({ product, qty }: { product: any, qty: number }) {
   const [isVisible, setIsVisible] = useState(false);
-  const { addItem } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +29,14 @@ export default function StickyPurchase({ product, qty }: { product: any, qty: nu
     else document.body.classList.remove("sticky-active");
     return () => document.body.classList.remove("sticky-active");
   }, [isVisible]);
+
+  // Función para deslizar suavemente hacia el selector de tallas
+  const scrollToTop = () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+  };
 
   return (
     <AnimatePresence>
@@ -59,11 +65,11 @@ export default function StickyPurchase({ product, qty }: { product: any, qty: nu
                     </div>
 
                     <button 
-                        onClick={() => addItem(product, qty)} 
-                        className="bg-gradient-to-r from-[#E85D9E] to-[#D14D8B] text-white h-14 px-8 rounded-full font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2.5 shadow-[0_8px_20px_rgba(232,93,158,0.3)] active:scale-95 transition-all cursor-pointer"
+                        onClick={scrollToTop} 
+                        className="bg-gradient-to-r from-[#E85D9E] to-[#D14D8B] text-white h-14 px-6 rounded-full font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2.5 shadow-[0_8px_20px_rgba(232,93,158,0.3)] active:scale-95 transition-all cursor-pointer shrink-0"
                     >
                         <ShoppingBag className="w-4 h-4 fill-white/10" />
-                        <span>Comprar</span>
+                        <span>Elegir Talla</span>
                     </button>
                 </div>
             </div>
