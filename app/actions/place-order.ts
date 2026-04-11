@@ -18,6 +18,7 @@ type ShippingData = {
 
 type CartItem = {
   productId: string;
+  variationId: string; // <--- ¡NUEVO! Necesitamos saber qué talla seleccionó
   quantity: number;
 };
 
@@ -26,7 +27,7 @@ type MPPaymentData = {
   token: string;
   installments: number;
   payment_method_id: string;
-  issuer_id?: string | number; // <-- Corrección del error rojo de TypeScript
+  issuer_id?: string | number; 
   payer?: {
     identification?: {
       type: string;
@@ -52,8 +53,11 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
     if (!mpAccessToken) return { ok: false, message: "Error de configuración en el servidor" };
 
     const productIds = cartItems.map((item) => item.productId);
+    
+    // --- MODIFICACIÓN: Incluimos las variaciones (tallas y precios) en la búsqueda ---
     const dbProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
+      include: { variations: true } 
     });
 
     let totalAmount = 0;       
@@ -63,8 +67,12 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
       if (!dbProduct) throw new Error(`Producto no encontrado: ${item.productId}`);
 
-      // 1. BLINDAJE: Forzamos a que precio y cantidad sean números estrictos
-      const price = Number(dbProduct.price.valueOf());
+      // --- MODIFICACIÓN: Buscamos la talla exacta que eligió el cliente ---
+      const dbVariation = dbProduct.variations.find((v) => v.id === item.variationId);
+      if (!dbVariation) throw new Error(`Talla no encontrada para el producto: ${dbProduct.name}`);
+
+      // 1. BLINDAJE: Ahora sacamos el precio de 'dbVariation'
+      const price = Number(dbVariation.price.valueOf());
       const quantity = Number(item.quantity);
 
       if (isNaN(price) || isNaN(quantity)) {
@@ -76,14 +84,15 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
 
       orderItemsData.push({
         productId: dbProduct.id,
+        productVariationId: dbVariation.id, // <--- Guardamos la relación en la DB
         quantity: quantity,
         price: price,
-        name: dbProduct.name 
+        // Añadimos la talla al nombre para que salga bonito en el correo
+        name: `${dbProduct.name} (Talla: ${dbVariation.size})` 
       });
     }
 
-    // 2. BLINDAJE: Calculamos el total y forzamos un redondeo para evitar decimales rotos
-    // Envío en $0 para tu prueba de $1.000 COP
+    // 2. BLINDAJE: Calculamos el total y forzamos un redondeo
     const totalShipping = (totalAmount > 0 && totalAmount < 200000) ? 0 : 0; 
     const finalTotalAmount = Math.round(totalAmount + totalShipping); 
 
@@ -92,6 +101,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         return { ok: false, message: `El total a cobrar (${finalTotalAmount} COP) es menor al mínimo de $1.000 COP permitido por Mercado Pago.` };
     }
 
+    // --- EL CÓDIGO DE MERCADO PAGO QUEDA EXACTAMENTE IGUAL ---
     let paymentId = "";
     try {
         const client = new MercadoPagoConfig({ accessToken: mpAccessToken, options: { timeout: 10000 } });
@@ -99,12 +109,11 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
 
         const paymentResponse = await payment.create({
             body: {
-                transaction_amount: finalTotalAmount, // <-- Ahora es un número entero perfecto y validado
+                transaction_amount: finalTotalAmount, 
                 token: mpPaymentData.token,
                 description: `Compra en Exclusivos Guadalupe - ${shippingData.name}`,
                 installments: mpPaymentData.installments,
                 payment_method_id: mpPaymentData.payment_method_id,
-                // Convertimos el issuer_id a número explícitamente
                 issuer_id: mpPaymentData.issuer_id ? Number(mpPaymentData.issuer_id) : undefined,
                 payer: {
                     email: shippingData.email,
@@ -143,7 +152,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           total: finalTotalAmount, 
           status: 'PAID', 
           isPaid: true,
-          // AQUÍ ESTÁ LA MAGIA: Usamos el campo que sí existe en tu base de datos
           stripePaymentId: paymentId, 
           items: {
             create: orderItemsData.map(({ name, ...rest }) => rest),
@@ -163,7 +171,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         `).join('');
 
         await resend.emails.send({
-          // RECUERDA: Si tienes un dominio verificado en Resend ponlo aquí
           from: 'Exclusivos Guadalupe <onboarding@resend.dev>', 
           to: shippingData.email,
           subject: `¡Pedido Confirmado! #${order.id.slice(0, 8)}`,
