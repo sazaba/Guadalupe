@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ArrowRight, Eye, Heart, Check, Sparkles, Crown } from "lucide-react";
+import { ArrowRight, Eye, Sparkles, Crown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CatalogModal from "./CatalogModal";
-import { useCart } from "@/context/CartContext";
 
 // La interfaz se mantiene EXACTAMENTE igual para tu backend
 interface Product {
@@ -77,10 +76,6 @@ const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: str
 export default function ProductShowcase({ products }: { products: Product[] }) {
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [isCatalogOpen, setCatalogOpen] = useState(false);
-  const [addingId, setAddingId] = useState<string | null>(null);
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
-  
-  const { addItem } = useCart();
 
   const inStockProducts = products.filter(p => p.stock > 0);
 
@@ -96,57 +91,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
   const displayProducts = sortedProducts.slice(0, 4);
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (product.stock <= 0) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const newParticle = {
-      id: Date.now(),
-      x: rect.left + rect.width / 2,
-      y: rect.top + rect.height / 2,
-    };
-
-    setParticles((prev) => [...prev, newParticle]);
-    setAddingId(product.id);
-    addItem(product, 1);
-
-    setTimeout(() => setAddingId(null), 1200);
-    setTimeout(() => {
-      setParticles((prev) => prev.filter((p) => p.id !== newParticle.id));
-    }, 850);
-  };
-
   return (
     <>
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
-      <AnimatePresence>
-        {particles.map((p) => (
-          <motion.div
-            key={p.id}
-            initial={{ x: p.x, y: p.y, opacity: 1, scale: 1, rotate: 0 }}
-            animate={{ 
-              x: typeof window !== 'undefined' ? window.innerWidth - 60 : 1000, 
-              y: 60, 
-              opacity: 0, 
-              scale: 0.5,
-              rotate: 360 
-            }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-            className="absolute will-change-transform"
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#E85D9E] blur-xl w-12 h-12 -translate-x-1/2 -translate-y-1/2 opacity-50" />
-              <Heart className="w-8 h-8 text-[#E85D9E] fill-[#E85D9E] drop-shadow-[0_0_15px_rgba(232,93,158,0.8)]" />
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
-
     <section className="relative py-24 px-4 md:px-8 max-w-7xl mx-auto z-10 bg-[#FFFDFE]" id="catalog">
       
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8 overflow-hidden">
@@ -170,7 +116,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </motion.p>
         </div>
 
-        {/* --- CONTENEDOR DE ETIQUETAS ARREGLADO (Scroll horizontal en móvil) --- */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -259,32 +204,15 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                                     <Eye className="w-4 h-4" /> Detalles
                                 </div>
                                 
-                                <button 
-                                    onClick={(e) => !isOOS && handleAddToCart(e, product)}
+                                <div 
                                     className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm touch-manipulation ${
                                         isOOS 
                                         ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                                        : addingId === product.id 
-                                        ? "bg-green-400 text-white shadow-green-400/30" 
                                         : "bg-[#E85D9E] text-white hover:bg-[#D14D8B] hover:shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer"
                                     }`}
                                 >
-                                    <AnimatePresence mode="wait">
-                                        {isOOS ? (
-                                          <motion.span key="oos" className="flex items-center gap-1">
-                                            Agotado
-                                          </motion.span>
-                                        ) : addingId === product.id ? (
-                                            <motion.span key="ok" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-1">
-                                                ¡Listo! <Check className="w-4 h-4" />
-                                            </motion.span>
-                                        ) : (
-                                            <motion.span key="add" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} className="flex items-center gap-1">
-                                                Agregar <Plus className="w-4 h-4" />
-                                            </motion.span>
-                                        )}
-                                    </AnimatePresence>
-                                </button>
+                                    {isOOS ? "Agotado" : "Ver Tallas"}
+                                </div>
                             </div>
                         </div>
                     </div>
