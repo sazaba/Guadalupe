@@ -358,8 +358,8 @@ export default function ProductTemplate({ product }: { product: Product }) {
         }
       `}</style>
 
-      {/* Pasamos el precio dinámico al widget Sticky inferior si existe */}
-      {!isOutOfStock && <StickyPurchase product={{...product, price: currentPrice} as any} qty={qty} />}
+      {/* Pasamos el precio dinámico y la TALLA al widget Sticky inferior si existe */}
+{!isOutOfStock && <StickyPurchase product={{...product, price: currentPrice} as any} qty={qty} variation={selectedVariation} />}
       <Footer />
     </div>
   );
