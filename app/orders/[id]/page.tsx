@@ -90,7 +90,13 @@ export default async function OrderPage({ params }: Props) {
                   <div key={item.id} className="p-5 flex gap-4">
                     <div className="relative w-16 h-16 md:w-20 md:h-20 bg-[#FFF6F9] rounded-2xl overflow-hidden border border-[#FAD1E6]/50 shrink-0">
                       {item.product.images ? (
-                         <Image src={item.product.images.split(',')[0]} alt={item.product.name} fill className="object-cover" />
+                         // <-- SOLUCIÓN APLICADA: Extraer la primera foto de manera segura
+                         <Image 
+                            src={Array.isArray(item.product.images) ? String((item.product.images as any[])[0]) : String(item.product.images)} 
+                            alt={item.product.name} 
+                            fill 
+                            className="object-cover" 
+                         />
                       ) : ( <div className="w-full h-full flex items-center justify-center"><Package className="w-6 h-6 text-[#FAD1E6]" /></div> )}
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col justify-center">
