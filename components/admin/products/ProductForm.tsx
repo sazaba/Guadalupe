@@ -133,17 +133,17 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[var(--bg-page)]">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 bg-[var(--bg-page)]">
         <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Nombre de la Prenda</label>
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Nombre de la Prenda</label>
               <input name="name" defaultValue={initialData?.name} required className="input-boutique" placeholder="ej. Vestido Princesa Destello" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Categoría</label>
-              <select name="category" defaultValue={initialData?.category || "nueva-coleccion"} className="input-boutique">
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Categoría</label>
+              <select name="category" defaultValue={initialData?.category || "nueva-coleccion"} className="input-boutique cursor-pointer">
                 <option value="nueva-coleccion">Nueva Colección</option>
                 <option value="vestidos">Vestidos</option>
                 <option value="accesorios">Accesorios</option>
@@ -153,62 +153,84 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Colores</label>
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Colores</label>
               <input name="color" defaultValue={initialData?.color} className="input-boutique" placeholder="ej. Rosa Pastel y Dorado" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Materiales</label>
+              <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Materiales</label>
               <input name="material" defaultValue={initialData?.material} className="input-boutique" placeholder="ej. 100% Algodón, Exterior de Tul" />
             </div>
 
-            {/* SECCIÓN DINÁMICA DE TALLAS */}
-            <div className="md:col-span-2 bg-pink-50/40 p-5 rounded-2xl border border-pink-100">
+            {/* SECCIÓN DINÁMICA DE TALLAS - REDISEÑADA PARA SER RESPONSIVA Y CLARA */}
+            <div className="md:col-span-2 bg-pink-50/40 p-4 sm:p-5 rounded-2xl border border-pink-100">
                 <div className="flex justify-between items-center mb-4">
-                    <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Tallas, Precios e Inventario</label>
+                    <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Tallas, Precios e Inventario</label>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-4 sm:space-y-3">
                     {variations.map((variation, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center relative">
-                            <input
-                                type="text"
-                                placeholder="Talla (ej. 4T, S, M)"
-                                value={variation.size}
-                                onChange={(e) => updateVariation(index, "size", e.target.value)}
-                                required
-                                className="input-boutique !py-2 w-full sm:w-1/3"
-                            />
-                            <div className="relative w-full sm:w-1/3">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-300 font-bold">$</span>
+                        <div key={index} className="grid grid-cols-1 sm:grid-cols-[1fr_1.2fr_1fr_auto] gap-3 items-center relative p-3 sm:p-0 border border-pink-100 sm:border-none rounded-xl sm:rounded-none bg-white sm:bg-transparent shadow-sm sm:shadow-none">
+                            
+                            {/* Input de Talla */}
+                            <div className="w-full">
+                                <label className="text-[10px] sm:hidden font-bold text-pink-400 mb-1 block uppercase">Talla</label>
                                 <input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="Precio"
-                                    value={variation.price}
-                                    onChange={(e) => updateVariation(index, "price", e.target.value)}
+                                    type="text"
+                                    placeholder="ej. 4T, S, M"
+                                    value={variation.size}
+                                    onChange={(e) => updateVariation(index, "size", e.target.value)}
                                     required
-                                    className="input-boutique !py-2 !pl-7 w-full"
+                                    className="input-boutique !py-2 w-full text-center sm:text-left"
                                 />
                             </div>
-                            <input
-                                type="number"
-                                placeholder="Stock"
-                                value={variation.stock}
-                                onChange={(e) => updateVariation(index, "stock", e.target.value)}
-                                required
-                                className="input-boutique !py-2 w-full sm:w-1/4"
-                            />
+
+                            {/* Input de Precio */}
+                            <div className="w-full">
+                                <label className="text-[10px] sm:hidden font-bold text-pink-400 mb-1 block uppercase">Precio Unitario</label>
+                                <div className="relative w-full">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={variation.price}
+                                        onChange={(e) => updateVariation(index, "price", e.target.value)}
+                                        required
+                                        className="input-boutique !py-2 !pl-7 !pr-3 w-full font-mono text-right"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Input de Stock */}
+                            <div className="w-full">
+                                <label className="text-[10px] sm:hidden font-bold text-pink-400 mb-1 block uppercase">Cant. Disponible</label>
+                                <div className="relative w-full">
+                                    <input
+                                        type="number"
+                                        placeholder="Unidades"
+                                        value={variation.stock}
+                                        onChange={(e) => updateVariation(index, "stock", e.target.value)}
+                                        required
+                                        className="input-boutique !py-2 !pr-8 w-full text-center"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-pink-300 font-bold uppercase pointer-events-none">unds</span>
+                                </div>
+                            </div>
                             
-                            {variations.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => removeVariation(index)}
-                                    className="absolute right-2 top-2 sm:static sm:right-auto sm:top-auto text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            )}
+                            {/* Botón de Eliminar */}
+                            <div className="absolute top-1 right-1 sm:static sm:top-auto sm:right-auto flex justify-end">
+                                {variations.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeVariation(index)}
+                                        className="text-red-400 hover:text-red-600 hover:bg-red-50 p-1.5 sm:p-2 rounded-full transition-colors flex-shrink-0"
+                                        title="Eliminar esta talla"
+                                    >
+                                        <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -216,9 +238,9 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                 <button
                     type="button"
                     onClick={addVariation}
-                    className="mt-4 flex items-center gap-2 text-pink-500 font-bold text-sm hover:text-pink-600 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-pink-100 w-fit"
+                    className="mt-5 flex items-center gap-2 text-pink-500 font-bold text-sm hover:text-pink-600 transition-colors bg-white hover:bg-pink-50 px-5 py-2.5 rounded-xl shadow-sm border border-pink-200 w-full sm:w-fit justify-center active:scale-95"
                 >
-                    <Plus className="w-4 h-4" /> Añadir otra talla
+                    <Plus className="w-4 h-4" /> Agregar Nueva Talla
                 </button>
             </div>
 
@@ -238,16 +260,16 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
           </div>
 
             <div className="space-y-2 mt-6">
-                <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Descripción Mágica</label>
-                <textarea name="description" defaultValue={initialData?.description} rows={5} required className="input-boutique resize-none" placeholder="Cuenta la historia de esta hermosa prenda..." />
+                <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Descripción Mágica</label>
+                <textarea name="description" defaultValue={initialData?.description} rows={4} required className="input-boutique resize-none leading-relaxed" placeholder="Cuenta la historia de esta hermosa prenda..." />
             </div>
 
             <div className="space-y-2 mt-6">
-                <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Fotos del Producto</label>
+                <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Fotos del Producto</label>
                 
-                <div className="border-2 border-dashed border-pink-200 rounded-xl p-4 flex justify-center bg-pink-50/30 hover:bg-pink-50/50 transition-colors">
+                <div className="border-2 border-dashed border-pink-200 rounded-xl p-4 flex justify-center bg-pink-50/30 hover:bg-pink-50/50 transition-colors cursor-pointer group">
                     {imageUrl ? (
-                        <div className="relative w-full h-56 md:w-64 md:h-64">
+                        <div className="relative w-full h-48 sm:h-56 md:h-64">
                             <Image src={imageUrl} alt="Product" fill className="object-contain rounded-lg" />
                             <button type="button" onClick={() => setImageUrl("")} className="absolute -top-2 -right-2 bg-red-400 text-white rounded-full p-2 shadow-md hover:scale-110 transition-transform"><X className="w-5 h-5"/></button>
                         </div>
@@ -257,8 +279,8 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                             onSuccess={(result: any) => setImageUrl(result.info.secure_url)}
                         >
                             {({ open }: { open: () => void }) => (
-                                <button type="button" onClick={() => open()} className="flex flex-col items-center gap-2 text-pink-400 hover:text-pink-500 py-8 transition-colors w-full">
-                                    <ImagePlus className="w-10 h-10 opacity-70" /> 
+                                <button type="button" onClick={() => open()} className="flex flex-col items-center justify-center gap-3 text-pink-400 group-hover:text-pink-500 py-10 transition-colors w-full h-full">
+                                    <ImagePlus className="w-12 h-12 opacity-70 group-hover:scale-110 transition-transform" /> 
                                     <span className="text-sm font-bold">Toca para Subir Foto</span>
                                 </button>
                             )}
@@ -269,8 +291,8 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         </form>
       </div>
 
-      <div className="flex justify-between sm:justify-end gap-3 p-5 border-t border-pink-100/20 bg-[var(--bg-page)] shrink-0">
-            <button onClick={onClose} className="px-6 py-3 rounded-xl font-bold text-sm text-[var(--text-muted)] bg-[var(--glass-border)]/50 sm:bg-transparent hover:bg-pink-50 transition-colors w-full sm:w-auto">
+      <div className="flex flex-col-reverse sm:flex-row justify-between sm:justify-end gap-3 p-4 sm:p-5 border-t border-pink-100/20 bg-[var(--bg-page)] shrink-0">
+            <button onClick={onClose} className="px-6 py-3.5 rounded-xl font-bold text-sm text-[var(--text-muted)] bg-pink-50 sm:bg-transparent border border-pink-100 sm:border-transparent hover:bg-pink-100 transition-colors w-full sm:w-auto">
                 Cancelar
             </button>
             <button 
@@ -279,7 +301,7 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                     form?.requestSubmit();
                 }}
                 disabled={loading} 
-                className="bg-pink-500 text-white px-8 py-3 rounded-xl font-bold text-sm hover:bg-pink-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-200 w-full sm:w-auto"
+                className="bg-pink-500 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-pink-600 transition-all flex items-center justify-center gap-2 shadow-[0_8px_20px_-6px_rgba(236,72,153,0.5)] active:scale-95 w-full sm:w-auto"
             >
                 {loading ? "Esparciendo Magia..." : <><Save className="w-4 h-4" /> {initialData ? "Guardar Cambios" : "Agregar a la Boutique"}</>}
             </button>
@@ -294,12 +316,21 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             padding: 0.875rem 1rem;
             color: var(--text-main);
             outline: none;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.2s;
         }
         .input-boutique:focus {
             border-color: #f472b6; /* pink-400 */
-            box-shadow: 0 0 0 1px #f472b6;
+            box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.15); /* halo rosa suave */
+        }
+        /* Ocultar las flechas de los inputs number para diseño más limpio */
+        .input-boutique::-webkit-outer-spin-button,
+        .input-boutique::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .input-boutique[type=number] {
+            -moz-appearance: textfield;
         }
       `}</style>
     </div>

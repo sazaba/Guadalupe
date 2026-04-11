@@ -23,17 +23,35 @@ export default async function Home() {
   // 1. OBTENER DATOS REALES DE LA BASE DE DATOS
   const products = await prisma.product.findMany({
     where: { isActive: true },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    // <-- NUEVO: Incluimos las variaciones (tallas, precios y stock)
+    include: {
+      variations: true
+    }
   });
 
   // 2. SERIALIZAR DATOS
-  const serializedProducts = products.map((product: any) => ({
-    ...product,
-    price: Number(product.price), 
-    purity: product.purity || "", 
-    description: product.description || "",
-    isFeatured: Boolean(product.isFeatured) 
-  }));
+  const serializedProducts = products.map((product: any) => {
+    
+    // <-- NUEVO: Calculamos el stock total sumando el inventario de todas las tallas
+    const totalStock = product.variations?.reduce((acc: number, variation: any) => acc + variation.stock, 0) || 0;
+    
+    // <-- NUEVO: Tomamos el precio de la primera talla para mostrarlo en la vitrina
+    const basePrice = product.variations?.length > 0 ? Number(product.variations[0].price) : 0;
+
+    return {
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      category: product.category,
+      images: product.images,
+      price: basePrice,     // Inyectamos el precio calculado
+      stock: totalStock,    // Inyectamos el stock calculado
+      purity: product.purity || "", 
+      description: product.description || "",
+      isFeatured: Boolean(product.isFeatured) 
+    };
+  });
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-x-hidden selection:bg-pink-200 selection:text-pink-900 bg-white">
@@ -59,6 +77,7 @@ export default async function Home() {
       </section>
       
       <section id="catalog" className="scroll-mt-24 w-full bg-white relative z-10">
+        {/* Ahora los productos llevan stock y precio de verdad */}
         <BoutiqueShowcase products={serializedProducts} />
       </section>
 
