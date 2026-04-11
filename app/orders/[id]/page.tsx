@@ -19,6 +19,7 @@ async function getOrder(id: string) {
       items: {
         include: {
           product: true,
+          variation: true, // <-- NUEVO: Incluimos la tabla de variaciones para obtener la talla
         },
       },
     },
@@ -97,7 +98,8 @@ export default async function OrderPage({ params }: Props) {
                         
                         {/* Mostramos talla y color si existen */}
                         <div className="flex gap-2 mt-1">
-                           {item.product.size && <span className="text-[10px] font-bold text-[#7B5C73] bg-[#FAD1E6]/20 px-2 py-0.5 rounded-md uppercase border border-[#FAD1E6]/50">Talla: {item.product.size}</span>}
+                           {/* <-- NUEVO: Leemos el 'size' desde item.variation en lugar de item.product */}
+                           {item.variation?.size && <span className="text-[10px] font-bold text-[#7B5C73] bg-[#FAD1E6]/20 px-2 py-0.5 rounded-md uppercase border border-[#FAD1E6]/50">Talla: {item.variation.size}</span>}
                            {item.product.color && <span className="text-[10px] font-bold text-[#7B5C73] bg-[#FAD1E6]/20 px-2 py-0.5 rounded-md uppercase border border-[#FAD1E6]/50">{item.product.color}</span>}
                         </div>
 
