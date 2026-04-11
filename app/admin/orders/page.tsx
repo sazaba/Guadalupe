@@ -62,7 +62,12 @@ export default async function OrdersPage() {
       price: Number(item.price), 
       product: {
         name: item.product.name,
-        images: item.product.images,
+        // <-- SOLUCIÓN APLICADA: Extraemos solo la primera foto para la miniatura
+        images: Array.isArray(item.product.images) && item.product.images.length > 0 
+                  ? String((item.product.images as any[])[0]) 
+                  : typeof item.product.images === 'string' 
+                      ? item.product.images 
+                      : "",
         // <-- NUEVO: Extraemos la talla desde 'variation' en lugar de 'product'
         size: item.variation?.size || "Talla Única", 
         color: item.product.color,       
@@ -87,7 +92,7 @@ export default async function OrdersPage() {
       </div>
 
       {/* Renderizamos el Cliente con los datos preparados */}
-      <OrdersClient initialOrders={serializedOrders} />
+      <OrdersClient initialOrders={serializedOrders as any} />
       
     </div>
   );
