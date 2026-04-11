@@ -2,8 +2,12 @@ import ProductManager from "@/components/admin/products/ProductManager";
 import { prisma } from "@/lib/prisma";
 
 export default async function ProductsPage() {
+  // --- MODIFICACIÓN AQUÍ ---
   const products = await prisma.product.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: {
+      variations: true // <--- VITAL: Trae las tallas, precios y stock conectados a cada prenda
+    }
   });
 
   return (
