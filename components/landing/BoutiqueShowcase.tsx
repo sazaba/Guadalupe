@@ -6,14 +6,14 @@ import Image from "next/image";
 import Link from "next/link";
 import CatalogModal from "./CatalogModal";
 
-// La interfaz se mantiene EXACTAMENTE igual para tu backend
+// Actualizamos el tipo a 'any' para evitar que TS moleste por el JSON
 interface Product {
   id: string;
   name: string;
   category: string;
   price: number;
   stock: number;
-  images: string;
+  images: any; // <-- CAMBIO AQUÍ
   purity?: string;
   slug: string;
   description?: string;
@@ -38,7 +38,20 @@ const formatCOP = (price: number) => {
   }).format(Number(price));
 };
 
-const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: string, isOOS: boolean }) => {
+const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: any, name: string, isOOS: boolean }) => {
+  // --- SOLUCIÓN: EXTRAER FOTO PRINCIPAL DE FORMA SEGURA ---
+  let mainImage = "";
+  if (Array.isArray(image) && image.length > 0) {
+      mainImage = String(image[0]);
+  } else if (typeof image === 'string') {
+      try {
+          const parsed = JSON.parse(image);
+          mainImage = Array.isArray(parsed) && parsed.length > 0 ? String(parsed[0]) : image;
+      } catch {
+          mainImage = image;
+      }
+  }
+
   return (
     <div className="relative w-40 h-48 md:w-44 md:h-56 mx-auto flex items-center justify-center mt-6 mb-8 transform-gpu">
       <motion.div 
@@ -59,14 +72,16 @@ const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: string, name: str
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2rem] border-[3px] border-white shadow-[0_15px_30px_-8px_rgba(232,93,158,0.25)] flex items-center justify-center z-20 overflow-hidden group-hover:border-[#FAD1E6]/80 transition-colors duration-500"
       >
-        <Image 
-          src={image} 
-          alt={name} 
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className={`object-cover scale-105 group-hover:scale-110 transition-transform duration-700 ${isOOS ? "grayscale opacity-50" : ""}`}
-          priority={true}
-        />
+        {mainImage && (
+            <Image 
+            src={mainImage} 
+            alt={name} 
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className={`object-cover scale-105 group-hover:scale-110 transition-transform duration-700 ${isOOS ? "grayscale opacity-50" : ""}`}
+            priority={true}
+            />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 to-transparent pointer-events-none" />
       </motion.div>
     </div>
@@ -181,7 +196,6 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                         
                         <div className="border-t border-[#FAD1E6]/50 pt-5 w-full">
                             <div className="flex justify-between items-center mb-5">
-                                {/* PRECIO FORMATEADO AQUÍ */}
                                 <span className={`text-2xl font-bold font-sans ${isOOS ? "text-[#94A3B8] line-through decoration-1" : "text-[#E85D9E]"}`}>
                                   {formatCOP(product.price)}
                                 </span>

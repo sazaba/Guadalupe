@@ -87,19 +87,25 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
         // --- LÓGICA DE VARIACIONES (TALLAS, PRECIO, STOCK) ---
         const variations = product.variations || [];
         
-        // 1. Stock total (suma del stock de todas las tallas)
         const totalStock = variations.reduce((acc: number, curr: any) => acc + Number(curr.stock), 0);
-        
-        // 2. Tallas disponibles (unidas por comas)
         const availableSizes = variations.map((v: any) => v.size).join(", ");
-        
-        // 3. Precio base (el más bajo de las variaciones para mostrar "Desde $...")
         const lowestPrice = variations.length > 0 
             ? Math.min(...variations.map((v: any) => Number(v.price))) 
             : 0;
-            
-        // Validamos si hay precios diferentes para poner la palabra "Desde"
         const hasMultiplePrices = variations.length > 1 && !variations.every((v: any) => Number(v.price) === lowestPrice);
+
+        // --- SOLUCIÓN: EXTRAER FOTO PRINCIPAL ---
+        let mainImage = "";
+        if (Array.isArray(product.images) && product.images.length > 0) {
+            mainImage = String(product.images[0]);
+        } else if (typeof product.images === 'string') {
+            try {
+                const parsed = JSON.parse(product.images);
+                mainImage = Array.isArray(parsed) && parsed.length > 0 ? String(parsed[0]) : product.images;
+            } catch {
+                mainImage = product.images;
+            }
+        }
 
         return (
             <div key={product.id} className="group bg-[var(--bg-page)] border border-pink-100 rounded-2xl overflow-hidden hover:border-pink-300 hover:shadow-lg hover:shadow-pink-100 transition-all duration-300 flex flex-col">
@@ -108,13 +114,15 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
                     <div className="absolute inset-0 bg-gradient-to-tr from-pink-200/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     
                     <div className="relative w-full h-full z-10">
-                        <Image 
-                            src={product.images} 
-                            alt={product.name} 
-                            fill 
-                            className="object-cover drop-shadow-sm group-hover:scale-105 transition-transform duration-700" 
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
+                        {mainImage && (
+                            <Image 
+                                src={mainImage} 
+                                alt={product.name} 
+                                fill 
+                                className="object-cover drop-shadow-sm group-hover:scale-105 transition-transform duration-700" 
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                        )}
                     </div>
                     
                     {product.isFeatured && (
