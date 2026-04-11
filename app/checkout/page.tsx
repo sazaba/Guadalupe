@@ -27,14 +27,13 @@ export default function CheckoutPage() {
     name: "", email: "", phone: "", address: "", city: "", state: "", postalCode: "", country: "CO"
   });
   
-  // FIX: Usamos useRef para guardar una copia silenciosa de los datos
   const formDataRef = useRef(formData);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => {
         const newState = { ...prev, [name]: value };
-        formDataRef.current = newState; // Actualizamos la copia silenciosa
+        formDataRef.current = newState; 
         return newState;
     });
   };
@@ -43,9 +42,8 @@ export default function CheckoutPage() {
     return "$" + amount.toLocaleString("es-CO");
   };
 
-  // FIX: Envolvemos la función en useCallback y leemos de formDataRef
   const handlePaymentSubmit = useCallback(async (mpFormData: any) => {
-    const currentData = formDataRef.current; // Usamos los datos más recientes de la copia silenciosa
+    const currentData = formDataRef.current; 
 
     if (!currentData.name || !currentData.email || !currentData.address || !currentData.city || !currentData.state) {
         alert("Por favor, completa tu información de contacto y envío antes de pagar.");
@@ -54,8 +52,11 @@ export default function CheckoutPage() {
 
     setIsLoading(true);
 
+    // --- SOLUCIÓN DEL ERROR VERCEL ---
+    // Ahora enviamos productId, variationId y quantity
     const formattedItems = items.map(item => ({
-        productId: item.id,
+        productId: item.productId || item.id, // Compatibilidad con tu context
+        variationId: item.variationId,        // <--- EL DATO QUE FALTABA
         quantity: item.quantity
     }));
     
@@ -70,7 +71,7 @@ export default function CheckoutPage() {
         alert(`Error al procesar el pago: ${result.message}`);
         return new Promise((resolve, reject) => reject());
     }
-  }, [items, router, clearCart]); // Dependencias seguras
+  }, [items, router, clearCart]); 
 
   const memoizedPaymentBrick = useMemo(() => {
     if (!isMpInitialized || cartTotal <= 0) return null;
@@ -217,8 +218,12 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                                     <p className="text-sm font-bold text-[#33182B] truncate">{item.name}</p>
+                                    {/* NUEVO: Mostrar la talla seleccionada */}
+                                    {item.size && (
+                                        <p className="text-xs text-[#7B5C73] mt-0.5">Talla: <span className="font-bold text-[#E85D9E]">{item.size}</span></p>
+                                    )}
                                     <div className="flex justify-between items-center mt-1">
-                                        <span className="text-xs text-[#7B5C73] font-medium">Cant: {item.quantity}</span>
+                                    <span className="text-xs text-[#7B5C73] font-medium">Cant: {item.quantity}</span>
                                         <span className="font-display font-bold text-[#E85D9E]">{formatCOP(item.price * item.quantity)}</span>
                                     </div>
                                 </div>

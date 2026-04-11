@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, memo } from "react";
+import { useState, useRef, memo, useEffect } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Minus, Plus, CheckCircle2, Sparkles, Gift, Crown, Star, ShieldCheck, ShoppingBag, Droplets, Wind, SunMedium } from "lucide-react";
 import Image from "next/image";
@@ -23,7 +23,7 @@ const formatCOP = (price: number) => {
   }).format(Number(price));
 };
 
-// Partículas de fondo mágicas (Optimizadas para rendimiento)
+// Partículas de fondo mágicas
 const MagicSparkles = memo(() => (
   <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-40 mix-blend-screen transform-gpu">
       <div className="absolute top-[15%] left-[10%] w-64 h-64 bg-pink-300/20 rounded-full blur-[80px]" />
@@ -34,7 +34,7 @@ const MagicSparkles = memo(() => (
 ));
 MagicSparkles.displayName = "MagicSparkles";
 
-// SVG Animado Decorativo (Optimizado)
+// SVG Animado Decorativo
 const AnimatedStarIcon = ({ className }: { className?: string }) => (
     <div className={className}>
       <motion.svg 
@@ -51,29 +51,45 @@ const AnimatedStarIcon = ({ className }: { className?: string }) => (
     </div>
 );
 
+// 1. ACTUALIZACIÓN DE TIPOS: Definimos la Variación y el Producto
+interface Variation {
+  id: string;
+  size: string;
+  price: number;
+  stock: number;
+}
+
 interface Product {
   id: string;
   name: string;
   category: string;
-  price: number;
-  stock: number;
   images: string;
   material?: string; 
   color?: string;
-  size?: string;
   description: string;
   slug: string;
+  variations: Variation[]; // <-- Reemplazamos price, stock y size por el arreglo
 }
 
 export default function ProductTemplate({ product }: { product: Product }) {
+  // 2. NUEVO ESTADO: Guardamos la talla que el usuario seleccionó
+  const [selectedVariation, setSelectedVariation] = useState<Variation | null>(product.variations[0] || null);
+  
   const [qty, setQty] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const { addItem } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const isOutOfStock = product.stock <= 0;
+  // 3. VARIABLES DINÁMICAS: Cambian según la talla elegida
+  const currentPrice = selectedVariation ? selectedVariation.price : 0;
+  const currentStock = selectedVariation ? selectedVariation.stock : 0;
+  const isOutOfStock = currentStock <= 0;
 
-  // Optimización: scrollYProgress para paralaje ligero
+  // Si cambian de talla, reseteamos la cantidad a 1 por seguridad
+  useEffect(() => {
+    setQty(1);
+  }, [selectedVariation]);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -82,10 +98,11 @@ export default function ProductTemplate({ product }: { product: Product }) {
   const textParallax = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const imageY = useTransform(scrollYProgress, [0, 1], [0, 40]);
 
+  // 4. ACTUALIZACIÓN: Ahora enviamos el producto y la variación al carrito
   const handleAddToCart = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || !selectedVariation) return;
     setIsAdding(true);
-    addItem(product, qty);
+    addItem(product, selectedVariation, qty);
     setTimeout(() => setIsAdding(false), 800);
   };
 
@@ -112,14 +129,11 @@ export default function ProductTemplate({ product }: { product: Product }) {
         <div className="relative z-10 w-full max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 h-full flex items-center">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center w-full mt-4 lg:mt-10">
 
-                {/* COLUMNA IZQUIERDA: Imagen Impactante (Optimizada para Safari) */}
+                {/* COLUMNA IZQUIERDA: Imagen Impactante */}
                 <div className="lg:col-span-6 h-[45vh] sm:h-[55vh] lg:h-[70vh] flex items-center justify-center relative mt-6 lg:mt-0">
-                    
-                    {/* Elementos SVG decorativos flotantes */}
                     <AnimatedStarIcon className="absolute top-4 left-4 lg:top-10 lg:left-10 w-6 h-6 lg:w-8 lg:h-8 text-[#FFA8C5] opacity-60" />
                     <AnimatedStarIcon className="absolute bottom-10 right-2 lg:bottom-20 lg:right-5 w-5 h-5 lg:w-6 lg:h-6 text-[#E85D9E] opacity-40" />
 
-                    {/* Marco Mágico */}
                     <div className="absolute inset-2 lg:inset-8 rounded-[2.5rem] lg:rounded-[3rem] border border-pink-200/50 bg-gradient-to-tr from-pink-50/50 to-white/30 backdrop-blur-sm -rotate-2" />
                     <div className="absolute inset-2 lg:inset-8 rounded-[2.5rem] lg:rounded-[3rem] border border-white bg-white/40 backdrop-blur-md rotate-1 shadow-[0_15px_40px_-10px_rgba(232,93,158,0.1)]" />
 
@@ -127,7 +141,6 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         style={{ y: imageY }} 
                         className="relative w-full h-full z-20 flex items-center justify-center rounded-[2rem] lg:rounded-[3rem] overflow-hidden group p-6 lg:p-10 will-change-transform"
                     >
-                        {/* Contenedor adaptado para object-contain transparente */}
                         <div className="relative w-full h-full rounded-2xl overflow-hidden bg-transparent">
                             <Image
                                 src={product.images}
@@ -154,7 +167,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                             </span>
                             {isOutOfStock ? (
                                 <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-[11px] font-bold uppercase tracking-wider border border-gray-200">
-                                    Agotado
+                                    Talla Agotada
                                 </span>
                             ) : (
                                 <span className="px-3 py-1 rounded-full bg-green-50 text-green-600 text-[11px] font-bold uppercase tracking-wider border border-green-200 flex items-center gap-1.5">
@@ -169,8 +182,9 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         </h1>
 
                         <div className="flex items-baseline justify-center lg:justify-start gap-4 mt-1">
+                             {/* Mostramos el precio dinámico de la talla elegida */}
                              <span className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-[#E85D9E] to-[#D14D8B]">
-                                {formatCOP(product.price)}
+                                {formatCOP(currentPrice)}
                              </span>
                         </div>
                     </div>
@@ -180,23 +194,46 @@ export default function ProductTemplate({ product }: { product: Product }) {
                         {product.description}
                     </p>
 
-                    {/* Ficha Técnica (Tallas, Color, Material) */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 lg:p-4 rounded-xl items-center lg:items-start text-center lg:text-left">
-                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Tallas</span>
-                            <span className="text-sm font-bold text-[#33182B] leading-snug">{product.size || "Única"}</span>
+                    {/* Ficha Técnica: TALLAS DE FORMA DINÁMICA */}
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+                        
+                        {/* Selector de Tallas */}
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-4 rounded-xl col-span-2">
+                            <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-3 text-center lg:text-left">Elige la Talla</span>
+                            <div className="flex flex-wrap gap-2.5 justify-center lg:justify-start">
+                                {product.variations.map((v) => {
+                                    const isSelected = selectedVariation?.id === v.id;
+                                    const isVariationOOS = v.stock <= 0;
+                                    return (
+                                        <button
+                                            key={v.id}
+                                            onClick={() => setSelectedVariation(v)}
+                                            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all border-2 
+                                                ${isSelected 
+                                                    ? 'bg-[#E85D9E] text-white border-[#E85D9E] shadow-md transform scale-105' 
+                                                    : 'bg-white text-[#7B5C73] border-pink-100 hover:border-[#E85D9E]/50'
+                                                }
+                                                ${isVariationOOS && !isSelected ? 'opacity-50 grayscale' : ''}
+                                            `}
+                                        >
+                                            {v.size}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
+
                         <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 lg:p-4 rounded-xl items-center lg:items-start text-center lg:text-left">
                             <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Color</span>
                             <span className="text-sm font-bold text-[#33182B] leading-snug">{product.color || "Mágico"}</span>
                         </div>
-                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 lg:p-4 rounded-xl items-center lg:items-start text-center lg:text-left md:col-span-1 col-span-2">
+                        <div className="flex flex-col bg-pink-50/50 border border-pink-100 p-3 lg:p-4 rounded-xl items-center lg:items-start text-center lg:text-left">
                             <span className="text-[10px] uppercase font-bold text-[#7B5C73] tracking-widest mb-1">Material</span>
                             <span className="text-sm font-bold text-[#33182B] leading-snug">{product.material || "Calidad Premium"}</span>
                         </div>
                     </div>
 
-                    {/* Controles de Compra (DISEÑO MÓVIL OPTIMIZADO) */}
+                    {/* Controles de Compra */}
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-2">
                         {/* Selector de cantidad */}
                         <div className={`flex items-center justify-between border-2 border-pink-200 bg-white rounded-full px-4 sm:px-5 py-2 sm:py-3 h-14 shadow-sm w-full sm:w-36 flex-shrink-0 ${isOutOfStock ? "opacity-40 pointer-events-none" : ""}`}>
@@ -204,7 +241,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
                                 <Minus size={18} />
                             </button>
                             <span className="font-bold text-[#33182B] text-xl w-8 text-center">{qty}</span>
-                            <button onClick={() => setQty(q => Math.min(product.stock, q + 1))} className="text-[#7B5C73] hover:text-[#E85D9E] transition-colors p-2 -mr-2">
+                            <button onClick={() => setQty(q => Math.min(currentStock, q + 1))} className="text-[#7B5C73] hover:text-[#E85D9E] transition-colors p-2 -mr-2">
                                 <Plus size={18} />
                             </button>
                         </div>
@@ -225,7 +262,7 @@ export default function ProductTemplate({ product }: { product: Product }) {
 
                             <AnimatePresence mode="wait">
                                 {isOutOfStock ? (
-                                    <motion.span key="oos">Agotado</motion.span>
+                                    <motion.span key="oos">Talla Agotada</motion.span>
                                 ) : isAdding ? (
                                     <motion.span key="adding" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
                                         <CheckCircle2 className="w-5 h-5" /> ¡Añadido!
@@ -317,7 +354,8 @@ export default function ProductTemplate({ product }: { product: Product }) {
         }
       `}</style>
 
-      {!isOutOfStock && <StickyPurchase product={{...product, price: product.price}} qty={qty} />}
+      {/* Pasamos el precio dinámico al widget Sticky inferior si existe */}
+      {!isOutOfStock && <StickyPurchase product={{...product, price: currentPrice} as any} qty={qty} />}
       <Footer />
     </div>
   );

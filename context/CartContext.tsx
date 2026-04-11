@@ -2,8 +2,12 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+// 1. ACTUALIZACIÓN DE TIPOS: Le enseñamos al carrito los nuevos campos
 export interface CartItem {
-  id: string;
+  id: string;          // Usaremos el variationId como el ID único en el carrito
+  productId: string;   // <-- NUEVO
+  variationId: string; // <-- NUEVO
+  size: string;        // <-- NUEVO
   name: string;
   price: number;
   image: string;
@@ -15,7 +19,8 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: any, qty: number) => void;
+  // 2. ACTUALIZACIÓN: Ahora addItem pide el producto y la variación específica
+  addItem: (product: any, variation: any, qty: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, qty: number) => void;
   clearCart: () => void;
@@ -52,27 +57,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  const addItem = (product: any, qty: number) => {
+  // 3. ACTUALIZACIÓN: Lógica para guardar la talla y separar los items
+  const addItem = (product: any, variation: any, qty: number) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      // Buscamos si ya existe EXACTAMENTE ESA TALLA en el carrito
+      const existing = prev.find((item) => item.variationId === variation.id);
+      
       if (existing) {
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + qty, stock: product.stock }
+          item.variationId === variation.id
+            ? { ...item, quantity: item.quantity + qty, stock: variation.stock }
             : item
         );
       }
+      
+      // Si no existe esa talla, la agregamos como un item nuevo
       return [
         ...prev,
         {
-          id: product.id,
+          id: variation.id, // El ID de la fila del carrito ahora es el ID de la talla
+          productId: product.id,
+          variationId: variation.id,
+          size: variation.size,
           name: product.name,
-          price: Number(product.price),
+          price: Number(variation.price),
           image: product.images, 
           quantity: qty,
           slug: product.slug,
           category: product.category,
-          stock: product.stock,
+          stock: variation.stock,
         },
       ];
     });
@@ -90,11 +103,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([]);
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
-  // --- NUEVA LÓGICA DE ENVÍO ---
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = items.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0);
   
-  // Regla: Si el carrito tiene productos y el subtotal es menor a 300, cobra 9.95. Si no, es 0 (Gratis).
   const shippingTotal = (cartSubtotal > 0 && cartSubtotal < 300) ? 9.95 : 0;
   const cartTotal = cartSubtotal + shippingTotal;
 

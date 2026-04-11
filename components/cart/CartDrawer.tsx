@@ -108,16 +108,18 @@ export default function CartDrawer() {
 
                       <div className="flex-1 flex flex-col justify-between min-w-0 py-1">
                         <div className="flex justify-between items-start gap-2">
-                          <div className="min-w-0 pr-2">
+                          <div className="min-w-0 pr-2 flex flex-col items-start">
                               <h4 className={`font-display font-bold text-sm leading-snug mb-1 line-clamp-2 ${isItemOOS ? "text-red-500" : "text-[#33182B]"}`}>
                                   {item.name}
                               </h4>
-                              {isItemOOS ? (
-                                <span className="text-[9px] font-bold text-red-500 uppercase tracking-wide bg-red-100 px-2 py-0.5 rounded-md">Agotado</span>
-                              ) : (
-                                <p className="text-[10px] text-[#7B5C73] uppercase font-bold tracking-widest truncate">
-                                    {item.category || "Vestido Exclusivo"}
-                                </p>
+                              {/* NUEVO: Mostrar la talla con diseño bonito */}
+                              {item.size && (
+                                <span className="text-[9px] font-bold text-[#E85D9E] bg-[#FAD1E6]/30 border border-[#FAD1E6]/50 px-2 py-0.5 rounded mt-0.5 mb-1 inline-block uppercase tracking-wider">
+                                    Talla: {item.size}
+                                </span>
+                              )}
+                              {isItemOOS && (
+                                <span className="text-[9px] font-bold text-red-500 uppercase tracking-wide bg-red-100 px-2 py-0.5 rounded-md mt-1">Agotado</span>
                               )}
                           </div>
                           <button 

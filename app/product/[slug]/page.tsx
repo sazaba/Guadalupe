@@ -13,13 +13,17 @@ export async function generateMetadata({ params }: Props) {
 
   const product = await prisma.product.findFirst({
     where: { slug: slug },
+    include: { variations: true } // <-- NUEVO: Incluimos las tallas para saber el stock total
   });
 
   if (!product) return { title: "Prenda no encontrada | Colección Mágica" };
 
+  // Calculamos el stock total sumando el stock de todas sus tallas
+  const totalStock = product.variations.reduce((acc, v) => acc + v.stock, 0);
+
   return {
     title: `${product.name} | Boutique Infantil | Vestidos para Princesas`,
-    description: `Descubre ${product.name}. Moda exclusiva, cómoda y llena de magia para tu princesa. Calidad garantizada. ${product.stock > 0 ? '¡Disponible ahora!' : 'Agotado por el momento'}.`,
+    description: `Descubre ${product.name}. Moda exclusiva, cómoda y llena de magia para tu princesa. Calidad garantizada. ${totalStock > 0 ? '¡Disponible ahora!' : 'Agotado por el momento'}.`,
   };
 }
 
@@ -32,6 +36,9 @@ export default async function ProductPage({ params }: Props) {
       slug: slug,
       isActive: true 
     },
+    include: {
+      variations: true // <-- NUEVO: Traemos las tallas y precios
+    }
   });
 
   if (!product) {
@@ -40,13 +47,23 @@ export default async function ProductPage({ params }: Props) {
 
   // Serializamos los datos y adaptamos los fallbacks al tema de la boutique
   const serializedProduct = {
-    ...product,
-    price: Number(product.price),
-    // Reemplazamos el antiguo 'purity' por los nuevos campos de la boutique
-    material: product.material || "100% Calidad Premium - Hecho con Amor", 
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    description: product.description || "Una prenda mágica diseñada con amor para hacer brillar a tu pequeña en sus momentos más especiales. Telas suaves, acabados hermosos y detalles únicos.",
+    category: product.category,
+    images: product.images,
     color: product.color || "Color Mágico",
-    size: product.size || "Talla Única",
-    description: product.description || "Una prenda mágica diseñada con amor para hacer brillar a tu pequeña en sus momentos más especiales. Telas suaves, acabados hermosos y detalles únicos."
+    material: product.material || "100% Calidad Premium - Hecho con Amor", 
+    isActive: product.isActive,
+    isFeatured: product.isFeatured,
+    // <-- NUEVO: Pasamos el arreglo de variaciones listo para que React lo use
+    variations: product.variations.map(v => ({
+        id: v.id,
+        size: v.size,
+        price: Number(v.price),
+        stock: v.stock
+    }))
   };
 
   return (
@@ -63,6 +80,7 @@ export default async function ProductPage({ params }: Props) {
 
        {/* Contenedor principal del producto */}
        <div className="relative z-10">
+         {/* Ahora ProductTemplate recibirá todo el objeto, incluyendo las tallas */}
          <ProductTemplate product={serializedProduct} />
        </div>
        
