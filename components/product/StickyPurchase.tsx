@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useCart } from "@/context/CartContext";
 
 const formatCOP = (price: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -12,8 +13,10 @@ const formatCOP = (price: number) => {
     }).format(Number(price));
 };
 
-export default function StickyPurchase({ product, qty }: { product: any, qty: number }) {
+export default function StickyPurchase({ product, qty, variation }: { product: any, qty: number, variation?: any }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const { addItem } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,12 +33,15 @@ export default function StickyPurchase({ product, qty }: { product: any, qty: nu
     return () => document.body.classList.remove("sticky-active");
   }, [isVisible]);
 
-  // Función para deslizar suavemente hacia el selector de tallas
-  const scrollToTop = () => {
-    window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-    });
+  const handleAdd = () => {
+    if (variation) {
+        setIsAdding(true);
+        addItem(product, variation, qty);
+        setTimeout(() => setIsAdding(false), 800);
+    } else {
+        // En caso remoto de que no haya talla, lo subimos para que elija
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -65,11 +71,21 @@ export default function StickyPurchase({ product, qty }: { product: any, qty: nu
                     </div>
 
                     <button 
-                        onClick={scrollToTop} 
+                        onClick={handleAdd}
+                        disabled={isAdding}
                         className="bg-gradient-to-r from-[#E85D9E] to-[#D14D8B] text-white h-14 px-6 rounded-full font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2.5 shadow-[0_8px_20px_rgba(232,93,158,0.3)] active:scale-95 transition-all cursor-pointer shrink-0"
                     >
-                        <ShoppingBag className="w-4 h-4 fill-white/10" />
-                        <span>Elegir Talla</span>
+                        <AnimatePresence mode="wait">
+                            {isAdding ? (
+                                <motion.span key="adding" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
+                                    <CheckCircle2 className="w-4 h-4" /> ¡Listo!
+                                </motion.span>
+                            ) : (
+                                <motion.span key="default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
+                                    <ShoppingBag className="w-4 h-4 fill-white/10" /> Agregar
+                                </motion.span>
+                            )}
+                        </AnimatePresence>
                     </button>
                 </div>
             </div>
