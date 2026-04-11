@@ -12,16 +12,21 @@ export default async function OrdersPage() {
       createdAt: 'desc' // Las más recientes primero
     },
     include: {
-      // Traemos los items y los nuevos datos del producto
+      // Traemos los items, los datos del producto y la talla elegida
       items: {
         include: {
           product: {
             select: {
               name: true,
               images: true,
-              size: true,     // <-- NUEVO
-              color: true,    // <-- NUEVO
-              material: true  // <-- NUEVO
+              color: true,    
+              material: true  
+            }
+          },
+          // <-- NUEVO: Le pedimos a Prisma que traiga la variación específica de este item
+          variation: {
+            select: {
+              size: true
             }
           }
         }
@@ -50,7 +55,7 @@ export default async function OrdersPage() {
     
     itemsCount: order.items.length,
     
-    // Mapeamos los items incluyendo los nuevos atributos
+    // Mapeamos los items incluyendo los nuevos atributos y la talla corregida
     items: order.items.map((item) => ({
       id: item.id,
       quantity: item.quantity,
@@ -58,9 +63,10 @@ export default async function OrdersPage() {
       product: {
         name: item.product.name,
         images: item.product.images,
-        size: item.product.size,         // <-- NUEVO
-        color: item.product.color,       // <-- NUEVO
-        material: item.product.material  // <-- NUEVO
+        // <-- NUEVO: Extraemos la talla desde 'variation' en lugar de 'product'
+        size: item.variation?.size || "Talla Única", 
+        color: item.product.color,       
+        material: item.product.material  
       }
     }))
   }));
