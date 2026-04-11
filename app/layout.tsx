@@ -28,6 +28,10 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Guadalupe | Boutique Infantil",
   description: "Moda, ropa y accesorios increíbles para niños y niñas.",
+  // ✅ AQUÍ ESTÁ LA SOLUCIÓN CON TRUCO ANTI-CACHÉ
+  icons: {
+    icon: "/favicon.ico?v=2",
+  },
 };
 
 export default function RootLayout({
