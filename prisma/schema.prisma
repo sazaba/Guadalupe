@@ -37,7 +37,7 @@ model Product {
   slug        String   @unique
   description String   @db.Text
   category    String
-  images      String   
+  images      Json     
   color       String?  
   material    String?  
   isActive    Boolean  @default(true)
@@ -45,12 +45,10 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  // Relaciones actualizadas
   variations  ProductVariation[]
   orderItems  OrderItem[]
 }
 
-// NUEVA TABLA: Variaciones por Talla
 model ProductVariation {
   id          String   @id @default(uuid())
   productId   String
@@ -62,7 +60,6 @@ model ProductVariation {
 
   orderItems  OrderItem[]
 
-  // Evita duplicar la misma talla en un mismo producto
   @@unique([productId, size]) 
 }
 
@@ -105,7 +102,6 @@ model OrderItem {
   productId          String
   product            Product  @relation(fields: [productId], references: [id])
   
-  // NUEVA RELACIÓN: Conectado a la talla específica
   productVariationId String
   variation          ProductVariation @relation(fields: [productVariationId], references: [id])
   

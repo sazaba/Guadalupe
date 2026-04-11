@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { createProduct, updateProduct } from "@/app/actions/products";
-import { Save, ImagePlus, X, Crown, Info, Plus } from "lucide-react"; 
+import { Save, ImagePlus, X, Crown, Plus } from "lucide-react"; 
 import Image from "next/image";
 import Swal from "sweetalert2";
 
@@ -13,7 +13,8 @@ interface ProductFormProps {
 }
 
 export default function ProductForm({ onClose, initialData }: ProductFormProps) {
-  const [imageUrl, setImageUrl] = useState("");
+  // 1. CAMBIO: Estado para múltiples imágenes (arreglo en lugar de string)
+  const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   // ESTADO PARA TALLAS: Iniciamos con las tallas existentes o una fila vacía
@@ -23,11 +24,26 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
       : [{ size: "", price: "", stock: "" }]
   );
 
+  // 2. CAMBIO: Efecto para cargar las imágenes iniciales
   useEffect(() => {
     if (initialData?.images) {
-      setImageUrl(initialData.images);
+      // Prisma podría devolver un string JSON o ya un array parseado, manejamos ambos casos
+      try {
+        const loadedImages = typeof initialData.images === 'string' 
+            ? JSON.parse(initialData.images) 
+            : initialData.images;
+        setImages(loadedImages || []);
+      } catch (error) {
+        console.error("Error parseando imágenes iniciales:", error);
+        setImages([]);
+      }
     }
   }, [initialData]);
+
+  // --- Funciones para manejar las imágenes ---
+  const removeImage = (indexToRemove: number) => {
+    setImages(images.filter((_, index) => index !== indexToRemove));
+  };
 
   // --- Funciones para manejar las variaciones ---
   const addVariation = () => {
@@ -51,11 +67,12 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
 
     const formData = new FormData(e.currentTarget);
     
-    if (!imageUrl) {
+    // 3. CAMBIO: Validar que el arreglo no esté vacío
+    if (images.length === 0) {
         Swal.fire({ 
             icon: 'warning', 
-            title: 'Falta la Imagen', 
-            text: '¡Cada prenda mágica necesita una foto hermosa!',
+            title: 'Faltan las Imágenes', 
+            text: '¡Cada prenda mágica necesita al menos una foto hermosa!',
             background: 'var(--bg-page)', 
             color: 'var(--text-main)',
             confirmButtonColor: '#f472b6'
@@ -79,7 +96,8 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         return;
     }
 
-    formData.append("imageUrl", imageUrl);
+    // 4. CAMBIO: Enviar las imágenes como un JSON stringificado
+    formData.append("images", JSON.stringify(images));
     // Convertir el array de tallas a JSON para enviarlo a la Server Action
     formData.append("variations", JSON.stringify(variations));
 
@@ -162,7 +180,7 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
               <input name="material" defaultValue={initialData?.material} className="input-boutique" placeholder="ej. 100% Algodón, Exterior de Tul" />
             </div>
 
-            {/* SECCIÓN DINÁMICA DE TALLAS - REDISEÑADA PARA SER RESPONSIVA Y CLARA */}
+            {/* SECCIÓN DINÁMICA DE TALLAS */}
             <div className="md:col-span-2 bg-pink-50/40 p-4 sm:p-5 rounded-2xl border border-pink-100">
                 <div className="flex justify-between items-center mb-4">
                     <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Tallas, Precios e Inventario</label>
@@ -264,27 +282,46 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                 <textarea name="description" defaultValue={initialData?.description} rows={4} required className="input-boutique resize-none leading-relaxed" placeholder="Cuenta la historia de esta hermosa prenda..." />
             </div>
 
+            {/* 5. CAMBIO: Interfaz de Múltiples Imágenes */}
             <div className="space-y-2 mt-6">
-                <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Fotos del Producto</label>
+                <label className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">
+                    Fotos del Producto (Máximo 3)
+                </label>
                 
-                <div className="border-2 border-dashed border-pink-200 rounded-xl p-4 flex justify-center bg-pink-50/30 hover:bg-pink-50/50 transition-colors cursor-pointer group">
-                    {imageUrl ? (
-                        <div className="relative w-full h-48 sm:h-56 md:h-64">
-                            <Image src={imageUrl} alt="Product" fill className="object-contain rounded-lg" />
-                            <button type="button" onClick={() => setImageUrl("")} className="absolute -top-2 -right-2 bg-red-400 text-white rounded-full p-2 shadow-md hover:scale-110 transition-transform"><X className="w-5 h-5"/></button>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Renderizar las imágenes actuales */}
+                    {images.map((img, index) => (
+                        <div key={index} className="relative w-full h-48 border-2 border-pink-200 rounded-xl flex justify-center bg-pink-50/30">
+                            <Image src={img} alt={`Foto de la prenda ${index + 1}`} fill className="object-contain rounded-lg p-2" />
+                            <button 
+                                type="button" 
+                                onClick={() => removeImage(index)} 
+                                className="absolute -top-2 -right-2 bg-red-400 text-white rounded-full p-2 shadow-md hover:scale-110 transition-transform z-10"
+                            >
+                                <X className="w-4 h-4"/>
+                            </button>
                         </div>
-                    ) : (
-                        <CldUploadWidget 
-                            uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} 
-                            onSuccess={(result: any) => setImageUrl(result.info.secure_url)}
-                        >
-                            {({ open }: { open: () => void }) => (
-                                <button type="button" onClick={() => open()} className="flex flex-col items-center justify-center gap-3 text-pink-400 group-hover:text-pink-500 py-10 transition-colors w-full h-full">
-                                    <ImagePlus className="w-12 h-12 opacity-70 group-hover:scale-110 transition-transform" /> 
-                                    <span className="text-sm font-bold">Toca para Subir Foto</span>
-                                </button>
-                            )}
-                        </CldUploadWidget>
+                    ))}
+
+                    {/* Botón de subida (solo se muestra si hay menos de 3 fotos) */}
+                    {images.length < 3 && (
+                        <div className="border-2 border-dashed border-pink-200 rounded-xl flex justify-center bg-pink-50/30 hover:bg-pink-50/50 transition-colors cursor-pointer group h-48">
+                            <CldUploadWidget 
+                                uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} 
+                                onSuccess={(result: any) => {
+                                    setImages((prev) => [...prev, result.info.secure_url]);
+                                }}
+                            >
+                                {({ open }: { open: () => void }) => (
+                                    <button type="button" onClick={() => open()} className="flex flex-col items-center justify-center gap-3 text-pink-400 group-hover:text-pink-500 w-full h-full">
+                                        <ImagePlus className="w-8 h-8 opacity-70 group-hover:scale-110 transition-transform" /> 
+                                        <span className="text-xs font-bold text-center px-2">
+                                            Toca para Subir<br/>({3 - images.length} restante{3 - images.length !== 1 ? 's' : ''})
+                                        </span>
+                                    </button>
+                                )}
+                            </CldUploadWidget>
+                        </div>
                     )}
                 </div>
             </div>

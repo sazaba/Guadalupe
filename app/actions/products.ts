@@ -9,17 +9,18 @@ export async function createProduct(formData: FormData) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const category = formData.get("category") as string;
-    const imageUrl = formData.get("imageUrl") as string;
+    
+    // CAMBIO: Extraer el JSON string de las imágenes y parsearlo
+    const imagesString = formData.get("images") as string;
+    const imagesArray = imagesString ? JSON.parse(imagesString) : [];
     
     const color = formData.get("color") as string;
     const material = formData.get("material") as string;
     const isFeatured = formData.get("isFeatured") === "true";
     
-    // --- NUEVO: Extraer y parsear las variaciones (tallas, precios, stock) ---
     const variationsString = formData.get("variations") as string;
     const variations = variationsString ? JSON.parse(variationsString) : [];
     
-    // Generar Slug automático
     const slug = name.toLowerCase().trim().replace(/ /g, "-").replace(/[^\w-]+/g, "") + "-" + Date.now().toString().slice(-4);
 
     await prisma.product.create({
@@ -28,12 +29,11 @@ export async function createProduct(formData: FormData) {
         slug,
         description,
         category,
-        images: imageUrl,
+        images: imagesArray, // CAMBIO: Ahora pasamos el arreglo
         color,      
         material,   
         isActive: true,
         isFeatured, 
-        // --- NUEVO: Crear las relaciones anidadas ---
         variations: {
           create: variations.map((v: { size: string; price: number | string; stock: number | string }) => ({
             size: v.size,
@@ -55,7 +55,6 @@ export async function createProduct(formData: FormData) {
 // --- 2. ELIMINAR PRODUCTO ---
 export async function deleteProduct(id: string) {
   try {
-    // Al tener onDelete: Cascade en el schema, las tallas se borrarán solas.
     await prisma.product.delete({ where: { id } });
     revalidatePath("/admin/products");
     return { success: true, message: "Item removed successfully." };
@@ -83,7 +82,10 @@ export async function updateProduct(id: string, formData: FormData) {
   try {
     const isFeatured = formData.get("isFeatured") === "true";
     
-    // --- NUEVO: Extraer y parsear las variaciones ---
+    // CAMBIO: Extraer el JSON string de las imágenes y parsearlo
+    const imagesString = formData.get("images") as string;
+    const imagesArray = imagesString ? JSON.parse(imagesString) : [];
+    
     const variationsString = formData.get("variations") as string;
     const variations = variationsString ? JSON.parse(variationsString) : [];
 
@@ -93,13 +95,10 @@ export async function updateProduct(id: string, formData: FormData) {
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         category: formData.get("category") as string,
-        images: formData.get("imageUrl") as string,
+        images: imagesArray, // CAMBIO: Ahora pasamos el arreglo
         color: formData.get("color") as string,       
         material: formData.get("material") as string, 
         isFeatured, 
-        // --- NUEVO: Estrategia de reemplazo total ---
-        // Borramos las tallas viejas y creamos las nuevas. 
-        // Es la forma más limpia de manejar ediciones sin tener que buscar IDs de cada talla.
         variations: {
           deleteMany: {}, 
           create: variations.map((v: { size: string; price: number | string; stock: number | string }) => ({
