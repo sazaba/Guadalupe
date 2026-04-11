@@ -9,7 +9,7 @@ datasource db {
 
 enum Role {
   ADMIN
-  CUSTOMER // <-- Cambiado de RESEARCHER a CUSTOMER
+  CUSTOMER
 }
 
 enum OrderStatus {
@@ -25,7 +25,7 @@ model User {
   email     String   @unique
   password  String
   name      String?
-  role      Role     @default(CUSTOMER) // <-- Actualizado
+  role      Role     @default(CUSTOMER)
   orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,48 +36,59 @@ model Product {
   name        String
   slug        String   @unique
   description String   @db.Text
-  price       Decimal  @db.Decimal(10, 2)
-  stock       Int      @default(0)
   category    String
   images      String   
-  size        String?  // <-- Tallas (ej. "4T, 5T, S, M")
-  color       String?  // <-- Color del vestido
-  material    String?  // <-- Material (ej. "Tul, Algodón")
+  color       String?  
+  material    String?  
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  // Relaciones actualizadas
+  variations  ProductVariation[]
   orderItems  OrderItem[]
+}
+
+// NUEVA TABLA: Variaciones por Talla
+model ProductVariation {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  size        String   
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+
+  orderItems  OrderItem[]
+
+  // Evita duplicar la misma talla en un mismo producto
+  @@unique([productId, size]) 
 }
 
 model Order {
   id              String      @id @default(uuid())
   
-  // 1. Relación con Usuario (Opcional)
   userId          Int?        
   user            User?       @relation(fields: [userId], references: [id])
   
-  // 2. Datos del Comprador
   customerName    String      
   customerEmail   String      
   customerPhone   String      
   
-  // 3. Dirección de Envío
   addressLine1    String      
   addressLine2    String?     
   city            String      
-  state           String      // <--- ¡AGREGADO! 
+  state           String      
   postalCode      String      
   country         String      @default("United States")
   
-  // 4. Información Financiera
   total           Decimal     @db.Decimal(10, 2)
   status          OrderStatus @default(PENDING)
   isPaid          Boolean     @default(false)
   paidAt          DateTime?
   stripePaymentId String?     
   
-  // 5. Logística
   trackingNumber  String?     
   courier         String?     
   
@@ -87,11 +98,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id])
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2) 
+  id                 String   @id @default(uuid())
+  orderId            String
+  order              Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  productId          String
+  product            Product  @relation(fields: [productId], references: [id])
+  
+  // NUEVA RELACIÓN: Conectado a la talla específica
+  productVariationId String
+  variation          ProductVariation @relation(fields: [productVariationId], references: [id])
+  
+  quantity           Int
+  price              Decimal  @db.Decimal(10, 2) 
 }

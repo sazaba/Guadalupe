@@ -7,19 +7,17 @@ import { revalidatePath } from "next/cache";
 export async function createProduct(formData: FormData) {
   try {
     const name = formData.get("name") as string;
-    const price = formData.get("price") as string;
     const description = formData.get("description") as string;
     const category = formData.get("category") as string;
-    const stock = formData.get("stock") as string;
     const imageUrl = formData.get("imageUrl") as string;
     
-    // Nuevos campos de la Boutique
-    const size = formData.get("size") as string;
     const color = formData.get("color") as string;
     const material = formData.get("material") as string;
-    
-    // Convertir el checkbox a booleano
     const isFeatured = formData.get("isFeatured") === "true";
+    
+    // --- NUEVO: Extraer y parsear las variaciones (tallas, precios, stock) ---
+    const variationsString = formData.get("variations") as string;
+    const variations = variationsString ? JSON.parse(variationsString) : [];
     
     // Generar Slug automático
     const slug = name.toLowerCase().trim().replace(/ /g, "-").replace(/[^\w-]+/g, "") + "-" + Date.now().toString().slice(-4);
@@ -29,22 +27,27 @@ export async function createProduct(formData: FormData) {
         name,
         slug,
         description,
-        price: parseFloat(price),
-        stock: parseInt(stock),
         category,
         images: imageUrl,
-        size,       // <--- AGREGADO
-        color,      // <--- AGREGADO
-        material,   // <--- AGREGADO
+        color,      
+        material,   
         isActive: true,
         isFeatured, 
+        // --- NUEVO: Crear las relaciones anidadas ---
+        variations: {
+          create: variations.map((v: { size: string; price: number | string; stock: number | string }) => ({
+            size: v.size,
+            price: parseFloat(v.price.toString()),
+            stock: parseInt(v.stock.toString())
+          }))
+        }
       },
     });
 
     revalidatePath("/admin/products");
     return { success: true, message: "Item added to the boutique successfully!" };
   } catch (error) {
-    console.error(error);
+    console.error("Error creating product:", error);
     return { success: false, message: "Database error. Could not create item." };
   }
 }
@@ -52,6 +55,7 @@ export async function createProduct(formData: FormData) {
 // --- 2. ELIMINAR PRODUCTO ---
 export async function deleteProduct(id: string) {
   try {
+    // Al tener onDelete: Cascade en el schema, las tallas se borrarán solas.
     await prisma.product.delete({ where: { id } });
     revalidatePath("/admin/products");
     return { success: true, message: "Item removed successfully." };
@@ -77,31 +81,40 @@ export async function toggleProductStatus(id: string, currentStatus: boolean) {
 // --- 4. ACTUALIZAR PRODUCTO ---
 export async function updateProduct(id: string, formData: FormData) {
   try {
-    // Convertir el checkbox a booleano
     const isFeatured = formData.get("isFeatured") === "true";
-
-    const data: any = {
-      name: formData.get("name") as string,
-      description: formData.get("description") as string,
-      category: formData.get("category") as string,
-      price: parseFloat(formData.get("price") as string),
-      stock: parseInt(formData.get("stock") as string),
-      images: formData.get("imageUrl") as string,
-      size: formData.get("size") as string,         // <--- AGREGADO
-      color: formData.get("color") as string,       // <--- AGREGADO
-      material: formData.get("material") as string, // <--- AGREGADO
-      isFeatured, 
-    };
+    
+    // --- NUEVO: Extraer y parsear las variaciones ---
+    const variationsString = formData.get("variations") as string;
+    const variations = variationsString ? JSON.parse(variationsString) : [];
 
     await prisma.product.update({
       where: { id },
-      data: data,
+      data: {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        category: formData.get("category") as string,
+        images: formData.get("imageUrl") as string,
+        color: formData.get("color") as string,       
+        material: formData.get("material") as string, 
+        isFeatured, 
+        // --- NUEVO: Estrategia de reemplazo total ---
+        // Borramos las tallas viejas y creamos las nuevas. 
+        // Es la forma más limpia de manejar ediciones sin tener que buscar IDs de cada talla.
+        variations: {
+          deleteMany: {}, 
+          create: variations.map((v: { size: string; price: number | string; stock: number | string }) => ({
+            size: v.size,
+            price: parseFloat(v.price.toString()),
+            stock: parseInt(v.stock.toString())
+          }))
+        }
+      },
     });
 
     revalidatePath("/admin/products");
     return { success: true, message: "Boutique item updated successfully!" };
   } catch (error) {
-    console.error(error);
+    console.error("Error updating product:", error);
     return { success: false, message: "Error updating item." };
   }
 }

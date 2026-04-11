@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CldUploadWidget } from "next-cloudinary";
 import { createProduct, updateProduct } from "@/app/actions/products";
-import { Save, ImagePlus, X, Crown, Info } from "lucide-react"; 
+import { Save, ImagePlus, X, Crown, Info, Plus } from "lucide-react"; 
 import Image from "next/image";
 import Swal from "sweetalert2";
 
@@ -16,11 +16,34 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ESTADO PARA TALLAS: Iniciamos con las tallas existentes o una fila vacía
+  const [variations, setVariations] = useState<{ size: string; price: string | number; stock: string | number }[]>(
+    initialData?.variations && initialData.variations.length > 0
+      ? initialData.variations
+      : [{ size: "", price: "", stock: "" }]
+  );
+
   useEffect(() => {
     if (initialData?.images) {
       setImageUrl(initialData.images);
     }
   }, [initialData]);
+
+  // --- Funciones para manejar las variaciones ---
+  const addVariation = () => {
+    setVariations([...variations, { size: "", price: "", stock: "" }]);
+  };
+
+  const updateVariation = (index: number, field: string, value: string) => {
+    const newVariations = [...variations];
+    newVariations[index] = { ...newVariations[index], [field]: value };
+    setVariations(newVariations);
+  };
+
+  const removeVariation = (index: number) => {
+    setVariations(variations.filter((_, i) => i !== index));
+  };
+  // ----------------------------------------------
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +63,25 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
         setLoading(false);
         return;
     }
+
+    // Validación: Asegurar que todas las tallas tengan datos
+    const invalidVariations = variations.some(v => !v.size || v.price === "" || v.stock === "");
+    if (invalidVariations) {
+        Swal.fire({ 
+            icon: 'warning', 
+            title: 'Revisa las Tallas', 
+            text: 'Por favor, asegúrate de que todas las tallas tengan precio y stock.',
+            background: 'var(--bg-page)', 
+            color: 'var(--text-main)',
+            confirmButtonColor: '#f472b6'
+        });
+        setLoading(false);
+        return;
+    }
+
     formData.append("imageUrl", imageUrl);
+    // Convertir el array de tallas a JSON para enviarlo a la Server Action
+    formData.append("variations", JSON.stringify(variations));
 
     let result;
     if (initialData) {
@@ -112,28 +153,73 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Precio (COP)</label>
-              <input name="price" type="number" step="0.01" defaultValue={Number(initialData?.price || 0)} required className="input-boutique" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Inventario Actual</label>
-              <input name="stock" type="number" defaultValue={initialData?.stock} required className="input-boutique" />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Tallas Disponibles</label>
-              <input name="size" defaultValue={initialData?.size} className="input-boutique" placeholder="ej. 2T, 3T, 4T, 5T" />
-            </div>
-
-            <div className="space-y-2">
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Colores</label>
               <input name="color" defaultValue={initialData?.color} className="input-boutique" placeholder="ej. Rosa Pastel y Dorado" />
             </div>
 
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2">
               <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Materiales</label>
               <input name="material" defaultValue={initialData?.material} className="input-boutique" placeholder="ej. 100% Algodón, Exterior de Tul" />
+            </div>
+
+            {/* SECCIÓN DINÁMICA DE TALLAS */}
+            <div className="md:col-span-2 bg-pink-50/40 p-5 rounded-2xl border border-pink-100">
+                <div className="flex justify-between items-center mb-4">
+                    <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Tallas, Precios e Inventario</label>
+                </div>
+                
+                <div className="space-y-3">
+                    {variations.map((variation, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center relative">
+                            <input
+                                type="text"
+                                placeholder="Talla (ej. 4T, S, M)"
+                                value={variation.size}
+                                onChange={(e) => updateVariation(index, "size", e.target.value)}
+                                required
+                                className="input-boutique !py-2 w-full sm:w-1/3"
+                            />
+                            <div className="relative w-full sm:w-1/3">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-pink-300 font-bold">$</span>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Precio"
+                                    value={variation.price}
+                                    onChange={(e) => updateVariation(index, "price", e.target.value)}
+                                    required
+                                    className="input-boutique !py-2 !pl-7 w-full"
+                                />
+                            </div>
+                            <input
+                                type="number"
+                                placeholder="Stock"
+                                value={variation.stock}
+                                onChange={(e) => updateVariation(index, "stock", e.target.value)}
+                                required
+                                className="input-boutique !py-2 w-full sm:w-1/4"
+                            />
+                            
+                            {variations.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => removeVariation(index)}
+                                    className="absolute right-2 top-2 sm:static sm:right-auto sm:top-auto text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <button
+                    type="button"
+                    onClick={addVariation}
+                    className="mt-4 flex items-center gap-2 text-pink-500 font-bold text-sm hover:text-pink-600 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-pink-100 w-fit"
+                >
+                    <Plus className="w-4 h-4" /> Añadir otra talla
+                </button>
             </div>
 
             <div className="space-y-2 md:col-span-2 flex items-center gap-3 bg-pink-50/50 p-4 rounded-xl border border-pink-100 transition-colors hover:bg-pink-50">
@@ -151,12 +237,12 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
             </div>
           </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 mt-6">
                 <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Descripción Mágica</label>
                 <textarea name="description" defaultValue={initialData?.description} rows={5} required className="input-boutique resize-none" placeholder="Cuenta la historia de esta hermosa prenda..." />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 mt-6">
                 <label className="text-xs font-bold text-[var(--text-muted)] uppercase">Fotos del Producto</label>
                 
                 <div className="border-2 border-dashed border-pink-200 rounded-xl p-4 flex justify-center bg-pink-50/30 hover:bg-pink-50/50 transition-colors">
@@ -170,7 +256,7 @@ export default function ProductForm({ onClose, initialData }: ProductFormProps) 
                             uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} 
                             onSuccess={(result: any) => setImageUrl(result.info.secure_url)}
                         >
-                            {({ open }) => (
+                            {({ open }: { open: () => void }) => (
                                 <button type="button" onClick={() => open()} className="flex flex-col items-center gap-2 text-pink-400 hover:text-pink-500 py-8 transition-colors w-full">
                                     <ImagePlus className="w-10 h-10 opacity-70" /> 
                                     <span className="text-sm font-bold">Toca para Subir Foto</span>
