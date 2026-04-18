@@ -1,5 +1,5 @@
 import { getCoupons } from "@/app/actions/coupons";
-import CouponManager from "@/components/admin/cupons/CouponManager";
+import CouponManager from "@/components/admin/coupons/CouponManager";
 import { Ticket } from "lucide-react";
 
 export const metadata = {
