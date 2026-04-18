@@ -1,7 +1,7 @@
 "use client";
 
-import CouponForm from "../cupons/CouponForm";
-import CouponList from "../cupons/CouponList";
+import CouponForm from "../coupons/CouponForm";
+import CouponList from "../coupons/CouponList";
 
 interface CouponManagerProps {
   initialCoupons: any[]; // Usamos any[] temporalmente para manejar el tipo Decimal de Prisma sin errores
