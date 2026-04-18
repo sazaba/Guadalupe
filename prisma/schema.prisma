@@ -37,58 +37,75 @@ model Product {
   slug        String   @unique
   description String   @db.Text
   category    String
-  images      Json     
-  color       String?  
-  material    String?  
+  images      Json
+  color       String?
+  material    String?
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   variations  ProductVariation[]
   orderItems  OrderItem[]
 }
 
 model ProductVariation {
-  id          String   @id @default(uuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  size        String   
-  price       Decimal  @db.Decimal(10, 2)
-  stock       Int      @default(0)
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  orderItems  OrderItem[]
+  size      String
+  price     Decimal  @db.Decimal(10, 2)
+  stock     Int      @default(0)
 
-  @@unique([productId, size]) 
+  orderItems OrderItem[]
+
+  @@unique([productId, size])
+}
+
+// NUEVO: Modelo de Cupones
+model Coupon {
+  id                 String   @id @default(uuid())
+  code               String   @unique
+  discountPercentage Decimal  @db.Decimal(5, 2)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  orders             Order[]
 }
 
 model Order {
   id              String      @id @default(uuid())
-  
-  userId          Int?        
+
+  userId          Int?
   user            User?       @relation(fields: [userId], references: [id])
-  
-  customerName    String      
-  customerEmail   String      
-  customerPhone   String      
-  
-  addressLine1    String      
-  addressLine2    String?     
-  city            String      
-  state           String      
-  postalCode      String      
+
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+
+  addressLine1    String
+  addressLine2    String?
+  city            String
+  state           String
+  postalCode      String
   country         String      @default("United States")
-  
+
   total           Decimal     @db.Decimal(10, 2)
   status          OrderStatus @default(PENDING)
   isPaid          Boolean     @default(false)
   paidAt          DateTime?
-  stripePaymentId String?     
-  
-  trackingNumber  String?     
-  courier         String?     
-  
+  stripePaymentId String?
+
+  trackingNumber  String?
+  courier         String?
+
+  // NUEVO: Relación con Cupones
+  couponId        String?
+  coupon          Coupon?     @relation(fields: [couponId], references: [id])
+  discountApplied Decimal?    @db.Decimal(10, 2)
+
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
   items           OrderItem[]
@@ -98,13 +115,13 @@ model OrderItem {
   id                 String   @id @default(uuid())
   orderId            String
   order              Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
+
   productId          String
   product            Product  @relation(fields: [productId], references: [id])
-  
+
   productVariationId String
   variation          ProductVariation @relation(fields: [productVariationId], references: [id])
-  
+
   quantity           Int
-  price              Decimal  @db.Decimal(10, 2) 
+  price              Decimal  @db.Decimal(10, 2)
 }

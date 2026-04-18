@@ -10,7 +10,8 @@ import {
   ShoppingBag, 
   LogOut, 
   X,
-  Heart 
+  Heart,
+  Ticket // <-- NUEVO ÍCONO AGREGADO
 } from "lucide-react";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -18,10 +19,12 @@ import { motion } from "framer-motion";
 // Ajusta la ruta a tu logo si es necesario
 import logo from "../../app/assets/logo.webp"; 
 
+// --- NUEVA PESTAÑA AGREGADA AQUÍ ---
 const menuItems = [
   { name: "Panel", href: "/admin", icon: Crown },
   { name: "Productos", href: "/admin/products", icon: Sparkles },
   { name: "Pedidos", href: "/admin/orders", icon: ShoppingBag },
+  { name: "Cupones", href: "/admin/coupons", icon: Ticket },
 ];
 
 export default function AdminSidebar() {

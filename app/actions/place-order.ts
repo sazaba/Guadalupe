@@ -18,11 +18,10 @@ type ShippingData = {
 
 type CartItem = {
   productId: string;
-  variationId: string; // <--- ¡NUEVO! Necesitamos saber qué talla seleccionó
+  variationId: string;
   quantity: number;
 };
 
-// Tipado estricto para Mercado Pago y Vercel
 type MPPaymentData = {
   token: string;
   installments: number;
@@ -40,7 +39,8 @@ const formatCOP = (amount: number) => {
     return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(amount);
 };
 
-export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, mpPaymentData: MPPaymentData) => {
+// --- CUPONES: Añadimos couponCode como parámetro opcional al final ---
+export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingData, mpPaymentData: MPPaymentData, couponCode?: string) => {
   try {
     const resendApiKey = process.env.RESEND_API_KEY;
     const mpAccessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -54,7 +54,6 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
 
     const productIds = cartItems.map((item) => item.productId);
     
-    // --- MODIFICACIÓN: Incluimos las variaciones (tallas y precios) en la búsqueda ---
     const dbProducts = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
       include: { variations: true } 
@@ -67,11 +66,9 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
       const dbProduct = dbProducts.find((p) => p.id === item.productId);
       if (!dbProduct) throw new Error(`Producto no encontrado: ${item.productId}`);
 
-      // --- MODIFICACIÓN: Buscamos la talla exacta que eligió el cliente ---
       const dbVariation = dbProduct.variations.find((v) => v.id === item.variationId);
       if (!dbVariation) throw new Error(`Talla no encontrada para el producto: ${dbProduct.name}`);
 
-      // 1. BLINDAJE: Ahora sacamos el precio de 'dbVariation'
       const price = Number(dbVariation.price.valueOf());
       const quantity = Number(item.quantity);
 
@@ -84,19 +81,38 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
 
       orderItemsData.push({
         productId: dbProduct.id,
-        productVariationId: dbVariation.id, // <--- Guardamos la relación en la DB
+        productVariationId: dbVariation.id,
         quantity: quantity,
         price: price,
-        // Añadimos la talla al nombre para que salga bonito en el correo
         name: `${dbProduct.name} (Talla: ${dbVariation.size})` 
       });
     }
 
-    // 2. BLINDAJE: Calculamos el total y forzamos un redondeo
-    const totalShipping = (totalAmount > 0 && totalAmount < 200000) ? 0 : 0; 
-    const finalTotalAmount = Math.round(totalAmount + totalShipping); 
+    // --- CUPONES: Lógica de validación y cálculo de descuento en el servidor ---
+    let discountApplied = 0;
+    let dbCoupon = null;
 
-    // 3. LA VALIDACIÓN DE ORO ANTES DE COBRAR:
+    if (couponCode) {
+      const cleanCode = couponCode.toUpperCase().trim();
+      dbCoupon = await prisma.coupon.findUnique({
+        where: { code: cleanCode, isActive: true }
+      });
+
+      if (!dbCoupon) {
+        return { ok: false, message: "El cupón ingresado no es válido o ha expirado." };
+      }
+
+      const discountPercentage = Number(dbCoupon.discountPercentage);
+      discountApplied = (totalAmount * discountPercentage) / 100;
+    }
+
+    // Aplicamos el descuento al totalAmount ANTES de sumar el envío
+    const totalAfterDiscount = totalAmount - discountApplied;
+    const totalShipping = (totalAfterDiscount > 0 && totalAfterDiscount < 200000) ? 0 : 0; 
+    
+    // Forzamos un redondeo al total final descontado
+    const finalTotalAmount = Math.round(totalAfterDiscount + totalShipping); 
+
     if (finalTotalAmount < 1000) {
         return { ok: false, message: `El total a cobrar (${finalTotalAmount} COP) es menor al mínimo de $1.000 COP permitido por Mercado Pago.` };
     }
@@ -109,7 +125,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
 
         const paymentResponse = await payment.create({
             body: {
-                transaction_amount: finalTotalAmount, 
+                transaction_amount: finalTotalAmount, // Se cobra el total con descuento
                 token: mpPaymentData.token,
                 description: `Compra en Exclusivos Guadalupe - ${shippingData.name}`,
                 installments: mpPaymentData.installments,
@@ -153,6 +169,9 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           status: 'PAID', 
           isPaid: true,
           stripePaymentId: paymentId, 
+          // --- CUPONES: Guardamos la referencia en la BD ---
+          couponId: dbCoupon ? dbCoupon.id : null,
+          discountApplied: discountApplied > 0 ? discountApplied : null,
           items: {
             create: orderItemsData.map(({ name, ...rest }) => rest),
           },
@@ -170,6 +189,14 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           </tr>
         `).join('');
 
+        // --- CUPONES: Inyectamos HTML opcional si hubo descuento ---
+        const discountHtml = discountApplied > 0 ? `
+          <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #ef4444;">Descuento (${dbCoupon?.code})</td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #ef4444; font-weight: bold;">-${formatCOP(discountApplied)}</td>
+          </tr>
+        ` : '';
+
         await resend.emails.send({
           from: 'Exclusivos Guadalupe <onboarding@resend.dev>', 
           to: shippingData.email,
@@ -181,13 +208,15 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
               <p>Hola <strong>${shippingData.name}</strong>, ¡gracias por tu compra!</p>
               <table style="width: 100%; border-collapse: collapse;">
                 ${itemsHtml}
+                ${discountHtml}
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Envío</td>
                   <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #6b7280; font-weight: bold;">${totalShipping === 0 ? 'Gratis' : formatCOP(totalShipping)}</td>
                 </tr>
                 <tr>
                   <td style="padding: 16px 0; text-align: right; font-weight: bold;">Total Pagado:</td>
-                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">${formatCOP(finalTotalAmount)}</td> </tr>
+                  <td style="padding: 16px 0; text-align: right; color: #10b981; font-size: 18px; font-weight: bold;">${formatCOP(finalTotalAmount)}</td> 
+                </tr>
               </table>
             </div>`
         });

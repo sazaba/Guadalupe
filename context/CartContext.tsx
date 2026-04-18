@@ -2,12 +2,17 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// 1. ACTUALIZACIÓN DE TIPOS: Le enseñamos al carrito los nuevos campos
+// --- CUPONES: Interfaz para el cupón aplicado ---
+export interface AppliedCoupon {
+  code: string;
+  discountPercentage: number;
+}
+
 export interface CartItem {
-  id: string;          // Usaremos el variationId como el ID único en el carrito
-  productId: string;   // <-- NUEVO
-  variationId: string; // <-- NUEVO
-  size: string;        // <-- NUEVO
+  id: string;          
+  productId: string;   
+  variationId: string; 
+  size: string;        
   name: string;
   price: number;
   image: string;
@@ -19,7 +24,6 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  // 2. ACTUALIZACIÓN: Ahora addItem pide el producto y la variación específica
   addItem: (product: any, variation: any, qty: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, qty: number) => void;
@@ -29,7 +33,11 @@ interface CartContextType {
   cartCount: number;
   cartSubtotal: number;  
   shippingTotal: number; 
+  discountTotal: number; // <-- NUEVO: Total descontado en dinero
   cartTotal: number;     
+  appliedCoupon: AppliedCoupon | null; // <-- NUEVO: Estado del cupón
+  applyCoupon: (coupon: AppliedCoupon) => void; // <-- NUEVO
+  removeCoupon: () => void; // <-- NUEVO
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -38,6 +46,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Estado para guardar el cupón activo
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
 
   useEffect(() => {
     const savedCart = localStorage.getItem("transcendent_cart");
@@ -48,6 +59,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Error parsing cart data:", e);
       }
     }
+    
+    // Opcional: También podríamos guardar el cupón en localStorage, pero por seguridad 
+    // y para evitar cupones expirados, es mejor mantenerlo solo en sesión/memoria.
     setIsLoaded(true);
   }, []);
 
@@ -57,10 +71,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items, isLoaded]);
 
-  // 3. ACTUALIZACIÓN: Lógica para guardar la talla y separar los items
   const addItem = (product: any, variation: any, qty: number) => {
     setItems((prev) => {
-      // Buscamos si ya existe EXACTAMENTE ESA TALLA en el carrito
       const existing = prev.find((item) => item.variationId === variation.id);
       
       if (existing) {
@@ -71,11 +83,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       
-      // Si no existe esa talla, la agregamos como un item nuevo
       return [
         ...prev,
         {
-          id: variation.id, // El ID de la fila del carrito ahora es el ID de la talla
+          id: variation.id, 
           productId: product.id,
           variationId: variation.id,
           size: variation.size,
@@ -100,14 +111,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    setAppliedCoupon(null); // Limpiamos el cupón al vaciar el carrito
+  };
+  
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
+  // Funciones del cupón
+  const applyCoupon = (coupon: AppliedCoupon) => setAppliedCoupon(coupon);
+  const removeCoupon = () => setAppliedCoupon(null);
+
+  // Matemáticas del carrito actualizadas con el cupón
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const cartSubtotal = items.reduce((acc, item) => acc + (item.price || 0) * item.quantity, 0);
   
-  const shippingTotal = (cartSubtotal > 0 && cartSubtotal < 300) ? 9.95 : 0;
-  const cartTotal = cartSubtotal + shippingTotal;
+  // Calculamos el descuento exacto
+  const discountTotal = appliedCoupon ? (cartSubtotal * appliedCoupon.discountPercentage) / 100 : 0;
+  const totalAfterDiscount = cartSubtotal - discountTotal;
+  
+  const shippingTotal = (totalAfterDiscount > 0 && totalAfterDiscount < 300) ? 9.95 : 0;
+  const cartTotal = totalAfterDiscount + shippingTotal;
 
   return (
     <CartContext.Provider
@@ -121,8 +145,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         toggleCart,
         cartCount,
         cartSubtotal,   
-        shippingTotal,  
+        shippingTotal,
+        discountTotal,
         cartTotal,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon
       }}
     >
       {children}

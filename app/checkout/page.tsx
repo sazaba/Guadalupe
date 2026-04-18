@@ -2,18 +2,35 @@
 
 import { useCart } from "@/context/CartContext";
 import { placeOrder } from "@/app/actions/place-order"; 
+import { validateCoupon } from "@/app/actions/coupons"; // <-- NUEVO: Acción para validar
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart } from "lucide-react";
+import { ShieldCheck, Loader2, ArrowLeft, MapPin, User, Package, Heart, Tag, X as XIcon } from "lucide-react";
 import Link from "next/link";
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 export default function CheckoutPage() {
-  const { items, cartSubtotal, shippingTotal, cartTotal, clearCart } = useCart();
+  const { 
+    items, 
+    cartSubtotal, 
+    shippingTotal, 
+    discountTotal, // <-- NUEVO
+    cartTotal, 
+    clearCart,
+    appliedCoupon, // <-- NUEVO
+    applyCoupon,   // <-- NUEVO
+    removeCoupon   // <-- NUEVO
+  } = useCart();
+  
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isMpInitialized, setIsMpInitialized] = useState(false);
+
+  // Estados locales para el input del cupón
+  const [couponInput, setCouponInput] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [couponMessage, setCouponMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY;
@@ -42,6 +59,28 @@ export default function CheckoutPage() {
     return "$" + amount.toLocaleString("es-CO");
   };
 
+  // Función para manejar la aplicación del cupón
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    
+    setIsApplyingCoupon(true);
+    setCouponMessage(null);
+    
+    const res = await validateCoupon(couponInput);
+    
+    if (res.ok && res.data) {
+      applyCoupon({ code: res.data.code, discountPercentage: res.data.discountPercentage });
+      setCouponMessage({ text: `¡Cupón aplicado! ${res.data.discountPercentage}% de descuento`, type: "success" });
+      setCouponInput("");
+    } else {
+      setCouponMessage({ text: res.message || "Cupón inválido", type: "error" });
+    }
+    
+    setIsApplyingCoupon(false);
+    // Limpiar mensaje después de unos segundos
+    setTimeout(() => setCouponMessage(null), 4000);
+  };
+
   const handlePaymentSubmit = useCallback(async (mpFormData: any) => {
     const currentData = formDataRef.current; 
 
@@ -52,15 +91,14 @@ export default function CheckoutPage() {
 
     setIsLoading(true);
 
-    // --- SOLUCIÓN DEL ERROR VERCEL ---
-    // Ahora enviamos productId, variationId y quantity
     const formattedItems = items.map(item => ({
-        productId: item.productId || item.id, // Compatibilidad con tu context
-        variationId: item.variationId,        // <--- EL DATO QUE FALTABA
+        productId: item.productId || item.id, 
+        variationId: item.variationId,        
         quantity: item.quantity
     }));
     
-    const result = await placeOrder(formattedItems, currentData, mpFormData.formData);
+    // Pasamos el código del cupón (si existe) como cuarto parámetro a nuestra Server Action
+    const result = await placeOrder(formattedItems, currentData, mpFormData.formData, appliedCoupon?.code);
 
     if (result.ok) {
         clearCart();
@@ -71,7 +109,7 @@ export default function CheckoutPage() {
         alert(`Error al procesar el pago: ${result.message}`);
         return new Promise((resolve, reject) => reject());
     }
-  }, [items, router, clearCart]); 
+  }, [items, router, clearCart, appliedCoupon]); 
 
   const memoizedPaymentBrick = useMemo(() => {
     if (!isMpInitialized || cartTotal <= 0) return null;
@@ -218,7 +256,6 @@ export default function CheckoutPage() {
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                                     <p className="text-sm font-bold text-[#33182B] truncate">{item.name}</p>
-                                    {/* NUEVO: Mostrar la talla seleccionada */}
                                     {item.size && (
                                         <p className="text-xs text-[#7B5C73] mt-0.5">Talla: <span className="font-bold text-[#E85D9E]">{item.size}</span></p>
                                     )}
@@ -232,11 +269,71 @@ export default function CheckoutPage() {
                     })}
                 </div>
 
+                {/* SECCIÓN DE CUPONES */}
+                <div className="mt-5 border-t border-[#FAD1E6]/50 pt-5">
+                    {!appliedCoupon ? (
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase tracking-wider text-[#7B5C73]">¿Tienes un cupón?</label>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Tag className="w-4 h-4 text-[#7B5C73]/50" />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        value={couponInput}
+                                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                        placeholder="Código" 
+                                        className="w-full pl-9 pr-3 py-2.5 bg-[#FFFDFE] border border-[#FAD1E6] rounded-xl outline-none focus:border-[#E85D9E] transition-colors text-sm uppercase font-medium placeholder:font-normal"
+                                    />
+                                </div>
+                                <button 
+                                    type="button"
+                                    onClick={handleApplyCoupon}
+                                    disabled={!couponInput.trim() || isApplyingCoupon}
+                                    className="px-4 py-2.5 bg-[#33182B] text-white rounded-xl text-sm font-bold hover:bg-[#E85D9E] transition-colors disabled:opacity-50 flex items-center justify-center min-w-[90px]"
+                                >
+                                    {isApplyingCoupon ? <Loader2 className="w-4 h-4 animate-spin" /> : "Aplicar"}
+                                </button>
+                            </div>
+                            {couponMessage && (
+                                <p className={`text-xs mt-1 font-medium ${couponMessage.type === 'error' ? 'text-red-500' : 'text-[#10b981]'}`}>
+                                    {couponMessage.text}
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-between p-3 bg-[#ecfdf5] border border-[#a7f3d0] rounded-xl">
+                            <div className="flex items-center gap-2 text-[#065f46]">
+                                <Tag className="w-4 h-4" />
+                                <span className="text-sm font-bold">{appliedCoupon.code}</span>
+                                <span className="text-xs bg-[#065f46] text-white px-1.5 py-0.5 rounded-md">-{appliedCoupon.discountPercentage}%</span>
+                            </div>
+                            <button 
+                                onClick={removeCoupon}
+                                className="text-[#065f46] hover:text-red-500 transition-colors p-1"
+                                title="Quitar cupón"
+                            >
+                                <XIcon className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 <div className="border-t border-[#FAD1E6]/50 mt-5 pt-5 space-y-3">
                     <div className="flex justify-between text-sm text-[#7B5C73] font-medium">
                         <span>Subtotal</span>
                         <span>{formatCOP(cartSubtotal)}</span>
                     </div>
+
+                    {/* Mostrar Descuento si aplica */}
+                    {discountTotal > 0 && (
+                        <div className="flex justify-between text-sm font-medium text-red-500">
+                            <span>Descuento</span>
+                            <span>-{formatCOP(discountTotal)}</span>
+                        </div>
+                    )}
+
                     <div className="flex justify-between text-sm text-[#7B5C73] font-medium">
                         <span>Envío {shippingTotal === 0 && <span className="text-[#E85D9E] font-bold ml-1 text-xs uppercase tracking-wider bg-[#FAD1E6]/30 px-2 py-0.5 rounded-md">¡Gratis!</span>}</span>
                         <span>{formatCOP(shippingTotal)}</span>
