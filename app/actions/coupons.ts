@@ -15,9 +15,9 @@ export async function getCoupons() {
   }
 }
 
-export async function createCoupon(code: string, discountPercentage: number) {
+// ACTUALIZADO: Recibimos maxUses
+export async function createCoupon(code: string, discountPercentage: number, maxUses?: number | null) {
   try {
-    // Forzamos mayúsculas y quitamos espacios por seguridad
     const cleanCode = code.toUpperCase().trim();
 
     if (discountPercentage <= 0 || discountPercentage > 100) {
@@ -34,6 +34,7 @@ export async function createCoupon(code: string, discountPercentage: number) {
         code: cleanCode,
         discountPercentage,
         isActive: true,
+        maxUses: maxUses || null, // Guardamos el límite si existe
       }
     });
 
@@ -62,9 +63,7 @@ export async function updateCouponStatus(id: string, isActive: boolean) {
 
 export async function deleteCoupon(id: string) {
   try {
-    // Al borrar, no afectamos las órdenes pasadas porque Prisma tiene configurado OnDelete Set Null (por defecto o como lo configuramos en SQL)
     await prisma.coupon.delete({ where: { id } });
-    
     revalidatePath('/admin/coupons');
     return { ok: true };
   } catch (error) {
@@ -73,7 +72,7 @@ export async function deleteCoupon(id: string) {
   }
 }
 
-// Esta es la función que usaremos en el Checkout del cliente
+// ACTUALIZADO: Validamos si se llegó al límite de usos
 export async function validateCoupon(code: string) {
   try {
     const cleanCode = code.toUpperCase().trim();
@@ -82,7 +81,12 @@ export async function validateCoupon(code: string) {
     });
 
     if (!coupon) return { ok: false, message: "Cupón no encontrado" };
-    if (!coupon.isActive) return { ok: false, message: "Este cupón ya no está activo" };
+    if (!coupon.isActive) return { ok: false, message: "Este cupón está inactivo" };
+
+    // Validamos el límite de usos
+    if (coupon.maxUses !== null && coupon.usageCount >= coupon.maxUses) {
+      return { ok: false, message: "Este cupón ya alcanzó su límite de usos" };
+    }
 
     return { 
       ok: true, 

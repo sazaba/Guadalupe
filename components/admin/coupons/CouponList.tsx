@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { updateCouponStatus, deleteCoupon } from "@/app/actions/coupons";
-import { Trash2, Power, Ticket, Calendar } from "lucide-react";
+import { Trash2, Power, Ticket, Calendar, Infinity } from "lucide-react";
+import Swal from "sweetalert2";
 
 interface CouponListProps {
   coupons: any[];
@@ -19,15 +20,52 @@ export default function CouponList({ coupons }: CouponListProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("¿Estás seguro de eliminar este cupón? Las órdenes pasadas no se verán afectadas.")) return;
-    setLoadingId(id);
-    await deleteCoupon(id);
-    setLoadingId(null);
+    const result = await Swal.fire({
+      title: '¿Eliminar cupón?',
+      text: "Las órdenes pasadas no se verán afectadas, pero nadie más podrá usarlo.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#E85D9E',
+      cancelButtonColor: '#7B5C73',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        popup: 'rounded-3xl',
+        confirmButton: 'rounded-xl font-bold tracking-wide',
+        cancelButton: 'rounded-xl font-bold tracking-wide'
+      }
+    });
+
+    if (result.isConfirmed) {
+      setLoadingId(id);
+      const res = await deleteCoupon(id);
+      setLoadingId(null);
+
+      if (res && res.ok) {
+        Swal.fire({
+          title: 'Eliminado',
+          text: 'El cupón ha sido eliminado exitosamente.',
+          icon: 'success',
+          confirmButtonColor: '#10b981',
+          timer: 2500,
+          showConfirmButton: false,
+          customClass: { popup: 'rounded-3xl' }
+        });
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo eliminar el cupón.',
+          icon: 'error',
+          confirmButtonColor: '#E85D9E',
+          customClass: { popup: 'rounded-3xl' }
+        });
+      }
+    }
   };
 
   if (!coupons || coupons.length === 0) {
     return (
-      <div className="bg-[#FFFDFE]/80 backdrop-blur-xl border border-[#FAD1E6]/60 rounded-3xl p-12 text-center shadow-sm">
+      <div className="bg-[#FFFDFE]/80 backdrop-blur-xl border border-[#FAD1E6]/60 rounded-3xl p-8 sm:p-12 text-center shadow-sm">
         <div className="w-16 h-16 bg-[#FAD1E6]/30 rounded-full flex items-center justify-center mx-auto mb-4">
           <Ticket className="w-8 h-8 text-[#7B5C73]/50" />
         </div>
@@ -41,23 +79,27 @@ export default function CouponList({ coupons }: CouponListProps) {
 
   return (
     <div className="bg-[#FFFDFE]/80 backdrop-blur-xl border border-[#FAD1E6]/60 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(250,209,230,0.15)]">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+      {/* Wrapper responsive para la tabla */}
+      <div className="overflow-x-auto custom-scrollbar">
+        <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr className="bg-gradient-to-r from-[#FAD1E6]/20 to-transparent border-b border-[#FAD1E6]/60">
-              <th className="py-4 px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest">Código</th>
-              <th className="py-4 px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center">Descuento</th>
-              <th className="py-4 px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center">Estado</th>
-              <th className="py-4 px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center">Fecha</th>
-              <th className="py-4 px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-right">Acciones</th>
+              <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest whitespace-nowrap">Código</th>
+              <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center whitespace-nowrap">Descuento</th>
+              <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center whitespace-nowrap">Usos</th>
+              <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center whitespace-nowrap">Estado</th>
+              <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-center whitespace-nowrap">Fecha</th>
+              <th className="py-4 px-4 sm:px-6 text-[10px] font-bold text-[#7B5C73] uppercase tracking-widest text-right whitespace-nowrap">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <AnimatePresence>
               {coupons.map((coupon) => {
-                // Prisma devuelve Decimal, lo convertimos a número seguro para la vista
                 const discount = Number(coupon.discountPercentage);
                 const isProcessing = loadingId === coupon.id;
+                
+                // Lógica para saber si el cupón ya no tiene usos disponibles
+                const isLimitReached = coupon.maxUses !== null && coupon.usageCount >= coupon.maxUses;
 
                 return (
                   <motion.tr
@@ -69,39 +111,51 @@ export default function CouponList({ coupons }: CouponListProps) {
                     className={`border-b border-[#FAD1E6]/30 hover:bg-[#FAD1E6]/10 transition-colors ${isProcessing ? "opacity-50" : ""}`}
                   >
                     {/* Código */}
-                    <td className="py-4 px-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#33182B] text-white rounded-lg text-sm font-bold tracking-wider">
-                        <Ticket className="w-4 h-4 text-[#E85D9E]" />
+                    <td className="py-4 px-4 sm:px-6 whitespace-nowrap">
+                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-sm font-bold tracking-wider ${isLimitReached ? 'bg-gray-200 text-gray-500' : 'bg-[#33182B] text-white'}`}>
+                        <Ticket className={`w-4 h-4 ${isLimitReached ? 'text-gray-400' : 'text-[#E85D9E]'}`} />
                         {coupon.code}
                       </div>
                     </td>
 
                     {/* Porcentaje */}
-                    <td className="py-4 px-6 text-center">
-                      <span className="text-xl font-display font-bold text-[#E85D9E]">
+                    <td className="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
+                      <span className={`text-xl font-display font-bold ${isLimitReached ? 'text-gray-400' : 'text-[#E85D9E]'}`}>
                         {discount}%
                       </span>
                     </td>
 
+                    {/* Usos */}
+                    <td className="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
+                      <div className="flex flex-col items-center">
+                        <span className={`text-sm font-bold ${isLimitReached ? 'text-gray-400' : 'text-[#33182B]'}`}>
+                          {coupon.usageCount} <span className="text-[#7B5C73] font-normal">/ {coupon.maxUses || <Infinity className="w-4 h-4 inline opacity-50" />}</span>
+                        </span>
+                        {isLimitReached && (
+                          <span className="text-[10px] text-red-500 font-bold uppercase tracking-wider mt-0.5">Agotado</span>
+                        )}
+                      </div>
+                    </td>
+
                     {/* Estado (Toggle) */}
-                    <td className="py-4 px-6 text-center">
+                    <td className="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
                       <button
                         onClick={() => handleToggleStatus(coupon.id, coupon.isActive)}
-                        disabled={isProcessing}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#E85D9E]/50 focus:ring-offset-2 ${
-                          coupon.isActive ? "bg-[#10b981]" : "bg-gray-300"
-                        }`}
+                        disabled={isProcessing || isLimitReached}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                          coupon.isActive && !isLimitReached ? "bg-[#10b981]" : "bg-gray-300"
+                        } ${(isProcessing || isLimitReached) ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         <span
                           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            coupon.isActive ? "translate-x-6" : "translate-x-1"
+                            coupon.isActive && !isLimitReached ? "translate-x-6" : "translate-x-1"
                           }`}
                         />
                       </button>
                     </td>
 
                     {/* Fecha de Creación */}
-                    <td className="py-4 px-6 text-center text-sm font-medium text-[#7B5C73]">
+                    <td className="py-4 px-4 sm:px-6 text-center text-sm font-medium text-[#7B5C73] whitespace-nowrap">
                       <div className="flex items-center justify-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 opacity-70" />
                         {new Date(coupon.createdAt).toLocaleDateString("es-CO", {
@@ -112,17 +166,17 @@ export default function CouponList({ coupons }: CouponListProps) {
                     </td>
 
                     {/* Acciones */}
-                    <td className="py-4 px-6 text-right">
+                    <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleToggleStatus(coupon.id, coupon.isActive)}
-                          disabled={isProcessing}
+                          disabled={isProcessing || isLimitReached}
                           title={coupon.isActive ? "Desactivar" : "Activar"}
                           className={`p-2 rounded-xl transition-all ${
                             coupon.isActive 
                               ? "bg-amber-50 text-amber-600 hover:bg-amber-100" 
                               : "bg-[#ecfdf5] text-[#065f46] hover:bg-[#d1fae5]"
-                          }`}
+                          } ${isLimitReached ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           <Power className="w-4 h-4" />
                         </button>

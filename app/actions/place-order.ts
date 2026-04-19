@@ -102,6 +102,11 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         return { ok: false, message: "El cupón ingresado no es válido o ha expirado." };
       }
 
+      // Validamos si se llegó al límite de usos justo antes de cobrar
+      if (dbCoupon.maxUses !== null && dbCoupon.usageCount >= dbCoupon.maxUses) {
+          return { ok: false, message: "Este cupón ya alcanzó su límite de usos." };
+      }
+
       const discountPercentage = Number(dbCoupon.discountPercentage);
       discountApplied = (totalAmount * discountPercentage) / 100;
     }
@@ -154,8 +159,10 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
         return { ok: false, message: "Hubo un problema al comunicarse con el banco o pasarela." };
     }
 
+    // --- CUPONES: Actualizamos la transacción para sumar el uso ---
     const order = await prisma.$transaction(async (tx) => {
-      return await tx.order.create({
+      // 1. Crear la orden
+      const newOrder = await tx.order.create({
         data: {
           customerName: shippingData.name,
           customerEmail: shippingData.email,
@@ -169,7 +176,7 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           status: 'PAID', 
           isPaid: true,
           stripePaymentId: paymentId, 
-          // --- CUPONES: Guardamos la referencia en la BD ---
+          // Guardamos la referencia en la BD
           couponId: dbCoupon ? dbCoupon.id : null,
           discountApplied: discountApplied > 0 ? discountApplied : null,
           items: {
@@ -177,6 +184,16 @@ export const placeOrder = async (cartItems: CartItem[], shippingData: ShippingDa
           },
         },
       });
+
+      // 2. Si se usó un cupón, sumamos 1 a su contador de usos
+      if (dbCoupon) {
+        await tx.coupon.update({
+          where: { id: dbCoupon.id },
+          data: { usageCount: { increment: 1 } }
+        });
+      }
+
+      return newOrder;
     });
 
     try {

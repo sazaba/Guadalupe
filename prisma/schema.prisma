@@ -63,12 +63,16 @@ model ProductVariation {
   @@unique([productId, size])
 }
 
-// NUEVO: Modelo de Cupones
+// NUEVO: Modelo de Cupones actualizado con límite de usos
 model Coupon {
   id                 String   @id @default(uuid())
   code               String   @unique
   discountPercentage Decimal  @db.Decimal(5, 2)
   isActive           Boolean  @default(true)
+  
+  maxUses            Int?     // Límite opcional (ej: solo 50 usos)
+  usageCount         Int      @default(0) // Cuántas veces se ha usado
+
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -101,7 +105,6 @@ model Order {
   trackingNumber  String?
   courier         String?
 
-  // NUEVO: Relación con Cupones
   couponId        String?
   coupon          Coupon?     @relation(fields: [couponId], references: [id])
   discountApplied Decimal?    @db.Decimal(10, 2)
