@@ -36,6 +36,7 @@ const formatCOP = (price: number) => {
   }).format(Number(price));
 };
 
+// Se rediseña el Wrapper para ocupar todo el ancho superior de la card
 const BoutiqueImageWrapper = ({ image, name }: { image: any, name: string }) => {
   let mainImage = "";
   if (Array.isArray(image) && image.length > 0) {
@@ -50,37 +51,19 @@ const BoutiqueImageWrapper = ({ image, name }: { image: any, name: string }) => 
   }
 
   return (
-    <div className="relative w-52 h-64 md:w-64 md:h-80 mx-auto flex items-center justify-center mt-8 mb-10 transform-gpu">
-      <motion.div 
-        animate={{ rotate: 360 }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-[-15px] md:inset-[-20px] rounded-full border border-dashed border-[#FAD1E6] opacity-60 pointer-events-none"
-      ></motion.div>
-      <motion.div 
-        animate={{ rotate: -360 }}
-        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-[-25px] md:inset-[-32px] rounded-full border border-[#FAD1E6]/30 pointer-events-none"
-      >
-        <div className="absolute top-3 right-5 md:top-4 md:right-6 w-2 h-2 bg-[#E85D9E] rounded-full shadow-[0_0_10px_#E85D9E]"></div>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [-6, 6, -6] }} 
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2rem] md:rounded-[2.5rem] border-[3px] border-white shadow-[0_15px_30px_-8px_rgba(232,93,158,0.25)] flex items-center justify-center z-20 overflow-hidden group-hover:border-[#FAD1E6]/80 transition-colors duration-500"
-      >
-        {mainImage && (
-            <Image 
-              src={mainImage} 
-              alt={name} 
-              fill={true}
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
-              priority={true}
-            />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 to-transparent pointer-events-none"></div>
-      </motion.div>
+    <div className="relative w-full aspect-[4/5] overflow-hidden rounded-t-[2.5rem] bg-[#FAD1E6]/10">
+      {mainImage && (
+        <Image 
+          src={mainImage} 
+          alt={name} 
+          fill={true}
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-700"
+          priority={true}
+        />
+      )}
+      {/* Gradiente sutil para que los textos claros destaquen si hubieran */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
     </div>
   );
 };
@@ -151,7 +134,7 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 min-h-[400px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 min-h-[400px]">
           <AnimatePresence mode="popLayout">
             {displayProducts.map((product, index) => {
               return (
@@ -161,53 +144,56 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
-                  whileHover={{ y: -10 }}
-                  className="w-full group relative rounded-[2.5rem] transition-all duration-500 bg-white/80 border backdrop-blur-xl transform-gpu border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)]"
+                  whileHover={{ y: -5 }}
+                  className="w-full group relative rounded-[2.5rem] transition-all duration-500 bg-white border border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)] flex flex-col overflow-hidden"
                 >
-                  <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-6 w-full h-full">
+                  <Link href={`/product/${product.slug}`} className="flex flex-col h-full w-full">
                       
                       {product.stock < 50 && (
-                        <span className="absolute top-5 right-5 z-30 bg-gradient-to-r from-[#FFA8C5] to-[#E85D9E] text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
+                        <span className="absolute top-4 right-4 z-30 bg-[#FFFDFE]/90 backdrop-blur-sm text-[#E85D9E] border border-[#FAD1E6] text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
                             <Sparkles className="w-3 h-3" /> MÁS VENDIDO
                         </span>
                       )}
 
-                      <div className="relative z-10 w-full mb-2 mt-2">
-                          <BoutiqueImageWrapper image={product.images} name={product.name} />
-                      </div>
+                      {/* Imagen que ocupa todo el ancho superior */}
+                      <BoutiqueImageWrapper image={product.images} name={product.name} />
 
-                      <div className="w-full px-2 relative z-10 mt-auto">
+                      {/* Contenedor inferior de información (separado de la imagen) */}
+                      <div className="p-6 flex flex-col flex-1 justify-between bg-white">
                           
-                          <h3 className="text-xl font-display font-bold mb-1 leading-tight text-[#33182B]">
-                            {product.name}
-                          </h3>
+                          <div>
+                            <p className="text-[11px] text-[#7B5C73] font-bold mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                <Crown className="w-3.5 h-3.5 text-[#FFA8C5]" /> {product.category}
+                            </p>
+                            
+                            <h3 className="text-xl font-display font-bold mb-4 leading-tight text-[#33182B] line-clamp-2">
+                              {product.name}
+                            </h3>
+                          </div>
                           
-                          <p className="text-xs text-[#7B5C73] font-medium mb-6 flex items-center justify-center gap-1.5">
-                              <Crown className="w-3.5 h-3.5 text-[#FFA8C5]" /> Diseño Exclusivo
-                          </p>
-                          
-                          <div className="border-t border-[#FAD1E6]/50 pt-5 w-full">
-                              <div className="flex justify-between items-center mb-5">
+                          <div className="mt-auto">
+                              <div className="flex justify-between items-end mb-5">
                                   <span className="text-2xl font-bold font-sans text-[#E85D9E]">
                                     {formatCOP(product.price)}
                                   </span>
                                   
-                                  <div className="flex items-center gap-1.5 bg-[#FAD1E6]/30 px-3 py-1.5 rounded-full border border-[#FAD1E6]">
+                                  <div className="flex items-center gap-1.5 bg-[#FAD1E6]/20 px-2.5 py-1 rounded-md">
                                       <div className="w-1.5 h-1.5 rounded-full bg-[#E85D9E] animate-pulse"></div>
-                                      <span className="text-[9px] uppercase font-bold text-[#E85D9E] tracking-wider">Disponible</span>
+                                      <span className="text-[10px] uppercase font-bold text-[#E85D9E] tracking-wider">Disponible</span>
                                   </div>
                               </div>
 
                               <div className="grid grid-cols-2 gap-3">
-                                  <div className="flex items-center justify-center gap-1.5 bg-white border border-[#FAD1E6] text-[#7B5C73] px-3 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider hover:bg-[#FAD1E6]/20 transition-colors">
+                                  <div className="flex items-center justify-center gap-1.5 bg-white border border-[#FAD1E6] text-[#7B5C73] px-3 py-3.5 rounded-2xl text-[11px] font-bold uppercase tracking-wider hover:bg-[#FAD1E6]/20 transition-colors">
                                       <Eye className="w-4 h-4" /> Detalles
                                   </div>
                                   
-                                  <div className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm touch-manipulation bg-[#E85D9E] text-white hover:bg-[#D14D8B] hover:shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer">
+                                  <div className="flex items-center justify-center gap-1.5 px-3 py-3.5 rounded-2xl text-[11px] font-bold uppercase tracking-wider transition-all shadow-[0_4px_15px_-3px_rgba(232,93,158,0.3)] bg-[#E85D9E] text-white hover:bg-[#D14D8B] active:scale-95 cursor-pointer">
                                       Ver Tallas
                                   </div>
                               </div>
                           </div>
+
                       </div>
                   </Link>
                 </motion.div>
