@@ -43,36 +43,36 @@ const BoutiqueImageWrapper = ({ image, name }: { image: any, name: string }) => 
   }
 
   return (
-    <div className="relative w-32 h-40 md:w-40 md:h-52 mx-auto flex items-center justify-center mt-4 mb-6">
+    <div className="relative w-48 h-60 md:w-56 md:h-72 mx-auto flex items-center justify-center mt-6 mb-8 transform-gpu">
       <motion.div 
         animate={{ rotate: 360 }}
         transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-[-10px] md:inset-[-15px] rounded-full border border-dashed border-[#FAD1E6] opacity-60 pointer-events-none"
-      />
+        className="absolute inset-[-12px] md:inset-[-18px] rounded-full border border-dashed border-[#FAD1E6] opacity-60 pointer-events-none"
+      ></motion.div>
       <motion.div 
         animate={{ rotate: -360 }}
         transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="absolute inset-[-18px] md:inset-[-25px] rounded-full border border-[#FAD1E6]/30 pointer-events-none"
+        className="absolute inset-[-22px] md:inset-[-30px] rounded-full border border-[#FAD1E6]/30 pointer-events-none"
       >
-        <div className="absolute top-2 right-4 w-1.5 h-1.5 bg-[#E85D9E] rounded-full shadow-[0_0_8px_#E85D9E]" />
+        <div className="absolute top-2 right-4 md:top-3 md:right-5 w-2 h-2 bg-[#E85D9E] rounded-full shadow-[0_0_10px_#E85D9E]"></div>
       </motion.div>
 
       <motion.div
         animate={{ y: [-5, 5, -5] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2rem] border-[3px] border-white shadow-[0_15px_30px_-8px_rgba(232,93,158,0.25)] flex items-center justify-center z-20 overflow-hidden group-hover:border-[#FAD1E6]/80 transition-colors duration-500"
+        className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-[2rem] md:rounded-[2.5rem] border-[3px] border-white shadow-[0_15px_30px_-8px_rgba(232,93,158,0.25)] flex items-center justify-center z-20 overflow-hidden group-hover:border-[#FAD1E6]/80 transition-colors duration-500"
       >
         {mainImage && (
             <Image 
-            src={mainImage} 
-            alt={name} 
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
-            priority={true}
+              src={mainImage} 
+              alt={name} 
+              fill={true}
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
+              priority={true}
             />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#33182B]/10 to-transparent pointer-events-none"></div>
       </motion.div>
     </div>
   );
@@ -95,7 +95,6 @@ export default function CatalogModal({ products, onClose }: { products: Product[
   }, []);
 
   useEffect(() => {
-    // Filtro inicial estricto de stock por si este modal se llama desde otro lado sin filtrar
     let result = products.filter(p => Number(p.stock) > 0);
     
     if (selectedCategory !== "Todos") {
@@ -131,11 +130,11 @@ export default function CatalogModal({ products, onClose }: { products: Product[
             <motion.div 
               initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5 }}
               className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#FAD1E6]/50 rounded-full blur-[120px]" 
-            />
+            ></motion.div>
             <motion.div 
               initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.5, delay: 0.2 }}
               className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#FFA8C5]/30 rounded-full blur-[120px]" 
-            />
+            ></motion.div>
         </div>
 
         <div className="relative z-10 flex items-center justify-between p-5 md:p-8 border-b border-[#FAD1E6]/50 shrink-0 bg-white/60 backdrop-blur-md shadow-sm">
