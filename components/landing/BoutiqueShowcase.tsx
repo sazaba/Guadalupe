@@ -6,14 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import CatalogModal from "./CatalogModal";
 
-// Actualizamos el tipo a 'any' para evitar que TS moleste por el JSON
 interface Product {
   id: string;
   name: string;
   category: string;
   price: number;
   stock: number;
-  images: any; // <-- CAMBIO AQUÍ
+  images: any;
   purity?: string;
   slug: string;
   description?: string;
@@ -29,7 +28,6 @@ const CATEGORY_MAP: Record<string, string> = {
   "Sport": "sport"
 };
 
-// Formateador de moneda colombiana
 const formatCOP = (price: number) => {
   return new Intl.NumberFormat('es-CO', {
     style: 'currency',
@@ -38,8 +36,7 @@ const formatCOP = (price: number) => {
   }).format(Number(price));
 };
 
-const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: any, name: string, isOOS: boolean }) => {
-  // --- SOLUCIÓN: EXTRAER FOTO PRINCIPAL DE FORMA SEGURA ---
+const BoutiqueImageWrapper = ({ image, name }: { image: any, name: string }) => {
   let mainImage = "";
   if (Array.isArray(image) && image.length > 0) {
       mainImage = String(image[0]);
@@ -78,7 +75,7 @@ const BoutiqueImageWrapper = ({ image, name, isOOS }: { image: any, name: string
             alt={name} 
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
-            className={`object-cover scale-105 group-hover:scale-110 transition-transform duration-700 ${isOOS ? "grayscale opacity-50" : ""}`}
+            className="object-cover scale-105 group-hover:scale-110 transition-transform duration-700"
             priority={true}
             />
         )}
@@ -92,7 +89,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [isCatalogOpen, setCatalogOpen] = useState(false);
 
-  const inStockProducts = products.filter(p => p.stock > 0);
+  // Filtro estricto convirtiendo a número para evitar problemas con datos de Prisma
+  const inStockProducts = products.filter(p => Number(p.stock) > 0);
 
   const filteredProducts = activeCategory === "Todos" 
     ? inStockProducts 
@@ -154,12 +152,9 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
         </motion.div>
       </div>
 
-      {/* Grid de Productos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 min-h-[400px]">
         <AnimatePresence mode="popLayout">
           {displayProducts.map((product, index) => {
-            const isOOS = product.stock <= 0;
-
             return (
               <motion.div
                 key={product.id}
@@ -168,25 +163,23 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
                 whileHover={{ y: -10 }}
-                className={`w-full group relative rounded-[2.5rem] transition-all duration-500 
-                           bg-white/80 border backdrop-blur-xl transform-gpu
-                           ${isOOS ? "border-gray-200" : "border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)]"}`}
+                className="w-full group relative rounded-[2.5rem] transition-all duration-500 bg-white/80 border backdrop-blur-xl transform-gpu border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)]"
               >
                 <Link href={`/product/${product.slug}`} className="flex flex-col items-center text-center p-6 w-full h-full">
                     
-                    {!isOOS && product.stock < 50 && (
+                    {product.stock < 50 && (
                       <span className="absolute top-5 right-5 z-30 bg-gradient-to-r from-[#FFA8C5] to-[#E85D9E] text-white text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
                           <Sparkles className="w-3 h-3" /> MÁS VENDIDO
                       </span>
                     )}
 
                     <div className="relative z-10 w-full mb-2 mt-2">
-                        <BoutiqueImageWrapper image={product.images} name={product.name} isOOS={isOOS} />
+                        <BoutiqueImageWrapper image={product.images} name={product.name} />
                     </div>
 
                     <div className="w-full px-2 relative z-10 mt-auto">
                         
-                        <h3 className={`text-xl font-display font-bold mb-1 leading-tight ${isOOS ? "text-[#94A3B8]" : "text-[#33182B]"}`}>
+                        <h3 className="text-xl font-display font-bold mb-1 leading-tight text-[#33182B]">
                           {product.name}
                         </h3>
                         
@@ -196,21 +189,14 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                         
                         <div className="border-t border-[#FAD1E6]/50 pt-5 w-full">
                             <div className="flex justify-between items-center mb-5">
-                                <span className={`text-2xl font-bold font-sans ${isOOS ? "text-[#94A3B8] line-through decoration-1" : "text-[#E85D9E]"}`}>
+                                <span className="text-2xl font-bold font-sans text-[#E85D9E]">
                                   {formatCOP(product.price)}
                                 </span>
                                 
-                                {isOOS ? (
-                                  <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>
-                                      <span className="text-[9px] uppercase font-bold text-gray-500 tracking-wider">Agotado</span>
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center gap-1.5 bg-[#FAD1E6]/30 px-3 py-1.5 rounded-full border border-[#FAD1E6]">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-[#E85D9E] animate-pulse"></div>
-                                      <span className="text-[9px] uppercase font-bold text-[#E85D9E] tracking-wider">Disponible</span>
-                                  </div>
-                                )}
+                                <div className="flex items-center gap-1.5 bg-[#FAD1E6]/30 px-3 py-1.5 rounded-full border border-[#FAD1E6]">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#E85D9E] animate-pulse"></div>
+                                    <span className="text-[9px] uppercase font-bold text-[#E85D9E] tracking-wider">Disponible</span>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
@@ -218,14 +204,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
                                     <Eye className="w-4 h-4" /> Detalles
                                 </div>
                                 
-                                <div 
-                                    className={`flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm touch-manipulation ${
-                                        isOOS 
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200"
-                                        : "bg-[#E85D9E] text-white hover:bg-[#D14D8B] hover:shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer"
-                                    }`}
-                                >
-                                    {isOOS ? "Agotado" : "Ver Tallas"}
+                                <div className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm touch-manipulation bg-[#E85D9E] text-white hover:bg-[#D14D8B] hover:shadow-[0_4px_15px_-3px_rgba(232,93,158,0.4)] active:scale-95 cursor-pointer">
+                                    Ver Tallas
                                 </div>
                             </div>
                         </div>
@@ -259,7 +239,8 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
     </section>
 
     <AnimatePresence>
-      {isCatalogOpen && <CatalogModal products={products} onClose={() => setCatalogOpen(false)} />}
+      {/* Pasamos solo los productos en stock al modal para no depender de la lógica interna de este si se reutiliza */}
+      {isCatalogOpen && <CatalogModal products={inStockProducts} onClose={() => setCatalogOpen(false)} />}
     </AnimatePresence>
     </>
   );
