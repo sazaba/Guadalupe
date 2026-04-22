@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { 
   Menu, 
   X, 
@@ -25,6 +26,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
+  const pathname = usePathname();
   const { toggleCart, cartCount } = useCart();
   const lastScrollY = useRef(0);
 
@@ -74,7 +76,11 @@ export default function Navbar() {
 
   // Scroll suave hacia las secciones
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // Extraemos el ID de la url (ej. "/#catalog" -> "catalog")
+    // Si NO estamos en el inicio, no hacemos nada extra. 
+    // Dejamos que Next.js navegue naturalmente a la URL (ej. /#catalog)
+    if (pathname !== "/") return;
+
+    // Si estamos en el inicio, hacemos el scroll suave
     if (href.includes("#")) {
       e.preventDefault();
       const targetId = href.split("#")[1];
