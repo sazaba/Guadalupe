@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Eye, Sparkles, Crown } from "lucide-react";
+import { ArrowRight, Eye, Sparkles, Crown, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import CatalogModal from "./CatalogModal";
@@ -136,69 +136,93 @@ export default function ProductShowcase({ products }: { products: Product[] }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 min-h-[400px]">
           <AnimatePresence mode="popLayout">
-            {displayProducts.map((product, index) => {
-              return (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
-                  whileHover={{ y: -5 }}
-                  className="w-full group relative rounded-[2.5rem] transition-all duration-500 bg-white border border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)] flex flex-col overflow-hidden"
-                >
-                  <Link href={`/product/${product.slug}`} className="flex flex-col h-full w-full">
-                      
-                      {product.stock < 50 && (
-                        <span className="absolute top-4 right-4 z-30 bg-[#FFFDFE]/90 backdrop-blur-sm text-[#E85D9E] border border-[#FAD1E6] text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
-                            <Sparkles className="w-3 h-3" /> MÁS VENDIDO
-                        </span>
-                      )}
+            {displayProducts.length > 0 ? (
+              displayProducts.map((product, index) => {
+                return (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, delay: index * 0.1, ease: "easeOut" }}
+                    whileHover={{ y: -5 }}
+                    className="w-full group relative rounded-[2.5rem] transition-all duration-500 bg-white border border-[#FAD1E6]/50 hover:border-[#E85D9E]/40 shadow-[0_8px_30px_rgb(232,93,158,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(232,93,158,0.15)] flex flex-col overflow-hidden"
+                  >
+                    <Link href={`/product/${product.slug}`} className="flex flex-col h-full w-full">
+                        
+                        {product.stock < 50 && (
+                          <span className="absolute top-4 right-4 z-30 bg-[#FFFDFE]/90 backdrop-blur-sm text-[#E85D9E] border border-[#FAD1E6] text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                              <Sparkles className="w-3 h-3" /> MÁS VENDIDO
+                          </span>
+                        )}
 
-                      {/* Imagen que ocupa todo el ancho superior */}
-                      <BoutiqueImageWrapper image={product.images} name={product.name} />
+                        <BoutiqueImageWrapper image={product.images} name={product.name} />
 
-                      {/* Contenedor inferior de información (separado de la imagen) */}
-                      <div className="p-6 flex flex-col flex-1 justify-between bg-white">
-                          
-                          <div>
-                            <p className="text-[11px] text-[#7B5C73] font-bold mb-2 uppercase tracking-widest flex items-center gap-1.5">
-                                <Crown className="w-3.5 h-3.5 text-[#FFA8C5]" /> {product.category}
-                            </p>
+                        <div className="p-6 flex flex-col flex-1 justify-between bg-white">
+                            <div>
+                              <p className="text-[11px] text-[#7B5C73] font-bold mb-2 uppercase tracking-widest flex items-center gap-1.5">
+                                  <Crown className="w-3.5 h-3.5 text-[#FFA8C5]" /> {product.category}
+                              </p>
+                              
+                              <h3 className="text-xl font-display font-bold mb-4 leading-tight text-[#33182B] line-clamp-2">
+                                {product.name}
+                              </h3>
+                            </div>
                             
-                            <h3 className="text-xl font-display font-bold mb-4 leading-tight text-[#33182B] line-clamp-2">
-                              {product.name}
-                            </h3>
-                          </div>
-                          
-                          <div className="mt-auto">
-                              <div className="flex justify-between items-end mb-5">
-                                  <span className="text-2xl font-bold font-sans text-[#E85D9E]">
-                                    {formatCOP(product.price)}
-                                  </span>
-                                  
-                                  <div className="flex items-center gap-1.5 bg-[#FAD1E6]/20 px-2.5 py-1 rounded-md">
-                                      <div className="w-1.5 h-1.5 rounded-full bg-[#E85D9E] animate-pulse"></div>
-                                      <span className="text-[10px] uppercase font-bold text-[#E85D9E] tracking-wider">Disponible</span>
-                                  </div>
-                              </div>
+                            <div className="mt-auto">
+                                <div className="flex justify-between items-end mb-5">
+                                    <span className="text-2xl font-bold font-sans text-[#E85D9E]">
+                                      {formatCOP(product.price)}
+                                    </span>
+                                    
+                                    <div className="flex items-center gap-1.5 bg-[#FAD1E6]/20 px-2.5 py-1 rounded-md">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-[#E85D9E] animate-pulse"></div>
+                                        <span className="text-[10px] uppercase font-bold text-[#E85D9E] tracking-wider">Disponible</span>
+                                    </div>
+                                </div>
 
-                              <div className="grid grid-cols-2 gap-3">
-                                  <div className="flex items-center justify-center gap-1.5 bg-white border border-[#FAD1E6] text-[#7B5C73] px-3 py-3.5 rounded-2xl text-[11px] font-bold uppercase tracking-wider hover:bg-[#FAD1E6]/20 transition-colors">
-                                      <Eye className="w-4 h-4" /> Detalles
-                                  </div>
-                                  
-                                  <div className="flex items-center justify-center gap-1.5 px-3 py-3.5 rounded-2xl text-[11px] font-bold uppercase tracking-wider transition-all shadow-[0_4px_15px_-3px_rgba(232,93,158,0.3)] bg-[#E85D9E] text-white hover:bg-[#D14D8B] active:scale-95 cursor-pointer">
-                                      Ver Tallas
-                                  </div>
-                              </div>
-                          </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="flex items-center justify-center gap-1.5 bg-white border border-[#FAD1E6] text-[#7B5C73] px-3 py-3.5 rounded-2xl text-[11px] font-bold uppercase tracking-wider hover:bg-[#FAD1E6]/20 transition-colors">
+                                        <Eye className="w-4 h-4" /> Detalles
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-center gap-1.5 px-3 py-3.5 rounded-2xl text-[11px] font-bold uppercase tracking-wider transition-all shadow-[0_4px_15px_-3px_rgba(232,93,158,0.3)] bg-[#E85D9E] text-white hover:bg-[#D14D8B] active:scale-95 cursor-pointer">
+                                        Ver Tallas
+                                    </div>
+                                </div>
+                            </div>
 
-                      </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
+                        </div>
+                    </Link>
+                  </motion.div>
+                );
+              })
+            ) : (
+              <motion.div
+                key="empty-state"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4 }}
+                className="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center h-full"
+              >
+                <div className="w-20 h-20 mb-6 rounded-full bg-[#FAD1E6]/30 flex items-center justify-center">
+                  <ShoppingBag className="w-10 h-10 text-[#E85D9E]/60" />
+                </div>
+                <h3 className="text-2xl font-display font-bold text-[#33182B] mb-2">
+                  Pronto llegarán cosas mágicas
+                </h3>
+                <p className="text-[#7B5C73] max-w-md mx-auto mb-8 font-medium">
+                  Actualmente estamos confeccionando nuevas prendas para esta categoría. ¡Vuelve pronto para descubrir nuestras novedades!
+                </p>
+                <button
+                  onClick={() => setActiveCategory("Todos")}
+                  className="px-6 py-2.5 bg-white border border-[#FAD1E6] text-[#E85D9E] font-bold rounded-full hover:bg-[#FAD1E6]/20 transition-all active:scale-95 shadow-sm cursor-pointer"
+                >
+                  Ver todos los productos
+                </button>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
